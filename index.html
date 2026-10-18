@@ -1,0 +1,1552 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a2b">
+<title>Nadamos por la Milanga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Barlow:wght@400;600;700&display=swap">
+<style>
+/* Layout: columna única tipo consola portátil; tablero arriba, pileta pixel art al medio, botón de respirar abajo, ranking y reglas debajo. */
+:root{
+  --bg:#101a2b;
+  --bg-tile:#16243a;
+  --panel:#0c1422;
+  --ink:#F1F5FA;
+  --muted:#9AAFC6;
+  --cap:#FFB31A;
+  --butter:#FF7AD9;
+  --frog:#5BD35B;
+  --air:#8FE3FF;
+  --font-pixel:"Press Start 2P","Courier New",ui-monospace,monospace;
+  --font-body:"Barlow","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{
+  font-family:var(--font-body);font-size:16px;line-height:1.45;
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--bg-tile) 2px,transparent 2px),linear-gradient(90deg,var(--bg-tile) 2px,transparent 2px);
+  background-size:24px 24px;
+}
+.wrap{max-width:480px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:flex;flex-direction:column;gap:12px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font-family:var(--font-pixel);font-weight:400;font-size:1.05rem;line-height:1.3;margin:0;letter-spacing:.02em;text-wrap:balance;text-shadow:3px 3px 0 #000}
+h1 span{color:var(--cap)}
+.tag{font-family:var(--font-pixel);font-size:.55rem;color:var(--muted);letter-spacing:.06em}
+
+.board{display:grid;grid-template-columns:auto repeat(3,1fr);gap:3px;background:#000;border:3px solid #000;box-shadow:4px 4px 0 #000}
+.avatar{grid-row:span 2;background:#2E9ED8;display:flex;align-items:center;justify-content:center;padding:4px}
+.avatar canvas{width:72px;height:72px;image-rendering:pixelated;display:block}
+@media (max-width:380px){.avatar canvas{width:56px;height:56px}}
+.cell{background:var(--panel);padding:7px 8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cell.wide{grid-column:span 2}
+.cell small{font-family:var(--font-pixel);font-size:.48rem;letter-spacing:.08em;color:#7D90A8}
+.cell b{font-family:var(--font-pixel);font-weight:400;font-size:.95rem;color:var(--cap);font-variant-numeric:tabular-nums;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell b.big{font-size:1.3rem}
+.style-name{display:flex;align-items:center;gap:6px}
+.style-name b{font-size:.72rem}
+.style-name i{font-style:normal;font-family:var(--font-pixel);font-size:.6rem;color:#000;background:var(--cap);padding:2px 4px}
+.style-bar{height:4px;background:#24324A}
+.style-bar div{height:100%;width:0;background:var(--cap)}
+.pips{display:flex;gap:5px;align-items:center;height:14px}
+.pip{width:10px;height:10px;background:#27344A}
+.pip.air.on{background:var(--air)}
+.pip.life.on{background:#FF5A4E}
+
+.stage{position:relative;border:4px solid #000;box-shadow:5px 5px 0 #000;background:#2f9fd6}
+canvas{display:block;width:100%;touch-action:none;image-rendering:pixelated}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:12px;padding:18px;text-align:center;background:rgba(8,14,26,.88);overflow-y:auto}
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:380px}
+.char{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border:3px solid #000;background:#1B2A44;color:var(--ink);cursor:pointer;box-shadow:3px 3px 0 #000;font:inherit;min-width:0}
+.char canvas{width:52px;height:52px;max-width:100%;image-rendering:pixelated;border:2px solid #000;background:#2E9ED8}
+.char b{font-family:var(--font-pixel);font-weight:400;font-size:.58rem}
+.char[aria-checked=true]{background:#33496E;border-color:var(--cap);box-shadow:0 0 0 2px #000,3px 3px 0 #000}
+.char:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.char-info{min-height:3.6em;max-width:320px;display:flex;flex-direction:column;gap:3px}
+.char-info .tagline{font-weight:700;color:var(--cap);font-size:.95rem}
+.char-info .perk{font-size:.88rem;color:#D7E2EE}
+.overlay h2{font-family:var(--font-pixel);font-weight:400;font-size:1rem;line-height:1.4;margin:0;text-wrap:balance;color:var(--cap);text-shadow:3px 3px 0 #000}
+.overlay p{margin:0;max-width:32ch;color:#D7E2EE}
+.overlay .score{font-family:var(--font-pixel);font-size:1.6rem;color:var(--ink);line-height:1.2}
+.overlay .sub{font-family:var(--font-pixel);font-size:.6rem;color:var(--muted);line-height:1.6}
+.legend{display:grid;grid-template-columns:60px 1fr;gap:6px 10px;align-items:center;text-align:left;font-size:.92rem;color:#D7E2EE}
+.legend canvas{width:40px;height:40px;image-rendering:pixelated;justify-self:center}
+.legend canvas[data-icon=gordo]{width:60px;height:60px}
+.field{display:flex;flex-direction:column;gap:5px;width:100%;max-width:260px;text-align:left}
+.field label{font-family:var(--font-pixel);font-size:.5rem;letter-spacing:.06em;color:var(--muted)}
+input[type=text]{font:inherit;font-size:1rem;padding:9px 11px;border:3px solid #000;background:#F1F5FA;color:#101a2b;width:100%;box-sizing:border-box}
+input[type=text]:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
+.btn{font-family:var(--font-pixel);font-weight:400;font-size:.75rem;letter-spacing:.02em;border:3px solid #000;padding:12px 16px;cursor:pointer;background:var(--cap);color:#1A1200;box-shadow:4px 4px 0 #000}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.btn.ghost{background:#F1F5FA;color:#101a2b}
+.btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.copybox{width:100%;max-width:300px;font-size:.85rem}
+
+.breathe{position:relative;width:100%;font-family:var(--font-pixel);font-weight:400;font-size:.9rem;letter-spacing:.04em;padding:16px;border:3px solid #000;cursor:pointer;color:#0b2633;background:#5D7891;box-shadow:4px 4px 0 #000;touch-action:manipulation;overflow:hidden;user-select:none;-webkit-user-select:none}
+.breathe .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.45);pointer-events:none}
+.breathe span{position:relative}
+.breathe.ready{background:var(--air)}
+.breathe:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.breathe:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions .breathe{font-size:.78rem;padding:16px 8px}
+.breathe.special{background:#B98A1E;color:#1A1200}
+.breathe.special.ready{background:var(--cap)}
+.breathe.special .fill{background:rgba(0,0,0,.28);left:auto;right:0}
+.prize{display:flex;flex-direction:column;align-items:center;gap:6px}
+.prize canvas{width:168px;height:112px;image-rendering:pixelated}
+.prize span{font-family:var(--font-pixel);font-size:.55rem;color:var(--cap);line-height:1.6;max-width:30ch}
+.hint{font-size:.82rem;color:var(--muted);text-align:center;margin:-2px 0 0}
+
+section.panel{background:rgba(12,20,34,.95);border:3px solid #000;box-shadow:4px 4px 0 #000;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;margin:0;letter-spacing:.04em;color:var(--cap)}
+.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+.rank li{display:grid;grid-template-columns:2.4ch 1fr auto;gap:10px;align-items:baseline;padding:6px 8px}
+.rank li:nth-child(odd){background:rgba(255,255,255,.04)}
+.rank li.me{background:rgba(255,179,26,.15)}
+.rank .pos{font-family:var(--font-pixel);font-size:.6rem;color:var(--muted)}
+.rank .who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.rank .m{font-family:var(--font-pixel);font-size:.62rem;color:var(--cap)}
+.note{font-size:.85rem;color:var(--muted);margin:0}
+.styles{display:grid;grid-template-columns:auto 1fr auto;gap:8px 12px;align-items:center;font-size:.92rem}
+.styles .k{font-family:var(--font-pixel);font-size:.55rem}
+.styles .x{font-family:var(--font-pixel);font-size:.6rem;color:var(--cap)}
+.how{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;font-size:.93rem;color:#D7E2EE}
+.how b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.btn:active,.breathe:active{transform:none}}
+#loader{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px;background:var(--bg);background-image:linear-gradient(var(--bg-tile) 2px,transparent 2px),linear-gradient(90deg,var(--bg-tile) 2px,transparent 2px);background-size:24px 24px;transition:opacity .45s ease}
+#loader.out{opacity:0;pointer-events:none}
+#loader .art{display:flex;align-items:flex-end;gap:22px}
+#loader canvas{image-rendering:pixelated}
+#ldBalloon{width:96px;height:132px;animation:float 2.2s ease-in-out infinite}
+#ldMila{width:192px;height:128px}
+#loader h2{font-family:var(--font-pixel);font-weight:400;font-size:1rem;line-height:1.4;margin:0;text-align:center;text-shadow:3px 3px 0 #000}
+#loader h2 span{color:var(--cap)}
+.ldbar{width:min(260px,80vw);height:14px;border:3px solid #000;background:#24324A;box-shadow:3px 3px 0 #000}
+.ldbar div{height:100%;width:0;background:var(--cap);animation:fill 1.9s steps(12) forwards}
+.ldtxt{font-family:var(--font-pixel);font-size:.55rem;color:var(--muted)}
+@keyframes fill{to{width:100%}}
+@keyframes float{50%{transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){#ldBalloon{animation:none}.ldbar div{animation-duration:.4s}}
+@media (max-width:400px){#ldBalloon{width:72px;height:99px}#ldMila{width:150px;height:100px}}
+</style>
+</head>
+<body>
+
+<div id="loader" role="status" aria-label="Cargando">
+  <div class="art"><canvas id="ldBalloon" width="24" height="33"></canvas><canvas id="ldMila" width="48" height="32"></canvas></div>
+  <h2>Nadamos por la <span>Milanga</span></h2>
+  <div class="ldbar"><div></div></div>
+  <div class="ldtxt">CALENTANDO EL ACEITE…</div>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>Nadamos por la <span>Milanga</span></h1>
+    <div class="tag">CARRIL RÁPIDO · 25 M</div>
+  </header>
+
+  <div class="board">
+    <div class="avatar"><canvas id="face" width="24" height="24" aria-label="Cara del nadador"></canvas></div>
+    <div class="cell wide"><small>PUNTOS</small><b class="big" id="hudP">0</b></div>
+    <div class="cell"><small>ESTILO</small><div class="style-name"><b id="hudS">CROL</b><i id="hudX">x2</i></div><div class="style-bar"><div id="hudSBar"></div></div></div>
+    <div class="cell"><small>METROS</small><b id="hudM">0</b></div>
+    <div class="cell"><small>AIRE</small><div class="pips" id="hudAir"></div></div>
+    <div class="cell"><small>GORRAS</small><div class="pips" id="hudLives"></div></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="Pileta en pixel art: tu nadador esquiva obstáculos por los andariveles"></canvas>
+
+    <div class="overlay" id="ovStart">
+      <h2>Elegí nadador</h2>
+      <div class="picker" id="picker" role="radiogroup" aria-label="Personaje"></div>
+      <div class="char-info"><span class="tagline" id="charTag"></span><span class="perk" id="charPerk"></span></div>
+      <div class="field">
+        <label for="alias">TU APODO</label>
+        <input type="text" id="alias" maxlength="18" autocomplete="nickname" placeholder="Ej: El Tiburón de San Justo">
+      </div>
+      <button class="btn" id="btnStart">LARGAR</button>
+    </div>
+
+    <div class="overlay" id="ovOver" hidden>
+      <h2 id="overTitle">AFUERA DEL AGUA</h2>
+      <div class="prize"><canvas id="mila" width="48" height="32" aria-label="Milanesa a la napolitana"></canvas><span id="prizeText">TU PREMIO: UNA MILANESA A LA NAPOLITANA</span></div>
+      <div class="score" id="overP">0</div>
+      <div class="sub" id="overSub"></div>
+      <p id="overCause"></p>
+      <p id="overExtra" class="note"></p>
+      <div class="row">
+        <button class="btn" id="btnAgain">VOLVER A JUGAR</button>
+        <button class="btn ghost" id="btnShare">COPIAR MARCA</button>
+      </div>
+      <input type="text" class="copybox" id="shareText" readonly hidden aria-label="Texto para copiar">
+      <p class="note" id="shareMsg" hidden></p>
+    </div>
+
+    <div class="overlay" id="ovPause" hidden>
+      <h2>PAUSA</h2>
+      <p>El agua te espera.</p>
+      <button class="btn" id="btnResume">SEGUIR</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="breathe" id="btnBreathe" type="button"><div class="fill" id="breatheFill"></div><span id="breatheLabel">RESPIRAR</span></button>
+    <button class="breathe special ready" id="btnSpecial" type="button"><div class="fill" id="specialFill"></div><span id="specialLabel">CAMINAR</span></button>
+  </div>
+  <p class="hint">Tocá a la izquierda o derecha de la pileta (o deslizá) para cambiar de andarivel. En compu: ← → para cambiar de andarivel, ↑ para el botón especial y ↓ para respirar.</p>
+
+  <section class="panel" aria-labelledby="rankTitle">
+    <h3 id="rankTitle">RANKING DEL GRUPO</h3>
+    <ol class="rank" id="rankList"></ol>
+    <p class="note" id="rankNote">Cargando el ranking…</p>
+    <p class="note" id="myBest"></p>
+  </section>
+
+  <section class="panel" id="visitsPanel" aria-labelledby="visitsTitle" hidden>
+    <h3 id="visitsTitle">VISITAS · MODO ADMIN</h3>
+    <p class="note" id="visitsTxt">Contando…</p>
+  </section>
+
+  <section class="panel" aria-labelledby="stTitle">
+    <h3 id="stTitle">ESTILOS</h3>
+    <div class="styles">
+      <span class="k">PECHO</span><span>El más lento. Te lo contagia la rana.</span><span class="x">x1</span>
+      <span class="k">CROL</span><span>Tu estilo normal.</span><span class="x">x2</span>
+      <span class="k">MARIPOSA</span><span>Turbo por unos segundos. Si chocás, lo perdés.</span><span class="x">x3</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="howTitle">
+    <h3 id="howTitle">CÓMO SE JUEGA</h3>
+    <div class="legend">
+      <canvas width="20" height="20" data-icon="mariposa"></canvas><span><b>Mariposa:</b> agarrala para ir rápido y sumar x3.</span>
+      <canvas width="20" height="20" data-icon="rana"></canvas><span><b>Rana:</b> evitala, te deja nadando pecho.</span>
+      <canvas width="20" height="20" data-icon="gorra"></canvas><span><b>Gorra:</b> te salva de un choque.</span>
+      <canvas width="20" height="20" data-icon="aletas"></canvas><span><b>Patas de rana:</b> unos segundos de velocidad extra.</span>
+      <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 200 puntos.</span>
+      <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
+      <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés 500 puntos.</span>
+    </div>
+    <ul class="how">
+      <li><b>Esquivá:</b> si chocás perdés una gorra. Con tres afuera, se termina.</li>
+      <li><b>Pasá a los lentos:</b> cada nadador de pecho que pasás sin tocarlo suma puntos extra.</li>
+      <li><b>Respirá:</b> cuando se ilumina el botón, tocá RESPIRAR. Si te lo perdés o respirás a destiempo, tragás agua. Sin aire, perdés una gorra.</li>
+      <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés 500 puntos; si lo esquivás, sumás.</li>
+      <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
+      <li><b>El profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, el profe te ve y perdés 300 puntos.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const cv = $("cv"), ctx = cv.getContext("2d"), stage = $("stage");
+  const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- Resolución interna (pixel art) ----------
+  const LW = 144;                 // ancho interno en pixeles
+  const POOL_L = 12, POOL_R = 132; // pileta de 120 px, 3 andariveles de 40
+  const LANE_W = 40;
+  const laneC = (l) => POOL_L + LANE_W / 2 + LANE_W * l;
+  const low = document.createElement("canvas");
+  const g = low.getContext("2d");
+  let W = 360, H = 600, DPR = 1, LH = 240, PPM = 18, PY = 182;
+
+  function resize() {
+    const r = stage.getBoundingClientRect();
+    W = Math.max(260, Math.floor(r.width - 8));
+    const avail = window.innerHeight - 270;
+    H = Math.round(Math.max(400, Math.min(660, avail, W * 1.8)));
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    cv.style.height = H + "px";
+    LH = Math.round(LW * H / W);
+    low.width = LW; low.height = LH;
+    PPM = LH / 13; PY = Math.round(LH * 0.74);
+  }
+
+  // ---------- Paleta ----------
+  const C = {
+    out: "#14141f", skin: "#F4B88E", skinD: "#D98B5F", suit: "#2456C9", suit2: "#D93A3A",
+    water: "#2E9ED8", waterL: "#6FD3F5", waterD: "#1F78B4", line: "#1A5F96",
+    deck: "#E3D6BE", deckL: "#EFE5D2", grout: "#C9B999", curb: "#F7F7F7",
+    white: "#FFFFFF", cap: "#FFB31A", capHi: "#FFE08A",
+    pink: "#FF8FC3", yellow: "#FFE15A", red: "#E8433A", blue: "#2E62D9", green: "#4CC94C", greenD: "#2E8E3A",
+    butter: "#FF7AD9", butter2: "#B07CFF"
+  };
+  function R(x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); }
+  // dibuja partes con contorno: primero todo el contorno, después los rellenos
+  function parts(list) {
+    for (const p of list) if (p[5] !== false) R(p[0] - 1, p[1] - 1, p[2] + 2, p[3] + 2, C.out);
+    for (const p of list) R(p[0], p[1], p[2], p[3], p[4]);
+  }
+
+  // ---------- Sprites ----------
+  // cx = centro, cy = parte de arriba del torso. Mira hacia arriba de la pantalla.
+  function swimmer(cx, cy, style, frame, o) {
+    o = o || {};
+    cx = Math.round(cx); cy = Math.round(cy);
+    const cap = o.cap || C.cap, suit = o.suit || C.suit, skin = C.skin;
+    const L = [];
+    // brazos según estilo
+    if (style === "crol") {
+      if (frame === 0) { L.push([cx + 3, cy - 12, 2, 11, skin], [cx - 5, cy + 1, 2, 6, skin]); }
+      else { L.push([cx - 5, cy - 12, 2, 11, skin], [cx + 3, cy + 1, 2, 6, skin]); }
+    } else if (style === "pecho") {
+      if (frame === 0) { L.push([cx - 3, cy - 13, 2, 12, skin], [cx + 1, cy - 13, 2, 12, skin]); }
+      else { L.push([cx - 10, cy - 1, 7, 2, skin], [cx + 3, cy - 1, 7, 2, skin]); }
+    } else if (style === "mariposa") {
+      if (frame === 0) { L.push([cx - 8, cy - 12, 2, 10, skin], [cx + 6, cy - 12, 2, 10, skin], [cx - 6, cy - 3, 3, 2, skin], [cx + 3, cy - 3, 3, 2, skin]); }
+      else { L.push([cx - 13, cy - 1, 10, 2, skin], [cx + 3, cy - 1, 10, 2, skin]); }
+    } else if (style === "patada") {
+      L.push([cx - 7, cy - 19, 14, 7, "#FFC21A"], [cx - 4, cy - 13, 2, 12, skin], [cx + 2, cy - 13, 2, 12, skin]);
+    } else if (style === "camina") {
+      L.push([cx - 6, cy - 1 + (frame ? 2 : 0), 2, 6, skin], [cx + 4, cy - 1 + (frame ? 0 : 2), 2, 6, skin]);
+    } else if (style === "espalda") {
+      if (frame === 0) { L.push([cx + 3, cy - 13, 2, 12, skin], [cx - 5, cy + 1, 2, 7, skin]); }
+      else { L.push([cx - 5, cy - 13, 2, 12, skin], [cx + 3, cy + 1, 2, 7, skin]); }
+    } else if (style === "flota") {
+      L.push([cx - 8, cy + (frame ? 1 : 0), 5, 2, skin], [cx + 3, cy + (frame ? 0 : 1), 5, 2, skin]);
+    }
+    // piernas
+    if (style === "pecho" && frame === 1) {
+      L.push([cx - 6, cy + 8, 3, 2, skin], [cx - 8, cy + 10, 2, 3, skin], [cx + 3, cy + 8, 3, 2, skin], [cx + 6, cy + 10, 2, 3, skin]);
+    } else if (style === "mariposa") {
+      L.push([cx - 2, cy + 8, 4, 5 + (frame ? 0 : 1), skin]);
+    } else if (style === "camina") {
+      L.push([cx - 3, cy + 8, 2, 6 + (frame ? 1 : -1), skin], [cx + 1, cy + 8, 2, 6 + (frame ? -1 : 1), skin]);
+    } else if (style === "patada") {
+      const k = frame ? 2 : -2;
+      L.push([cx - 3, cy + 8, 2, 5 + k, skin], [cx + 1, cy + 8, 2, 5 - k, skin]);
+    } else {
+      const k = frame ? 1 : -1;
+      L.push([cx - 3, cy + 8, 2, 4 + k, skin], [cx + 1, cy + 8, 2, 4 - k, skin]);
+    }
+    // torso, malla, cabeza
+    L.push([cx - 3, cy - 1, 6, 8, skin], [cx - 3, cy + 5, 6, 3, suit], [cx - 4, cy - 9, 8, 8, cap], [cx - 5, cy - 5, 1, 2, skin], [cx + 4, cy - 5, 1, 2, skin]);
+    parts(L);
+    // detalles sin contorno
+    R(cx - 4, cy - 4, 8, 1, C.out);             // tira de las antiparras
+    R(cx - 2, cy - 8, 2, 1, o.capHi || C.capHi); // brillo de la gorra
+    R(cx - 3, cy - 7, 1, 1, o.capHi || C.capHi);
+    if (o.part) { R(cx, cy - 9, 1, 4, C.skin); }
+    if (o.tail && style !== "espalda") { R(cx - 2, cy - 2, 4, 5, C.out); R(cx - 1, cy - 2, 2, 4, o.tail); R(cx - 1, cy - 1, 2, 1, "#FF6FB0"); }
+    if (style === "espalda") {
+      R(cx - 3, cy - 6, 6, 4, C.skin); R(cx - 2, cy - 5, 1, 1, C.out); R(cx + 1, cy - 5, 1, 1, C.out); R(cx - 1, cy - 3, 2, 1, "#8A4436");
+    }
+    if (o.flower) {
+      R(cx - 1, cy - 7, 2, 2, C.yellow);
+      R(cx - 3, cy - 7, 2, 2, C.white); R(cx + 1, cy - 7, 2, 2, C.white);
+      R(cx - 1, cy - 9, 2, 2, C.white); R(cx - 1, cy - 5, 2, 2, C.white);
+    }
+    if (o.face) { // gira la cabeza para respirar
+      R(cx + 2, cy - 7, 2, 2, "#8FE3FF"); R(cx + 3, cy - 3, 1, 1, C.out);
+    }
+    // espuma
+    if (style === "mariposa" && frame === 1) { R(cx - 14, cy - 3, 2, 1, C.white); R(cx + 12, cy - 3, 2, 1, C.white); R(cx - 12, cy + 2, 1, 1, C.white); R(cx + 11, cy + 2, 1, 1, C.white); }
+    if (style === "patada") { R(cx - 6, cy - 16, 12, 2, C.red); R(cx - 4, cy + 15, 2, 2, C.white); R(cx + 2, cy + 16, 2, 1, C.white); R(cx - 1, cy + 18, 2, 1, C.white); }
+    if (style !== "flota") { R(cx - 2, cy + 14, 1, 1, C.white); R(cx + 1, cy + 15, 1, 1, C.white); }
+  }
+  function butterfly(x, y, t) {
+    x = Math.round(x); y = Math.round(y);
+    const f = Math.floor(t * 8) % 2;
+    const ww = f ? 4 : 3;
+    parts([[x - 1 - ww, y - 4, ww, 4, C.butter], [x + 1, y - 4, ww, 4, C.butter], [x - 1 - ww + 1, y, ww - 1, 3, C.butter2], [x + 1, y, ww - 1, 3, C.butter2], [x - 1, y - 4, 2, 7, "#3A2A55"]]);
+    R(x - 2, y - 6, 1, 1, C.out); R(x + 1, y - 6, 1, 1, C.out);
+    R(x - ww, y - 3, 1, 1, C.white); R(x + ww - 1, y - 3, 1, 1, C.white);
+  }
+  function frog(x, y, t) {
+    x = Math.round(x); y = Math.round(y);
+    const j = Math.floor(t * 3) % 2;
+    parts([[x - 6, y + 1 - j, 2, 3, C.greenD], [x + 4, y + 1 - j, 2, 3, C.greenD], [x - 4, y - 3, 8, 6, C.green], [x - 4, y - 5, 3, 3, C.green], [x + 1, y - 5, 3, 3, C.green]]);
+    R(x - 3, y - 4, 1, 1, C.out); R(x + 2, y - 4, 1, 1, C.out);
+    R(x - 2, y, 4, 1, C.greenD);
+  }
+  function milaItem(x, y, t) {
+    x = Math.round(x); y = Math.round(y);
+    if (Math.floor(t * 5) % 2) R(x - 9, y - 7, 18, 14, "rgba(255,240,160,0.3)");
+    parts([[x - 7, y - 4, 14, 8, "#C98A2E"], [x - 5, y - 5, 10, 1, "#C98A2E"], [x - 5, y + 4, 10, 1, "#C98A2E"]]);
+    R(x - 5, y - 3, 1, 1, "#A86A1C"); R(x - 1, y - 2, 1, 1, "#A86A1C"); R(x + 3, y + 1, 1, 1, "#A86A1C"); R(x - 3, y + 2, 1, 1, "#A86A1C"); R(x + 2, y - 3, 1, 1, "#E6B44A");
+    parts([[x + 4, y - 7, 4, 4, "#F2E36B"]]); R(x + 5, y - 6, 2, 2, "#FFFBD0");
+  }
+  function paddles(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    parts([[x - 7, y - 4, 5, 8, "#FF7A1A"], [x + 2, y - 4, 5, 8, "#FF7A1A"]]);
+    R(x - 6, y - 2, 1, 1, "#14141f"); R(x - 4, y - 2, 1, 1, "#14141f"); R(x - 6, y + 1, 1, 1, "#14141f"); R(x - 4, y + 1, 1, 1, "#14141f");
+    R(x + 3, y - 2, 1, 1, "#14141f"); R(x + 5, y - 2, 1, 1, "#14141f"); R(x + 3, y + 1, 1, 1, "#14141f"); R(x + 5, y + 1, 1, 1, "#14141f");
+    R(x - 6, y - 4, 3, 1, "#FFB070"); R(x + 3, y - 4, 3, 1, "#FFB070");
+  }
+  function fins(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    parts([[x - 6, y - 3, 4, 7, "#2FBF71"], [x + 2, y - 3, 4, 7, "#2FBF71"], [x - 5, y - 5, 2, 2, "#1E8A50"], [x + 3, y - 5, 2, 2, "#1E8A50"]]);
+    R(x - 5, y - 1, 1, 4, "#7BE3A8"); R(x + 3, y - 1, 1, 4, "#7BE3A8");
+  }
+  // Globo aerostático rojo con HSJ, en pixel art
+  const FONT3 = { H: ["101", "101", "111", "101", "101"], S: ["111", "100", "111", "001", "111"], J: ["011", "001", "001", "101", "111"] };
+  function balloon(cx, cy) {
+    cx = Math.round(cx); cy = Math.round(cy);
+    const hw = [3, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 5, 4, 3, 2, 1];
+    const top = cy - 12;
+    hw.forEach((w, i) => R(cx - w - 1, top + i, w * 2 + 2, 1, C.out));
+    R(cx - 2, top - 1, 4, 1, C.out); R(cx - 1, top + hw.length, 2, 1, C.out);
+    hw.forEach((w, i) => { R(cx - w, top + i, w * 2, 1, "#D63A3A"); R(cx + w - 2, top + i, 2, 1, "#A82424"); });
+    R(cx - 4, top + 2, 2, 3, "#F07070"); R(cx - 2, top + 1, 2, 1, "#F07070");
+    // bandas blancas y letras
+    R(cx - 7, top + 3, 14, 1, C.white); R(cx - 7, top + 10, 14, 1, C.white);
+    let lx = cx - 5;
+    for (const ch of "HSJ") { FONT3[ch].forEach((row, ry) => { for (let rx = 0; rx < 3; rx++) if (row[rx] === "1") R(lx + rx, top + 4 + ry, 1, 1, C.white); }); lx += 4; }
+    // cuerdas y canasta
+    const by = top + hw.length + 3;
+    R(cx - 2, top + hw.length, 1, 3, "#E9E9E9"); R(cx + 1, top + hw.length, 1, 3, "#E9E9E9");
+    parts([[cx - 2, by, 4, 3, "#B71C1C"]]);
+  }
+  function capItem(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    parts([[x - 4, y - 2, 8, 4, C.red], [x - 3, y - 4, 6, 2, C.red], [x - 5, y + 2, 10, 1, C.red]]);
+    R(x - 2, y - 3, 2, 1, "#FFB0A8");
+  }
+  function board(x, y, t) {
+    x = Math.round(x); y = Math.round(y);
+    parts([[x - 6, y - 7, 12, 14, "#FFD23F"]]);
+    R(x - 6, y - 7, 1, 1, C.out); R(x + 5, y - 7, 1, 1, C.out);
+    R(x - 6, y - 1, 12, 3, C.blue);
+  }
+  function bandaid(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    parts([[x - 5, y - 1, 10, 3, "#E8C29A"]]);
+    R(x - 1, y - 1, 3, 3, "#F7E6D2");
+  }
+
+  // El que nada por la suya: ancho, lento, con máscara, tubo naranja y patas de rana
+  function gordo(cx, cy, t) {
+    cx = Math.round(cx); cy = Math.round(cy);
+    const f = Math.floor(t * 2.5) % 2;
+    const sk = C.skin;
+    parts([
+      [cx - 7, cy + 11, 5, 6 + f, "#2FBF71"], [cx + 2, cy + 11, 5, 7 - f, "#2FBF71"],          // patas de rana
+      [cx - 5, cy + 8, 3, 4, sk], [cx + 2, cy + 8, 3, 4, sk],                                  // piernas
+      [cx - 14, cy + (f ? -1 : 1), 5, 3, sk], [cx + 9, cy + (f ? 1 : -1), 5, 3, sk],            // bracitos
+      [cx - 10, cy - 3, 20, 13, sk], [cx - 9, cy - 4, 18, 1, sk],                               // panza
+      [cx - 9, cy + 6, 18, 4, C.red],                                                            // malla
+      [cx - 5, cy - 12, 10, 9, "#4A3426"],                                                       // cabeza con pelo
+      [cx + 5, cy - 18, 2, 9, "#FF8A1F"], [cx + 4, cy - 19, 4, 2, "#FF8A1F"]                    // snorkel
+    ]);
+    R(cx - 5, cy - 7, 10, 1, C.out);             // tira de la máscara
+    R(cx - 8, cy, 3, 2, C.skinD); R(cx + 5, cy, 3, 2, C.skinD); // rollitos
+    R(cx - 1, cy + 3, 2, 1, C.skinD);            // ombligo
+    R(cx - 7, cy + 7, 1, 1, C.white); R(cx - 3, cy + 8, 1, 1, C.white); R(cx + 2, cy + 7, 1, 1, C.white); R(cx + 6, cy + 8, 1, 1, C.white);
+    R(cx - 3, cy - 11, 2, 1, "#6B4E3A");
+    if (Math.floor(t * 1.3) % 3 === 0) { R(cx + 5, cy - 23, 1, 2, C.white); R(cx + 3, cy - 25, 1, 1, C.white); R(cx + 8, cy - 24, 1, 1, C.white); }
+  }
+
+  // El Pela: flota de costado, bigote canoso, siempre listo para la charla
+  function charlatan(cx, cy, t, talking) {
+    swimmer(cx, cy, "flota", Math.floor(t * 2) % 2, { cap: "#E9B48C", capHi: "#FFFFFF", suit: "#E07B1F" });
+    cx = Math.round(cx); cy = Math.round(cy);
+    R(cx - 3, cy - 2, 6, 1, "#CFCFCF");
+    if (!talking && Math.floor(t * 1.5) % 2) { R(cx + 6, cy - 14, 6, 4, C.white); R(cx + 7, cy - 13, 1, 1, C.out); R(cx + 9, cy - 13, 1, 1, C.out); R(cx + 6, cy - 10, 1, 1, C.white); }
+  }
+
+  // ---------- Retrato animado (estilo cara de HUD) ----------
+  const faceCv = document.getElementById("face");
+  const fc = faceCv.getContext("2d");
+    // ---------- Personajes ----------
+  const CHARS = [
+    { id: "pablito", name: "PABLITO", tag: "Te levanta una losa y te nada 2000 metros en el mismo día", breathGap: 1, perk: "CAMINAR: se para y camina por el costado del carril, esquivando lo que viene. Además respira con más margen.", special: "CAMINAR", cd: 4,
+      cap: "#F0BE98", capHi: "#FFFFFF", suit: "#1F3F8F", speed: 1, breath: 0.35, passMult: 1,
+      face: { skin: "#F0BE98", shade: "#D99A72", shade2: "#C4825E", top: "bald", beard: "candado", beardC: "#9C8E80", beardC2: "#7E7064", brow: "#5E4A3C", iris: "#4A6E96", goggles: true, mouth: "half" } },
+    { id: "luis", name: "LUIS", tag: "Nadador rápido, pero te da vueltas para arrancar", breathGap: 1.5, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
+      cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.13, breath: -0.1, passMult: 1, complains: true, slowStart: true,
+      face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
+    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5,
+      cap: "#F2F2F2", capHi: "#FFFFFF", suit: "#1A1A1A", speed: 1, breath: 0, passMult: 1, lunges: true,
+      face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#F2F2F2", capC2: "#C4CCD6", capHi: "#FFFFFF", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
+    { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
+      cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
+      face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
+    { id: "andre", name: "ANDRE", tag: "Una pitada y te hunde", breathGap: 1.15, perk: "LA YIYA: le tira una nube de humo al que va adelante, lo envenena y lo hunde.", special: "LA YIYA", cd: 5,
+      cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 1.02, breath: 0.05, passMult: 1, tail: "#2A1C14",
+      face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
+    { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
+      cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618",
+      face: { skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } }
+  ];
+  let CH = CHARS[0];
+  const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡EL PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
+  const BASE = { out: "#2A1B14", lip: "#8A4436", water: "#2E9ED8", waterL: "#6FD3F5" };
+  const HEAD = [[2, 8, 15], [3, 6, 17], [4, 5, 18], [5, 4, 19], [6, 4, 19], [7, 4, 19], [8, 4, 19], [9, 4, 19], [10, 4, 19], [11, 4, 19], [12, 4, 19], [13, 4, 19], [14, 4, 19], [15, 4, 19], [16, 5, 18], [17, 5, 18], [18, 6, 17], [19, 7, 16], [20, 9, 14]];
+  const headRow = (r) => HEAD.find((h) => h[0] === r);
+
+  function drawFace(expr, t, ch, ctx2) {
+    const P = ch.face, c = ctx2 || fc;
+    const F = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+    F(0, 0, 24, 24, BASE.water);
+    F(1, 22, 6, 1, BASE.waterL); F(16, 21, 5, 1, BASE.waterL); F(3, 3, 2, 1, BASE.waterL);
+    for (const [r, a, b] of HEAD) F(a - 1, r - 1, b - a + 3, 3, BASE.out);
+    F(2, 9, 2, 6, BASE.out); F(20, 9, 2, 6, BASE.out);
+    F(3, 10, 1, 4, P.shade); F(20, 10, 1, 4, P.shade2);
+    for (const [r, a, b] of HEAD) F(a, r, b - a + 1, 1, P.skin);
+    for (const [r, a, b] of HEAD) if (r > 4 && r < 18) F(b - 1, r, 2, 1, P.shade);
+    // parte de arriba de la cabeza
+    if (P.top === "bald") {
+      F(8, 3, 3, 1, "#FFFFFF"); F(7, 4, 2, 1, "#FFF1E0"); F(12, 3, 1, 1, "#FFF1E0");
+    } else if (P.top === "cap") {
+      for (const [r, a, b] of HEAD) if (r <= 8) F(a, r, b - a + 1, 1, P.capC);
+      F(4, 8, 16, 1, P.capC2); F(18, 4, 1, 4, P.capC2);
+      F(8, 3, 3, 1, P.capHi); F(7, 4, 2, 1, P.capHi);
+    } else if (P.top === "hairMid") {
+      const HAIR = [[1, 8, 15], [2, 5, 18], [3, 4, 19], [4, 3, 20], [5, 3, 20], [6, 3, 20], [7, 3, 9], [7, 14, 20], [8, 3, 7], [8, 16, 20], [9, 3, 5], [9, 18, 20], [10, 3, 4], [10, 19, 20]];
+      for (const [r, a, b] of HAIR) F(a - 1, r - 1, b - a + 3, 3, BASE.out);
+      for (const [r, a, b] of HEAD) if (r >= 7 && r <= 10) F(Math.max(a, 6), r, Math.min(b, 17) - Math.max(a, 6) + 1, 1, P.skin);
+      for (const [r, a, b] of HAIR) F(a, r, b - a + 1, 1, P.hairC);
+      F(11, 2, 2, 5, "#F5D9B8");
+      for (const [x, y] of [[8, 3], [7, 4], [6, 5], [5, 6], [15, 3], [16, 4], [17, 5], [18, 6], [9, 5], [14, 5]]) F(x, y, 1, 1, P.hairC2);
+      F(7, 2, 3, 1, "#FFF3B8"); F(14, 2, 3, 1, "#FFF3B8"); F(5, 4, 1, 1, "#FFF3B8"); F(18, 4, 1, 1, "#FFF3B8");
+    } else if (P.top === "hair") {
+      for (const [r, a, b] of HEAD) if (r <= 6) F(a, r, b - a + 1, 1, P.hairC);
+      F(4, 7, 3, 1, P.hairC); F(9, 7, 4, 1, P.hairC); F(16, 7, 4, 1, P.hairC); F(4, 8, 1, 3, P.hairC); F(19, 8, 1, 3, P.hairC);
+      F(8, 3, 2, 1, "#5A4636");
+    }
+    // barba
+    for (let r = 12; r <= 20; r++) {
+      const row = headRow(r); if (!row) continue;
+      for (let x = row[1]; x <= row[2]; x++) {
+        let on = false, col = P.beardC;
+        if (P.beard === "candado") { on = r >= 14 && ((r >= 16) || (x >= 8 && x <= 15)) && (r + x) % 2 === 0; col = r > 18 ? P.beardC2 : P.beardC; }
+        else if (P.beard === "full") { const cheek = r < 15 && x > 5 && x < 18; on = !cheek && (r >= 14 || x <= 5 || x >= 18); col = (r + x) % 2 ? P.beardC : P.beardC2; }
+        else if (P.beard === "stubble") { on = (r >= 15 && x >= 5 && x <= 18 && (r + x) % 2 === 0) || (r >= 12 && r <= 14 && (x <= 5 || x >= 18) && (r + x) % 2 === 0); col = r > 18 ? P.beardC2 : P.beardC; }
+        else if (P.beard === "short") { on = (r >= 17 && x >= 6 && x <= 17) || (r === 16 && (x <= 7 || x >= 16)); col = (r + x) % 2 ? P.beardC : P.beardC2; }
+        else if (P.beard === "light") { on = r >= 16 && (r * 3 + x) % 4 === 0; }
+        if (on) F(x, r, 1, 1, col);
+      }
+    }
+    if (P.beard === "full") { F(4, 10, 1, 3, P.beardC); F(19, 10, 1, 3, P.beardC); F(8, 15, 8, 1, P.beardC2); }
+    else if (P.beard === "candado") F(9, 15, 6, 1, P.beardC);
+    else if (P.beard === "short") F(9, 15, 6, 1, P.beardC);
+    // antiparras en la frente
+    if (P.goggles) { F(4, 7, 16, 1, BASE.out); F(6, 6, 4, 2, "#5FD0F5"); F(14, 6, 4, 2, "#5FD0F5"); F(6, 6, 1, 1, "#FFFFFF"); F(14, 6, 1, 1, "#FFFFFF"); }
+    const blink = expr === "normal" && (t % 3.2) < 0.13;
+    // cejas
+    const B = P.brow;
+    if (expr === "hurt" || expr === "dead") { F(6, 9, 4, 1, B); F(14, 9, 4, 1, B); }
+    else if (expr === "annoyed") { F(6, 10, 2, 1, B); F(8, 9, 2, 1, B); F(14, 9, 2, 1, B); F(16, 10, 2, 1, B); }
+    else if (expr === "happy") { F(6, 8, 4, 1, B); F(14, 8, 4, 1, B); }
+    else if (P.fem) { F(6, 9, 1, 1, B); F(7, 8, 3, 1, B); F(14, 8, 3, 1, B); F(17, 9, 1, 1, B); }
+    else { F(6, 9, 4, 1, B); F(14, 9, 4, 1, B); if (P.mouth === "half") F(17, 8, 1, 1, B); }
+    // ojos
+    const O = BASE.out;
+    if (expr === "dead") {
+      F(7, 10, 1, 1, O); F(9, 10, 1, 1, O); F(8, 11, 1, 1, O); F(7, 12, 1, 1, O); F(9, 12, 1, 1, O);
+      F(14, 10, 1, 1, O); F(16, 10, 1, 1, O); F(15, 11, 1, 1, O); F(14, 12, 1, 1, O); F(16, 12, 1, 1, O);
+    } else if (expr === "hurt") {
+      F(7, 10, 1, 1, O); F(8, 11, 2, 1, O); F(7, 12, 1, 1, O);
+      F(16, 10, 1, 1, O); F(14, 11, 2, 1, O); F(16, 12, 1, 1, O);
+    } else if (blink || expr === "happy") {
+      F(7, 11, 3, 1, O); F(14, 11, 3, 1, O);
+      if (expr === "happy") { F(7, 10, 1, 1, P.shade); F(16, 10, 1, 1, P.shade); }
+    } else {
+      F(7, 11, 3, 1, "#FFFFFF"); F(14, 11, 3, 1, "#FFFFFF");
+      const look = expr === "annoyed" ? 0 : (Math.floor(t * 0.7) % 4 === 3 ? 1 : 0);
+      F(8 + look, 11, 1, 1, P.iris); F(15 + look, 11, 1, 1, P.iris);
+      F(7, 12, 3, 1, P.shade); F(14, 12, 3, 1, P.shade);
+    }
+    if (P.blush) { F(6, 14, 2, 1, "#F0A08A"); F(16, 14, 2, 1, "#F0A08A"); }
+    if (P.lashes && expr !== "dead") { F(6, 10, 1, 2, BASE.out); F(10, 10, 1, 1, BASE.out); F(13, 10, 1, 1, BASE.out); F(17, 10, 1, 2, BASE.out); F(5, 10, 1, 1, BASE.out); F(18, 10, 1, 1, BASE.out); }
+    if (P.locks) { F(4, 9, 1, 5, P.locks); F(5, 9, 1, 2, P.locks); F(19, 9, 1, 5, P.locks); F(18, 9, 1, 2, P.locks); }
+    if (P.tail) {
+      // colita atada que sale del gorro hacia un costado
+      const X = (x) => P.tailSide > 0 ? x : 23 - x;
+      const TAIL = [[5, 19, 21], [6, 20, 22], [7, 20, 22], [8, 21, 23], [9, 21, 23], [10, 21, 23], [11, 21, 23], [12, 21, 22], [13, 21, 22], [14, 22, 22]];
+      for (const [r, a, b] of TAIL) for (let x = a - 1; x <= b + 1; x++) if (x >= 0 && x <= 23) F(X(x), r, 1, 1, BASE.out);
+      F(X(20), 15, 1, 1, BASE.out); F(X(22), 15, 1, 1, BASE.out); F(X(21), 15, 1, 1, BASE.out);
+      for (const [r, a, b] of TAIL) for (let x = a; x <= b; x++) if (x <= 23) F(X(x), r, 1, 1, (x + r) % 3 ? P.tail : "#5A4030");
+      F(X(20), 6, 2, 1, P.tie); F(X(19), 5, 1, 1, P.tie);
+    }
+    // nariz
+    F(11, 11, 1, 3, P.shade); F(12, 12, 1, 2, "#F7D2B4"); F(10, 14, 1, 1, P.shade2); F(13, 14, 1, 1, P.shade2);
+    // boca
+    const L = BASE.lip;
+    const grin = () => { const L = P.lip || BASE.lip; F(9, 17, 6, 1, L); F(8, 16, 1, 1, L); F(15, 16, 1, 1, L); F(10, 17, 4, 1, "#FFFFFF"); F(10, 18, 4, 1, L); };
+    if (expr === "happy") grin();
+    else if (expr === "gulp" || expr === "hurt") { F(11, 16, 2, 3, O); F(10, 17, 1, 1, O); F(13, 17, 1, 1, O); }
+    else if (expr === "annoyed") { F(9, 17, 6, 1, L); F(15, 18, 1, 1, L); F(19, 5, 1, 2, "#8FE3FF"); F(19, 7, 1, 1, "#5FD0F5"); }
+    else if (expr === "talk") { const o = Math.floor(t * 8) % 2; F(10, 17, 4, 1 + o, O); }
+    else if (expr === "dead") { for (let i = 0; i < 6; i++) F(9 + i, 17 + (i % 2), 1, 1, L); }
+    else if (P.mouth === "grin") grin();
+    else if (P.mouth === "smirk") { F(9, 17, 5, 1, L); F(8, 16, 1, 1, L); }
+    else if (P.mouth === "lips") { F(10, 16, 1, 1, P.lip); F(13, 16, 1, 1, P.lip); F(9, 17, 6, 1, P.lip); F(10, 18, 4, 1, "#E07C92"); F(11, 17, 2, 1, "#8A2E44"); }
+    else { F(9, 17, 5, 1, L); F(14, 16, 1, 1, L); F(15, 15, 1, 1, P.shade); }
+    if (expr === "gulp") { F(19, 13, 1, 1, "#FFFFFF"); F(20, 11, 1, 1, "#FFFFFF"); }
+  }
+  let faceExpr = "normal", faceT = 0, lastFaceKey = "";
+  function setFace(expr, secs) { faceExpr = expr; faceT = secs; }
+  function updateFace(dt, t) {
+    if (faceT > 0) faceT -= dt;
+    let e = faceT > 0 ? faceExpr : "normal";
+    if (faceT <= 0 && S.state === "play") e = S.chat > 0 ? "annoyed" : S.style === "mariposa" ? "happy" : S.style === "pecho" ? "annoyed" : "normal";
+    if (S.state === "over") e = "dead";
+    const key = CH.id + "|" + e + "|" + ((e === "normal") ? ((t % 3.2) < 0.13 ? "b" : "o") + (Math.floor(t * 0.7) % 4) : e === "talk" ? Math.floor(t * 8) % 2 : "");
+    if (key !== lastFaceKey) { lastFaceKey = key; drawFace(e, t, CH); }
+  }
+
+  // ---------- Estado ----------
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const STY = {
+    pecho: { v: 1.5, mult: 1, anim: 2.2, name: "PECHO" },
+    crol: { v: 2.3, mult: 2, anim: 3.2, name: "CROL" },
+    mariposa: { v: 3.4, mult: 3, anim: 2.6, name: "MARIPOSA" }
+  };
+  const SHOW_CHARLA = false; // oculto por ahora; poner true para volver a mostrarlo
+  const CHARLAS = ["Esto en otros países no pasa", "¿Cómo cambiaste, eh?", "¡Qué sucio que está el baño!", "Faltan chicas en natación", "¿Viste cómo salió Boca el domingo?", "¿Cuándo corre Colapinto?", "¡Qué partidazo de tenis anoche!", "El vestuario está una miseria", "Cada vez más cara la cuota", "El club cada vez está peor", "El agua está fría, eh", "¡Qué milagro que tu mujer te dejó venir!", "Así no se puede más", "¿Viste el partido?", "¿Viste lo del dólar?", "Son todos iguales, eh", "¿A quién vas a votar?", "Esto con el otro no pasaba", "Le falta cloro a esto", "¿Viste los pelos en el agua?", "Está turbia hoy, ¿no?", "Nadie se ducha antes, eh", "Hoy está fresca, ¿no?"];
+  const QUIPS = ["¡A contramano!", "¡Por la derecha!", "¡Me mojaste todo!", "¿Quién lo dejó entrar?", "¡Fijate por dónde vas!", "¡Ojo con el snorkel!"];
+  const CHATS = ["¿Está fría, no?", "…y mi nuera…", "¿Mañana hay?", "Vengo x la cervical", "¡Me salpicaste!"];
+  const CAUSES = {
+    lento: "Te comiste al que nada pecho en el carril rápido.",
+    senora: "Chocaste a la señora de la gorra de flores. No paró de hablar.",
+    tabla: "Una tabla de patada te dio en la frente.",
+    corchera: "Te enredaste en la corchera.",
+    aire: "Te quedaste sin aire. Respirá, campeón."
+  };
+  let S;
+  function freshState() {
+    return {
+      state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
+      nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200),
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
+    };
+  }
+  S = freshState();
+
+  // ---------- HUD ----------
+  const hudP = $("hudP"), hudM = $("hudM"), hudS = $("hudS"), hudX = $("hudX"), hudSBar = $("hudSBar");
+  const hudAir = $("hudAir"), hudLives = $("hudLives");
+  const btnBreathe = $("btnBreathe"), breatheFill = $("breatheFill"), breatheLabel = $("breatheLabel");
+  const btnSpecial = $("btnSpecial"), specialFill = $("specialFill"), specialLabel = $("specialLabel");
+  const fmt = (n) => Math.floor(n).toLocaleString("es-AR");
+  function pips(el, n, on, cls) {
+    if (el.childElementCount !== n) { el.innerHTML = ""; for (let i = 0; i < n; i++) { const d = document.createElement("span"); d.className = "pip " + cls; el.appendChild(d); } }
+    [...el.children].forEach((d, i) => d.classList.toggle("on", i < on));
+  }
+  let lastHud = "";
+  function updateHud() {
+    const key = Math.floor(S.pts) + "|" + Math.floor(S.dist) + "|" + S.air + "|" + S.lives + "|" + S.style;
+    if (key !== lastHud) {
+      lastHud = key;
+      hudP.textContent = fmt(S.pts); hudM.textContent = Math.floor(S.dist);
+      hudS.textContent = STY[S.style].name; hudX.textContent = "x" + STY[S.style].mult;
+      pips(hudAir, 3, S.air, "air"); pips(hudLives, 3, S.lives, "life");
+    }
+    hudSBar.style.width = S.styleT > 0 ? (100 * S.styleT / S.styleMax) + "%" : "0%";
+    const open = S.state === "play" && S.bOpen;
+    btnBreathe.classList.toggle("ready", open);
+    breatheFill.style.width = open ? (100 * S.bT / S.bLen) + "%" : "0%";
+    breatheLabel.textContent = open ? "¡RESPIRÁ!" : "RESPIRAR";
+    const readySp = S.cd <= 0;
+    btnSpecial.classList.toggle("ready", readySp);
+    specialFill.style.width = readySp ? "0%" : (100 * S.cd / CH.cd) + "%";
+    if (specialLabel.textContent !== CH.special) specialLabel.textContent = CH.special;
+  }
+  function toast(text, color) {
+    S.toasts.push({ text, color: color || "#fff", life: 0.9, max: 0.9 });
+    if (S.toasts.length > 2) S.toasts.shift();
+  }
+  function say(text, color) {
+    S.says.push({ text, color: color || "#fff", life: 2.6, max: 2.6 });
+    if (S.says.length > 2) S.says.shift();
+  }
+
+  // ---------- Spawns ----------
+  function addObs(kind, lane, m) {
+    const o = { kind, lane, m, x: laneC(lane), hit: false };
+    if (kind === "lento") { o.hw = 10; o.hl = 0.9; o.v = 1.1; }
+    else if (kind === "senora") { o.hw = 9; o.hl = 0.8; o.v = 0; o.chat = pick(CHATS); }
+    else if (kind === "tabla") { o.hw = 6; o.hl = 0.4; o.vx = (Math.random() < 0.5 ? -1 : 1) * rand(8, 14); }
+    else if (kind === "curita") { o.hw = 5; o.hl = 0.2; }
+    else if (kind === "gordo") { o.hw = 13; o.hl = 1.2; o.v = -1.3; }
+    else if (kind === "charla") { o.hw = 9; o.hl = 0.8; o.v = 0.25; o.line = pick(CHARLAS); }
+    else if (kind === "tablaProfe") { o.hw = 8; o.hl = 0.7; o.pick = true; }
+    else { o.hw = 6; o.hl = 0.4; o.pick = true; } // mariposa, rana, gorra
+    // que no aparezca encima de otro en el mismo carril
+    for (let i = 0; i < 4; i++) {
+      const clash = S.obs.find((q) => !q.hit && q.kind !== "corchera" && Math.abs(q.x - o.x) < 22 && Math.abs(q.m - o.m) < 2.6);
+      if (!clash) break;
+      o.m = clash.m + 2.7;
+    }
+    S.obs.push(o);
+  }
+  function spawn(m) {
+    const d = S.dist, r = Math.random();
+    if (m >= S.nextMila) {
+      S.nextMila = m + (S.lives < 3 ? rand(40, 65) : rand(80, 120));
+      addObs("milanga", Math.floor(Math.random() * 3), m);
+      return rand(2.4, 3.4);
+    }
+    if (SHOW_CHARLA && m >= S.nextCharla) {
+      addObs("charla", Math.random() < 0.5 ? 0 : 2, m);
+      S.nextCharla = m + rand(70, 120);
+      return 4;
+    }
+    if (m >= S.nextGordo) {
+      addObs("gordo", Math.floor(Math.random() * 3), m);
+      S.nextGordo = m + rand(110, 170);
+      return 5;
+    }
+    if (false && d > 45 && r < 0.12 && m - S.lastCorchera > 9) { // boyas cruzadas: desactivadas
+      S.obs.push({ kind: "corchera", m, gap: Math.floor(Math.random() * 3), hl: 0.2, hit: false });
+      S.lastCorchera = m; return 4.6;
+    }
+    if (r < 0.27) {
+      let kind;
+      const q = Math.random();
+      if (d > 25 && q < 0.3) kind = "rana";
+      else if (q < 0.42) kind = "aletas";
+      else if (q < 0.56) kind = "manoplas";
+      else if (!S.shield && q > 0.82) kind = "gorra";
+      else kind = "mariposa";
+      addObs(kind, Math.floor(Math.random() * 3), m);
+      return rand(2.4, 3.6);
+    }
+    const pool = d < 40 ? ["senora", "lento", "tabla", "curita", "lento"] : ["senora", "lento", "tabla", "curita", "lento", "tabla"];
+    const l1 = Math.floor(Math.random() * 3);
+    addObs(pick(pool), l1, m);
+    if (d > 100 && Math.random() < Math.min(0.45, (d - 100) / 380)) {
+      const l2 = (l1 + 1 + Math.floor(Math.random() * 2)) % 3;
+      addObs(pick(["senora", "lento", "curita"]), l2, m + rand(0, 0.6));
+    }
+    return Math.max(2.6, 5.6 - d / 140) + rand(0, 1.6);
+  }
+
+  // ---------- Reglas ----------
+  function setStyle(st, secs) {
+    S.style = st; S.styleT = secs || 0; S.styleMax = secs || 1;
+  }
+  function slowRestart() {
+    if (!CH.slowStart) return;
+    S.restart = 2.5; say("ARRANCANDO…", "#C9D4FF");
+  }
+  function loseLife(kind) {
+    slowRestart();
+    setFace("hurt", 0.9);
+    S.lives--; S.inv = 1.5; S.shake = reduceMotion ? 0 : 0.3;
+    if (S.style === "mariposa") setStyle("crol");
+    if (S.lives <= 0) { gameOver(CAUSES[kind] || ""); return; }
+    toast(kind === "aire" ? "SIN AIRE -1 GORRA" : "¡PUM! -1 GORRA", "#FFB4A8");
+  }
+  function hitObstacle(o) {
+    if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x2", "#FFE08A"); return; }
+    if (o.kind === "mariposa") { setStyle("mariposa", 7); setFace("happy", 1); toast("¡MARIPOSA! x3", "#FF9FE4"); return; }
+    if (o.kind === "rana") {
+      setStyle("pecho", 5); toast("TE CONTAGIASTE EL PECHO", "#8CF08C"); return;
+    }
+    if (o.kind === "milanga") {
+      setFace("happy", 1);
+      if (S.lives < 3) { S.lives++; toast("¡MILANGA! +1 GORRA", "#FFE08A"); }
+      else { S.pts += 200; toast("¡MILANGA! +200", "#FFE08A"); }
+      return;
+    }
+    if (o.kind === "manoplas") { S.pads = 6; setFace("happy", 0.8); toast("¡MANOPLAS! MÁS TRACCIÓN", "#FFB070"); if (CH.complains) say("ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "#C9D4FF"); return; }
+    if (o.kind === "aletas") { S.fins = 6; setFace("happy", 0.8); toast("¡PATAS DE RANA! TURBO", "#8CF08C"); return; }
+    if (o.kind === "gorra") { S.shield = true; toast("GORRA DE SILICONA", "#FFE08A"); return; }
+    if (o.kind === "curita") { toast("¡QUÉ ASCO! UNA CURITA", "#F7D7B8"); setFace("hurt", 0.6); loseAir(); return; }
+    if (o.kind === "gordo") {
+      S.pts = Math.max(0, S.pts - 500); S.inv = Math.max(S.inv, 0.8); S.shake = reduceMotion ? 0 : 0.4;
+      if (S.style === "mariposa") setStyle("crol");
+      setFace("hurt", 1.2); toast("¡TE CRUZASTE AL QUE NADA POR LA SUYA! -500", "#FF9F6B"); slowRestart(); return;
+    }
+    if (S.inv > 0) return;
+    if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast("LA GORRA TE SALVÓ", "#FFE08A"); return; }
+    loseLife(o.kind);
+  }
+  function loseAir() {
+    S.air--; S.streak = 0;
+    if (S.air <= 0) { S.air = 3; loseLife("aire"); }
+  }
+  const EATABLE = { lento: 1, senora: 1, charla: 1, gordo: 3 };
+  function special() {
+    if (S.state !== "play" || S.cd > 0) return;
+    if (CH.id === "pablito") {
+      S.walk = 2.2; S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
+      S.cd = CH.cd; toast("CAMINANDO POR EL COSTADO", "#FFE08A");
+    } else if (CH.id === "mati") {
+      S.dive = 1.6; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
+    } else if (CH.id === "luis") {
+      S.jump = 1.5; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
+    } else if (CH.id === "andre") {
+      let target = null;
+      for (const o of S.obs) {
+        if (o.hit || !EATABLE[o.kind]) continue;
+        const ahead = o.m - S.dist;
+        if (ahead > -0.5 && ahead < 12 && Math.abs(o.x - S.x) < 16 && (!target || o.m < target.m)) target = o;
+      }
+      S.puff = 0.9;
+      if (!target) { S.cd = 1; toast("PITADA AL PEDO, NO HAY NADIE", "#B8F0A0"); return; }
+      target.hit = true; target.sink = 1.2; target.sinkMax = 1.2;
+      if (target.kind === "charla") target.hooked = true;
+      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
+      S.pts += b; S.cd = CH.cd; setFace("happy", 1);
+      toast("¡LA YIYA! +" + b, "#B8F0A0"); say("¡TOMÁ, PROBÁ ESTE SABOR!", "#B8F0A0");
+    } else if (CH.id === "mika") {
+      let target = null;
+      for (const o of S.obs) {
+        if (o.hit || o.pick) continue;
+        const ahead = o.m - S.dist;
+        const inLane = o.kind === "corchera" || Math.abs(o.x - S.x) < 16;
+        if (ahead > -0.5 && ahead < 14 && inLane && (!target || o.m < target.m)) target = o;
+      }
+      S.warpFrom = S.dist;
+      S.dist = target ? target.m + (target.hl || 1) + 2.2 : S.dist + 8;
+      S.warp = 0.9; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.12;
+      if (target && target.kind !== "corchera") { const b = 120 * STY[S.style].mult; S.pts += b; toast("¡AGUJERO DE GUSANO! +" + b, "#E0B0FF"); }
+      else toast("¡AYAHUASCA!", "#E0B0FF");
+      say(pick(["¿DÓNDE ESTOY?", "VEO COLORES", "VOLVÍ DEL MÁS ALLÁ", "ESTOY EN OTRO PLANO"]), "#E0B0FF");
+    } else {
+      let target = null;
+      for (const o of S.obs) {
+        if (o.hit || !EATABLE[o.kind]) continue;
+        const ahead = o.m - S.dist;
+        const inLane = Math.abs(o.x - S.x) < 16;
+        if (ahead > -0.5 && ahead < 6 && inLane && (!target || o.m < target.m)) target = o;
+      }
+      if (!target) { S.cd = 1; toast("NO HAY PIES PARA COMER", "#C9D4FF"); return; }
+      target.hit = true; target.eaten = 0.6; target.shove = (target.x < LW / 2 ? -1 : 1) * 110;
+      if (target.kind === "charla") target.hooked = true;
+      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
+      S.pts += b; S.cd = CH.cd; setFace("happy", 1);
+      toast("¡TE COMO! +" + b, "#FFE08A");
+    }
+  }
+  function breathe() {
+    if (S.state !== "play") return;
+    if (S.bOpen) {
+      S.bOpen = false; S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak);
+      S.air = Math.min(3, S.air + 1); S.face = 0.45; setFace("gulp", 0.45);
+      const bonus = 10 * STY[S.style].mult;
+      S.pts += bonus;
+      toast(S.streak >= 3 ? "RESPIRACIÓN PERFECTA x" + S.streak : "¡AIRE! +" + bonus, "#B9F4FF");
+      S.nextBreath = rand(4.5, 6.5) * CH.breathGap;
+    } else {
+      toast("GLU GLU. TRAGASTE AGUA", "#B9F4FF");
+      loseAir();
+    }
+  }
+
+  // ---------- Loop ----------
+  function update(dt) {
+    if (S.state !== "play") return;
+    S.t += dt;
+    const st = STY[S.style];
+    // se acelera con el tiempo: a los 90–120 s ya va bastante rápido
+    const prog = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012);
+    const slow = S.kick > 0 ? 0.6 : 1;
+    const chatting = S.chat > 0;
+    if (S.restart > 0) S.restart = Math.max(0, S.restart - dt);
+    if (S.lungeCd > 0) S.lungeCd -= dt;
+    if (S.lunge > 0) S.lunge = Math.max(0, S.lunge - dt);
+    if (CH.lunges && S.lunge <= 0 && S.lungeCd <= 0) {
+      const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
+      if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
+    }
+    const speed = st.v * prog * slow * CH.speed * (chatting ? 0.12 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
+    if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
+    if (S.pads > 0) { S.pads -= dt; if (S.pads <= 0) S.pads = 0; }
+    if (S.jump > 0) S.jump = Math.max(0, S.jump - dt);
+    if (S.walk > 0) S.walk = Math.max(0, S.walk - dt);
+    if (S.dive > 0) S.dive = Math.max(0, S.dive - dt);
+    if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
+    if (S.puff > 0) S.puff = Math.max(0, S.puff - dt);
+    if (CH.lazy) {
+      S.lazyT -= dt;
+      if (S.lazyT <= 0) {
+        S.back = !S.back;
+        S.lazyT = S.back ? rand(4, 5) : rand(5, 8);
+        if (S.back) say(pick(["PLANCHITA UN RATO", "TRANQUI, HAY TIEMPO", "¿PARA QUÉ CORRER?"]), "#FFF0A8");
+        else toast("¡ARRANCA A FULL!", "#FFE08A");
+      }
+    }
+    if (S.cd > 0) S.cd = Math.max(0, S.cd - dt);
+    S.dist += speed * dt;
+    S.pts += speed * st.mult * dt * 10 * (S.kick > 0 ? 2 : 1);
+    S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
+    if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
+    if (CH.complains) { S.nextComplain -= dt * Math.max(0.6, speed / (STY.crol.v * CH.speed)); if (S.nextComplain <= 0) { S.nextComplain = rand(5, 8); say(pick(COMPLAINTS), "#C9D4FF"); setFace("annoyed", 1); } }
+    S.inv = Math.max(0, S.inv - dt);
+    if (S.kick > 0) { S.kick -= dt; if (S.kick <= 0) { S.kick = 0; const b = 200 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡BIEN AHÍ! +" + b, "#FFE08A"); } }
+    S.shake = Math.max(0, S.shake - dt); S.face = Math.max(0, S.face - dt);
+    if (S.styleT > 0) { S.styleT -= dt; if (S.styleT <= 0) { S.styleT = 0; S.style = "crol"; toast("DE VUELTA A CROL", "#FFE08A"); } }
+    S.x += (laneC(S.lane) + (S.walk > 0 ? S.walkSide * 15 : 0) - S.x) * Math.min(1, dt * 14);
+
+    for (const o of S.obs) {
+      if (!o.pick && !o.hit && o.kind !== "corchera" && o.kind !== "tabla" && o.v) {
+        for (const q of S.obs) {
+          if (q === o || q.pick || q.hit || q.kind === "corchera" || Math.abs(q.x - o.x) > 22) continue;
+          if (o.v > 0 && q.kind === "gordo") continue;
+          const gap = 2.6;
+          if (o.v > 0 && q.m > o.m && q.m - o.m < gap) o.m = Math.min(o.m, q.m - gap);
+          if (o.v < 0 && !q.quipped && Math.abs(o.m - q.m) < 1.6 && (q.kind === "lento" || q.kind === "senora" || q.kind === "charla")) {
+            q.quipped = true; q.quip = pick(QUIPS); q.quipT = 2.2;
+          }
+        }
+      }
+      if (o.quipT > 0) o.quipT -= dt;
+      if (o.eaten) { o.eaten -= dt; o.x += o.shove * dt; o.m += 3 * dt; if (o.eaten <= 0) o.gone = true; continue; }
+      if (o.sink) { o.sink -= dt; o.m = Math.max(o.m, S.dist + 2.5); if (o.sink <= 0) o.gone = true; continue; }
+      if (o.kind === "charla" && o.hooked && chatting) o.m = S.dist + 0.3;
+      else if (o.v) o.m += o.v * slow * dt;
+      if (o.kind === "charla" && !o.hooked && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
+        o.hooked = true; S.chat = 3; S.chatLine = o.line; setFace("talk", 3);
+        toast("TE ENGANCHASTE A HABLAR", "#FFB4A8");
+      }
+      if (o.kind === "tabla") {
+        o.x += o.vx * dt;
+        if (o.x < POOL_L + 7 || o.x > POOL_R - 7) { o.vx *= -1; o.x = Math.min(POOL_R - 7, Math.max(POOL_L + 7, o.x)); }
+      }
+      if (o.kind === "lento" && !o.hit && !o.passed && o.m < S.dist - 1.1) {
+        o.passed = true; S.passed++;
+        const b = 50 * st.mult * CH.passMult; S.pts += b; toast((CH.passMult > 1 ? "¡LE COMISTE LOS PIES! +" : "¡PASASTE AL LENTO! +") + b, "#FFE08A");
+      }
+      if (o.kind === "tablaProfe" && !o.hit && o.m < S.dist - 1.2) {
+        o.hit = true; S.profe = 0; S.pts = Math.max(0, S.pts - 300); setFace("hurt", 1); toast("¡EL PROFE TE VIO! -300", "#FF9F6B");
+      }
+      if (o.kind === "gordo" && !o.warned && o.m - S.dist < 16) { o.warned = true; toast("¡CONTRAMANO!", "#FF9F6B"); }
+      if (o.kind === "gordo" && !o.hit && !o.passed && o.m < S.dist - 1.4) {
+        o.passed = true;
+        const b = 100 * st.mult; S.pts += b; setFace("happy", 0.8); toast("ZAFASTE AL QUE NADA POR LA SUYA +" + b, "#FFE08A");
+      }
+    }
+    S.obs = S.obs.filter((o) => o.m > S.dist - 4 && !(o.pick && o.hit) && !o.gone);
+    while (S.dist + 13 > S.nextSpawn) S.nextSpawn += spawn(S.nextSpawn);
+
+    for (const o of S.obs) {
+      if (o.hit || o.kind === "charla") continue;
+      if (!o.pick) {
+        if (S.jump > 0) continue;
+        if (S.walk > 0 || S.dive > 0 || S.warp > 0) continue;
+        if (S.lunge > 0 && EATABLE[o.kind] && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 5) {
+          o.hit = true; o.eaten = 0.6; o.shove = (o.x < LW / 2 ? -1 : 1) * 110; if (o.kind === "charla") o.hooked = true;
+          const b = 150 * EATABLE[o.kind] * STY[S.style].mult; S.pts += b; toast("¡PIECITOS! +" + b, "#FFE08A"); continue;
+        }
+      }
+      if (Math.abs(o.m - S.dist) > o.hl + 0.5) continue;
+      const hit = o.kind === "corchera" ? Math.abs(S.x - laneC(o.gap)) > 11 : Math.abs(S.x - o.x) < o.hw + 5;
+      if (hit) { o.hit = true; hitObstacle(o); if (S.state !== "play") return; }
+    }
+
+    if (!S.bOpen) {
+      S.nextBreath -= dt;
+      if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath); S.bT = S.bLen; }
+    } else {
+      S.bT -= dt;
+      if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
+    }
+    if (S.dist >= S.nextProfe && S.kick <= 0 && !S.profe) {
+      S.profe = 1; S.nextProfe = S.dist + rand(200, 280);
+      addObs("tablaProfe", Math.floor(Math.random() * 3), S.dist + 12);
+      setFace("hurt", 0.5);
+    }
+    const largo = Math.floor(S.dist / 25);
+    if (largo > S.largo) { S.largo = largo; toast("VUELTA OLÍMPICA · " + largo * 25 + " M", "#FFE08A"); }
+    for (const t of S.toasts) t.life -= dt;
+    for (const t of S.says) t.life -= dt;
+    S.says = S.says.filter((t) => t.life > 0);
+    S.toasts = S.toasts.filter((t) => t.life > 0);
+  }
+
+  // ---------- Escenario ----------
+  const yOf = (m) => Math.round(PY - (m - S.dist) * PPM);
+  const sparkles = Array.from({ length: 70 }, (_, i) => ({ x: POOL_L + 2 + ((i * 53) % 116), y: (i * 97) % 400, w: 1 + (i % 3 === 0 ? 1 : 0) }));
+  function hash(a, b) { let h = (a * 374761393 + b * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+
+  function deckItem(type, x, y) {
+    if (type === 0) { // ojotas
+      parts([[x - 3, y - 3, 2, 5, "#FF5A9E"], [x + 1, y - 2, 2, 5, "#FF5A9E"]]);
+    } else if (type === 1) { // toalla
+      parts([[x - 3, y - 6, 7, 12, "#F7F7F7"]]);
+      R(x - 3, y - 4, 7, 2, C.red); R(x - 3, y, 7, 2, C.blue); R(x - 3, y + 4, 7, 1, C.red);
+    } else if (type === 2) { // termo y mate
+      parts([[x - 3, y - 6, 3, 9, "#3E7D4F"], [x + 1, y - 1, 3, 4, "#9B6A3C"]]);
+      R(x - 3, y - 7, 3, 1, "#D0D0D0"); R(x + 1, y - 1, 3, 1, "#6FAE3E"); R(x + 2, y - 3, 1, 2, "#C0C0C0");
+    } else if (type === 3) { // flotador
+      parts([[x - 4, y - 4, 8, 8, C.red]]);
+      R(x - 2, y - 2, 4, 4, C.deck); R(x - 4, y - 1, 2, 2, C.white); R(x + 2, y - 1, 2, 2, C.white); R(x - 1, y - 4, 2, 2, C.white); R(x - 1, y + 2, 2, 2, C.white);
+    } else if (type === 4) { // bidón
+      parts([[x - 2, y - 4, 4, 8, "#46B6F0"]]);
+      R(x - 1, y - 5, 2, 1, C.white);
+    }
+  }
+  function profe(x, y, t) {
+    const f = Math.floor(t * 6) % 2;
+    parts([[x - 3, y - 2, 6, 7, C.red], [x - 2, y - 7, 4, 5, C.skin], [x - 3, y + 5, 2, 4, "#2B2B44"], [x + 1, y + 5, 2, 4, "#2B2B44"], [x + 3, y - 1 - f, 2, 4, C.skin]]);
+    R(x - 2, y - 7, 4, 2, "#3A2A1E");
+    R(x + 4, y - 3 - f, 2, 2, "#C8C8C8");
+    if (f) { R(x + 7, y - 6, 1, 1, C.white); R(x + 9, y - 8, 1, 1, C.white); }
+  }
+
+  function crest(cx, cy) {
+    cx = Math.round(cx); cy = Math.round(cy);
+    const ink = "#1A4E86", gold = "#E6B44A", gold2 = "#C08A2E", lemon = "#F2E36B";
+    // escudo
+    const rows = [[-9, 8], [-8, 9], [-7, 9], [-6, 9], [-5, 9], [-4, 9], [-3, 9], [-2, 9], [-1, 9], [0, 9], [1, 9], [2, 8], [3, 8], [4, 7], [5, 6], [6, 5], [7, 4], [8, 3], [9, 2], [10, 1]];
+    for (const [dy, hw] of rows) R(cx - hw, cy + dy, hw * 2, 1, ink);
+    for (const [dy, hw] of rows) if (hw > 2) R(cx - hw + 2, cy + dy, hw * 2 - 4, 1, "#2A6FB0");
+    // milanesa con pan rallado
+    R(cx - 6, cy - 3, 12, 6, gold); R(cx - 5, cy - 4, 9, 1, gold); R(cx - 4, cy + 3, 9, 1, gold);
+    R(cx - 4, cy - 2, 1, 1, gold2); R(cx, cy - 1, 1, 1, gold2); R(cx + 3, cy + 1, 1, 1, gold2); R(cx - 2, cy + 1, 1, 1, gold2); R(cx + 2, cy - 3, 1, 1, gold2);
+    // rodaja de limón
+    R(cx + 4, cy - 6, 4, 4, lemon); R(cx + 5, cy - 5, 2, 2, "#FFFBD0");
+    // antiparras cruzando
+    R(cx - 8, cy + 5, 16, 1, "#14141f"); R(cx - 5, cy + 4, 3, 3, "#8FE3FF"); R(cx + 2, cy + 4, 3, 3, "#8FE3FF");
+  }
+  function drawScene() {
+    // borde/banquina
+    R(0, 0, LW, LH, C.deck);
+    const off = Math.round((S.dist * PPM) % 8);
+    for (let y = -8 + off; y < LH; y += 8) { R(0, y, POOL_L, 1, C.grout); R(POOL_R, y, LW - POOL_R, 1, C.grout); }
+    R(4, 0, 1, LH, C.grout); R(LW - 5, 0, 1, LH, C.grout);
+    R(POOL_L - 2, 0, 2, LH, C.curb); R(POOL_R, 0, 2, LH, C.curb);
+    // agua
+    R(POOL_L, 0, POOL_R - POOL_L, LH, C.water);
+    const scroll = S.dist * PPM;
+    for (const s of sparkles) {
+      const y = Math.round((s.y + scroll * 0.9) % (LH + 20)) - 10;
+      R(s.x + (Math.floor(S.t * 2 + s.y) % 2), y, s.w + 1, 1, C.waterL);
+    }
+    // líneas del fondo
+    for (let l = 0; l < 3; l++) R(laneC(l) - 2, 0, 4, LH, C.line);
+    // escudo de Milanga Natación pintado en el fondo, cada tanto
+    for (let k = Math.max(0, Math.floor((S.dist - 20) / 60)); k <= Math.ceil((S.dist + 20) / 60); k++) {
+      const yc = yOf(k * 60 + 34);
+      if (yc > -20 && yc < LH + 20) crest(POOL_L + LANE_W * 1.5, yc);
+    }
+    const mTop = S.dist + PY / PPM + 1, mBot = S.dist - (LH - PY) / PPM - 1;
+    // decorado de la banquina
+    for (let k = Math.floor(mBot / 3); k <= Math.ceil(mTop / 3); k++) {
+      for (let side = 0; side < 2; side++) {
+        const h = hash(k, side + 7);
+        if (h < 0.45) continue;
+        const type = Math.floor(hash(k, side + 31) * 5);
+        const x = side === 0 ? 6 : LW - 6;
+        deckItem(type, x, yOf(k * 3 + 1));
+      }
+    }
+    for (let k = Math.max(0, Math.floor((S.dist - 15) / 45)); k <= Math.ceil((S.dist + 15) / 45); k++) {
+      const y = yOf(k * 45 + 18) + Math.round(Math.sin(S.t * 1.5 + k) * 1.5);
+      if (y < -30 || y > LH + 30) continue;
+      balloon(k % 2 ? LW - 8 : 8, y);
+    }
+    for (let k = Math.max(1, Math.floor(mBot / 25)); k <= Math.ceil(mTop / 25); k++) {
+      const wall = k * 25;
+      const yt = yOf(wall - 2);
+      for (let l = 0; l < 3; l++) R(laneC(l) - 8, yt - 1, 16, 3, C.line);
+      // banderines de espalda a 5 m
+      const yf = yOf(wall - 5);
+      R(0, yf, LW, 1, C.white);
+      for (let i = 0; i < LW / 6; i++) {
+        const col = [C.red, C.white, C.blue][i % 3];
+        R(i * 6 + 1, yf + 1, 4, 1, col); R(i * 6 + 2, yf + 2, 2, 1, col);
+      }
+      // pared
+      const yw = yOf(wall);
+      R(POOL_L, yw - 3, POOL_R - POOL_L, 3, C.curb); R(POOL_L, yw, POOL_R - POOL_L, 1, C.waterD);
+    }
+    // corcheras entre andariveles (rojas cerca de las paredes)
+    for (const xr of [POOL_L + LANE_W, POOL_L + 2 * LANE_W]) {
+      R(xr, 0, 1, LH, C.out);
+      const step = 0.22;
+      for (let m = Math.floor(mBot / step) * step; m < mTop; m += step) {
+        const y = yOf(m), mod = ((m % 25) + 25) % 25, idx = Math.round(m / step);
+        const near = mod < 5 || mod > 20;
+        R(xr - 1, y - 1, 3, 3, near ? (idx % 2 ? C.red : C.white) : (idx % 2 ? C.blue : C.white));
+      }
+    }
+  }
+
+  function drawObs(o) {
+    if (o.kind === "corchera") {
+      const y = yOf(o.m);
+      for (let l = 0; l < 3; l++) {
+        if (l === o.gap) continue;
+        const x0 = POOL_L + l * LANE_W + 2, x1 = POOL_L + (l + 1) * LANE_W - 2;
+        R(x0, y, x1 - x0, 1, C.out);
+        let i = 0;
+        for (let x = x0 + 1; x < x1 - 2; x += 5) { R(x - 1, y - 2, 4, 4, C.out); R(x, y - 1, 2, 2, i++ % 2 ? C.red : C.yellow); }
+      }
+      return;
+    }
+    const y = yOf(o.m);
+    if (y < -30 || y > LH + 30) return;
+    const tt = S.t + o.m;
+    if (o.kind === "lento") swimmer(o.x, y, "pecho", Math.floor(tt * 1.6) % 2, { cap: "#F2F2F2", capHi: "#FFFFFF", suit: C.greenD });
+    else if (o.kind === "senora") swimmer(o.x, y, "flota", Math.floor(tt * 2) % 2, { cap: C.pink, capHi: "#FFC6E0", suit: "#8E44AD", flower: true });
+    else if (o.kind === "tabla") board(o.x, y, tt);
+    else if (o.kind === "tablaProfe") {
+      if (Math.floor(S.t * 6) % 2) { R(o.x - 10, y - 10, 20, 20, "rgba(255,240,150,0.35)"); }
+      parts([[o.x - 6, y - 7, 12, 14, "#FFC21A"]]); R(o.x - 6, y - 1, 12, 3, C.red);
+      R(o.x - 4, y - 6, 2, 1, "#FFF3B0"); R(o.x + 3, y + 4, 1, 1, "#FFF3B0");
+      const ar = Math.floor(S.t * 4) % 2;
+      R(o.x - 1, y - 16 - ar, 2, 4, C.white); R(o.x - 3, y - 12 - ar, 6, 1, C.white); R(o.x - 2, y - 11 - ar, 4, 1, C.white);
+    }
+    else if (o.kind === "curita") bandaid(o.x, y);
+    else if (o.kind === "gordo") { g.save(); g.setTransform(1, 0, 0, -1, 0, 2 * y); gordo(o.x, y, tt); g.restore(); }
+    else if (o.kind === "charla") charlatan(o.x, y, tt, o.hooked && S.chat > 0);
+    else if (o.kind === "mariposa") { if (Math.floor(S.t * 6) % 3) R(o.x - 7, y - 7, 14, 14, "rgba(255,255,255,0.18)"); butterfly(o.x, y + Math.round(Math.sin(tt * 4)), tt); }
+    else if (o.kind === "rana") frog(o.x, y, tt);
+    else if (o.kind === "aletas") fins(o.x, y + Math.round(Math.sin(tt * 4)));
+    else if (o.kind === "manoplas") paddles(o.x, y + Math.round(Math.sin(tt * 4)));
+    else if (o.kind === "milanga") milaItem(o.x, y + Math.round(Math.sin(tt * 3)), tt);
+    else if (o.kind === "gorra") capItem(o.x, y + Math.round(Math.sin(tt * 4)));
+  }
+
+  function draw() {
+    drawScene();
+    for (const o of S.obs) {
+      if (o.pick && o.hit) continue;
+      if (o.sink) {
+        // envenenado: se pone verde, se achica y se hunde entre burbujas
+        const k = Math.max(0, o.sink / o.sinkMax), cy = yOf(o.m);
+        g.save(); g.globalAlpha = 0.25 + 0.75 * k; g.translate(o.x, cy); g.scale(0.4 + 0.6 * k, 0.4 + 0.6 * k); g.translate(-o.x, -cy);
+        drawObs(o); g.restore();
+        g.save(); g.globalAlpha = 0.45 * k; R(Math.round(o.x) - 8, Math.round(cy) - 10, 16, 18, "#5FCB4A"); g.restore();
+        const bt = Math.floor(S.t * 8);
+        for (let i = 0; i < 4; i++) R(Math.round(o.x - 6 + ((i * 5 + bt) % 13)), Math.round(cy - 8 - ((bt + i * 3) % 9)), 2, 2, i % 2 ? "#B8F0A0" : "#6FD35A");
+        if (k > 0.5) { R(Math.round(o.x) - 3, Math.round(cy) - 16, 2, 1, C.out); R(Math.round(o.x) + 1, Math.round(cy) - 16, 2, 1, C.out); }
+        continue;
+      }
+      drawObs(o);
+    }
+    if (S.profe > 0 || S.kick > 0) { g.save(); g.translate(6, Math.round(LH * 0.24)); g.scale(2, 2); profe(0, 0, S.t); g.restore(); }
+    // aviso de contramano
+    for (const o of S.obs) {
+      if (o.kind !== "gordo" || o.hit) continue;
+      const ahead = o.m - S.dist;
+      if (ahead > PY / PPM - 0.5 && ahead < 16 && Math.floor(S.t * 6) % 2) {
+        R(o.x - 4, 2, 8, 9, "#FFD23F"); R(o.x - 3, 3, 6, 7, C.red); R(o.x - 1, 4, 2, 3, C.white); R(o.x - 1, 8, 2, 1, C.white);
+      }
+    }
+    // jugador
+    const blink = S.inv > 0 && Math.floor(S.inv * 12) % 2 === 0;
+    const frame = Math.floor(S.stroke) % 2;
+    const px = Math.round(S.x);
+    if (S.style === "mariposa") { R(px - 1, PY + 18, 2, 2, C.white); R(px - 4, PY + 22, 1, 1, C.white); R(px + 3, PY + 21, 1, 1, C.white); }
+    let pyy = PY;
+    if (S.jump > 0) {
+      const arc = Math.sin(Math.PI * (1 - S.jump / 1.5));
+      pyy = PY - Math.round(arc * 18);
+      R(px - 7, PY + 2, 14, 4, "rgba(10,40,80,0.45)");
+      if (S.jump < 0.15 || S.jump > 1.35) { R(px - 9, PY + 6, 2, 2, C.white); R(px + 7, PY + 6, 2, 2, C.white); R(px - 5, PY + 9, 1, 1, C.white); R(px + 4, PY + 9, 1, 1, C.white); }
+    }
+    if (S.lunge > 0) {
+      for (let i = 0; i < 6; i++) { const lx = px - 10 + ((i * 7 + Math.floor(S.t * 30)) % 21); R(lx, PY + 16 + (i % 3) * 5, 1, 6 + (i % 2) * 4, C.white); }
+      R(px - 1, PY - 22, 2, 2, "#FFE08A");
+    }
+    if (S.puff > 0) {
+      // nube de shisha que sale hacia adelante
+      const k = 1 - S.puff / 0.9;
+      for (let i = 0; i < 5; i++) {
+        const cy = PY - 14 - Math.round(k * 40) - i * 4, cx = px - 4 + ((i * 7) % 9);
+        g.save(); g.globalAlpha = 0.75 * (1 - k * 0.6); R(cx - 2, cy - 2, 5 + (i % 2) * 2, 4, i % 2 ? "#CDE8C4" : "#9ED48E"); g.restore();
+      }
+    }
+    if (S.warp > 0) {
+      // portales del agujero de gusano: donde entró y donde salió
+      const k = S.warp / 0.9, rr = Math.round(4 + (1 - k) * 8), fy = yOf(S.warpFrom);
+      const ring = (x, y, r, col) => { R(x - r, y - 1, 1, 3, col); R(x + r, y - 1, 1, 3, col); R(x - 1, y - r, 3, 1, col); R(x - 1, y + r, 3, 1, col); R(x - r + 2, y - r + 2, 1, 1, col); R(x + r - 2, y - r + 2, 1, 1, col); R(x - r + 2, y + r - 2, 1, 1, col); R(x + r - 2, y + r - 2, 1, 1, col); };
+      if (fy < LH + 10) { ring(px, Math.round(fy), rr, "#B05CFF"); ring(px, Math.round(fy), Math.max(2, rr - 3), "#FF7AE0"); }
+      ring(px, PY, 14 - rr, "#B05CFF"); ring(px, PY, Math.max(2, 11 - rr), "#7AF0FF");
+    }
+    if (S.fins > 0 && !blink) { R(px - 6, pyy + 13, 4, 5, "#2FBF71"); R(px + 2, pyy + 13, 4, 5, "#2FBF71"); }
+    const pStyle = S.walk > 0 ? "camina" : S.kick > 0 ? "patada" : (CH.lazy && S.back && S.style === "crol") ? "espalda" : S.style;
+    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail };
+    if (S.dive > 0) {
+      g.save(); g.globalAlpha = 0.45; g.translate(px, pyy); g.scale(0.7, 0.7); g.translate(-px, -pyy);
+      swimmer(px, pyy, "crol", frame, pOpts); g.restore();
+      const bt = Math.floor(S.t * 6);
+      R(px - 3 + (bt % 3), pyy - 14 - (bt % 4) * 2, 2, 2, C.white); R(px + 3 - (bt % 2), pyy - 18 - (bt % 3) * 2, 1, 1, C.white); R(px, pyy - 22 - (bt % 2) * 3, 1, 1, C.white);
+    } else if (S.warp > 0.55) {
+      // todavía en el "más allá": casi invisible
+      g.save(); g.globalAlpha = 0.25; swimmer(px, pyy, "crol", frame, pOpts); g.restore();
+    } else if (!blink) swimmer(px, pyy, pStyle, S.walk > 0 ? Math.floor(S.t * 5) % 2 : frame, pOpts);
+    if (S.pads > 0 && !blink) { const hf = frame ? 1 : -1; R(px - 7 + hf, pyy - 13, 3, 3, "#FF7A1A"); R(px + 4 + hf, pyy - 13, 3, 3, "#FF7A1A"); }
+    if (S.walk > 0 && Math.floor(S.t * 4) % 2) { R(px + 2, pyy - 16, 1, 1, C.white); R(px + 4, pyy - 19, 2, 2, C.white); }
+    if (S.shield) { R(px - 9, PY - 12, 1, 26, C.red); R(px + 9, PY - 12, 1, 26, C.red); R(px - 8, PY - 13, 17, 1, C.red); R(px - 8, PY + 14, 17, 1, C.red); }
+    if (S.state === "play" && S.bOpen) {
+      const f = S.bT / S.bLen, bw = Math.max(1, Math.round(18 * f));
+      R(px - 10, PY - 19, 20, 4, C.out); R(px - 9, PY - 18, bw, 2, "#8FE3FF");
+    }
+    // escalar a la pantalla
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    const sx = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
+    const sy = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
+    ctx.drawImage(low, sx, sy, W, H);
+    const sc = W / LW;
+    const fs = Math.max(8, Math.round(W / 40));
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    if (S.state === "play" && S.bOpen) {
+      ctx.font = fs + "px 'Press Start 2P', monospace";
+      outlined("¡RESPIRÁ!", px * sc, (PY - 23) * sc, "#8FE3FF");
+    }
+    const topY = (S.profe > 0 ? fs * 4 + 30 : S.kick > 0 ? fs * 2 + 30 : 14) + fs;
+    S.toasts.forEach((t, i) => {
+      const k = 1 - t.life / t.max;
+      const a = Math.min(1, t.life / 0.25, k / 0.08 + 0.2);
+      const y = topY + i * (fs + 10) - Math.max(0, 0.12 - k) * 60;
+      ctx.globalAlpha = Math.max(0, a); ctx.font = fs + "px 'Press Start 2P', monospace";
+      outlined(t.text, W / 2, y, t.color);
+      ctx.globalAlpha = 1;
+    });
+    S.says.forEach((t, i) => {
+      const k = 1 - t.life / t.max;
+      const a = Math.min(1, t.life / 0.4);
+      const rise = Math.min(1, k / 0.15);
+      const y = H - 14 - (S.says.length - 1 - i) * (fs + 14) + (1 - rise) * 30;
+      ctx.font = fs + "px 'Press Start 2P', monospace";
+      const tw = ctx.measureText(t.text).width + 18;
+      ctx.globalAlpha = Math.max(0, a);
+      ctx.fillStyle = "rgba(10,14,26,.82)"; ctx.fillRect(W / 2 - tw / 2, y - fs - 6, tw, fs + 12);
+      outlined(t.text, W / 2, y, t.color);
+      ctx.globalAlpha = 1;
+    });
+    quipBubbles(sc, fs);
+    chatBubble();
+    if (S.profe > 0) {
+      const flash = Math.floor(S.t * 5) % 2;
+      ctx.fillStyle = flash ? "#C62828" : "#8E1B1B"; ctx.fillRect(0, 8, W, fs * 4 + 12);
+      ctx.fillStyle = "#000"; ctx.fillRect(0, 8 + fs * 4 + 12, W, 3);
+      ctx.font = (fs + 2) + "px 'Press Start 2P', monospace";
+      outlined("¡PRIIIIP! EL PROFE", W / 2, 14 + fs * 1.7, "#FFE08A");
+      ctx.font = fs + "px 'Press Start 2P', monospace";
+      outlined("AGARRÁ LA TABLA Y A PATADA", W / 2, 14 + fs * 3.6, "#FFFFFF");
+    } else if (S.kick > 0) {
+      ctx.fillStyle = "rgba(10,14,26,.85)"; ctx.fillRect(0, 8, W, fs * 2 + 14);
+      ctx.font = fs + "px 'Press Start 2P', monospace";
+      outlined("PATADA x2 · " + Math.ceil(S.kick) + "s", W / 2, 14 + fs * 1.5, "#FFE08A");
+    }
+  }
+  function quipBubbles(sc, fs) {
+    const f2 = Math.max(7, fs - 1);
+    ctx.font = f2 + "px 'Press Start 2P', monospace";
+    for (const o of S.obs) {
+      if (!(o.quipT > 0) || o.hit) continue;
+      const tw = ctx.measureText(o.quip).width + 12;
+      const bx = Math.max(4, Math.min(W - tw - 4, o.x * sc - tw / 2)), by = (yOf(o.m) - 22) * sc;
+      if (by < 0 || by > H) continue;
+      ctx.fillStyle = "#FFFFFF"; ctx.fillRect(bx, by, tw, f2 + 10);
+      ctx.strokeStyle = "#0A0E1A"; ctx.lineWidth = 2; ctx.strokeRect(bx, by, tw, f2 + 10);
+      ctx.fillStyle = "#C62828"; ctx.textAlign = "left"; ctx.fillText(o.quip, bx + 6, by + f2 + 4);
+    }
+    ctx.textAlign = "center";
+  }
+  function chatBubble() {
+    const o = S.obs.find((q) => q.kind === "charla" && q.hooked);
+    if (!o || S.chat <= 0) return;
+    const sc = W / LW, fs = Math.max(8, Math.round(W / 42));
+    ctx.font = fs + "px 'Press Start 2P', monospace";
+    const txt = S.chatLine, tw = ctx.measureText(txt).width + 16;
+    const bx = Math.max(6, Math.min(W - tw - 6, o.x * sc - tw / 2)), by = (PY - 38) * sc;
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(bx, by, tw, fs + 14);
+    ctx.strokeStyle = "#0A0E1A"; ctx.lineWidth = 3; ctx.strokeRect(bx, by, tw, fs + 14);
+    ctx.fillStyle = "#14141f"; ctx.textAlign = "left"; ctx.fillText(txt, bx + 8, by + fs + 6);
+    const w = Math.round((S.chat / 3) * (tw - 6));
+    ctx.fillStyle = "#FFB31A"; ctx.fillRect(bx + 3, by + fs + 10, w, 2);
+    ctx.textAlign = "center";
+  }
+  function outlined(text, x, y, color) {
+    ctx.lineWidth = 4; ctx.strokeStyle = "#0A0E1A"; ctx.lineJoin = "round";
+    ctx.strokeText(text, x, y); ctx.fillStyle = color; ctx.fillText(text, x, y);
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (S.state === "menu") { S.t += dt; S.stroke += dt * 3; }
+    update(dt); draw(); updateHud(); updateFace(dt, now / 1000);
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Controles ----------
+  function move(dir) { if (S.state === "play") S.lane = Math.max(0, Math.min(2, S.lane + dir)); }
+  let pd = null;
+  cv.addEventListener("pointerdown", (e) => { pd = { x: e.clientX, y: e.clientY }; });
+  cv.addEventListener("pointerup", (e) => {
+    if (!pd) return;
+    const dx = e.clientX - pd.x, dy = e.clientY - pd.y; pd = null;
+    if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy)) { move(dx < 0 ? -1 : 1); return; }
+    const r = cv.getBoundingClientRect();
+    move(e.clientX - r.left < r.width / 2 ? -1 : 1);
+  });
+  btnBreathe.addEventListener("pointerdown", (e) => { e.preventDefault(); breathe(); });
+  btnSpecial.addEventListener("pointerdown", (e) => { e.preventDefault(); special(); });
+  btnSpecial.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); special(); } });
+  btnBreathe.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); breathe(); } });
+  window.addEventListener("keydown", (e) => {
+    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") { move(-1); e.preventDefault(); }
+    else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") { move(1); e.preventDefault(); }
+    else if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") { if (S.state === "play") { special(); e.preventDefault(); } }
+    else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S" || e.key === " ") { if (S.state === "play") { breathe(); e.preventDefault(); } }
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && S.state === "play") { S.state = "pause"; $("ovPause").hidden = false; }
+  });
+  $("btnResume").addEventListener("click", () => { $("ovPause").hidden = true; S.state = "play"; last = performance.now(); });
+
+  // ---------- Apodo y récord local ----------
+  const aliasIn = $("alias");
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+  };
+  aliasIn.value = store.get("pileta.alias") || "";
+  const getAlias = () => (aliasIn.value.trim() || "Nadador anónimo").slice(0, 18);
+  let localBest = parseInt(store.get("pileta.bestPts") || "0", 10) || 0;
+  function showMyBest() { $("myBest").textContent = localBest > 0 ? "Tu mejor marca en este dispositivo: " + fmt(localBest) + " puntos." : ""; }
+  showMyBest();
+
+  // ---------- Selección de personaje ----------
+  const picker = $("picker");
+  let charId = store.get("pileta.char") || "pablito";
+  CH = CHARS.find((c) => c.id === charId) || CHARS[0];
+  const pickBtns = CHARS.map((ch) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "char"; b.setAttribute("role", "radio"); b.id = "char-" + ch.id;
+    const cvs = document.createElement("canvas"); cvs.width = 24; cvs.height = 24;
+    drawFace("normal", 1, ch, cvs.getContext("2d"));
+    const nm = document.createElement("b"); nm.textContent = ch.name;
+    b.append(cvs, nm);
+    b.addEventListener("click", () => selectChar(ch.id));
+    picker.appendChild(b);
+    return { b, ch, cvs };
+  });
+  function selectChar(id) {
+    CH = CHARS.find((c) => c.id === id) || CHARS[0];
+    store.set("pileta.char", CH.id);
+    for (const p of pickBtns) {
+      const on = p.ch.id === CH.id;
+      p.b.setAttribute("aria-checked", on ? "true" : "false");
+      p.b.tabIndex = on ? 0 : -1;
+      drawFace(on ? "happy" : "normal", 1, p.ch, p.cvs.getContext("2d"));
+    }
+    $("charTag").textContent = "“" + CH.tag + "”";
+    $("charPerk").textContent = CH.perk;
+    lastFaceKey = "";
+  }
+  picker.addEventListener("keydown", (e) => {
+    const i = CHARS.indexOf(CH);
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectChar(CHARS[(i + 1) % CHARS.length].id); pickBtns[(i + 1) % CHARS.length].b.focus(); }
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); selectChar(CHARS[(i + CHARS.length - 1) % CHARS.length].id); pickBtns[(i + CHARS.length - 1) % CHARS.length].b.focus(); }
+  });
+  selectChar(CH.id);
+
+  function start() {
+    store.set("pileta.alias", getAlias());
+    S = freshState(); S.state = "play";
+    $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true;
+    $("shareText").hidden = true; $("shareMsg").hidden = true;
+    last = performance.now();
+    btnBreathe.focus({ preventScroll: true });
+  }
+  $("btnStart").addEventListener("click", start);
+  $("btnAgain").addEventListener("click", () => {
+    S = freshState();
+    $("ovOver").hidden = true; $("shareText").hidden = true; $("shareMsg").hidden = true;
+    $("ovStart").hidden = false; lastFaceKey = "";
+    const sel = document.querySelector('.char[aria-checked="true"]'); if (sel) sel.focus({ preventScroll: true });
+  });
+  aliasIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
+
+  function drawMila(withFries, cnv) {
+    const mc = (cnv || $("mila")).getContext("2d");
+    const F = (x, y, w, h, c) => { mc.fillStyle = c; mc.fillRect(x, y, w, h); };
+    mc.clearRect(0, 0, 48, 32);
+    // plato
+    const plate = [[20, 9, 28], [21, 5, 32], [22, 3, 34], [23, 2, 35], [24, 2, 35], [25, 3, 34], [26, 5, 32], [27, 8, 29]];
+    for (const [r, a, b] of plate) F(a - 1, r - 1, b - a + 3, 3, "#14141f");
+    for (const [r, a, b] of plate) F(a, r, b - a + 1, 1, "#F3F3F3");
+    F(4, 26, 30, 1, "#C9D4E0"); F(9, 27, 20, 1, "#C9D4E0"); F(6, 22, 2, 1, "#FFFFFF");
+    // milanesa (pan rallado dorado)
+    const mila = [[7, 9, 26], [8, 7, 28], [9, 6, 29], [10, 5, 30], [11, 5, 31], [12, 4, 31], [13, 4, 31], [14, 4, 31], [15, 4, 31], [16, 5, 30], [17, 5, 30], [18, 6, 29], [19, 7, 27], [20, 9, 25], [21, 11, 22]];
+    for (const [r, a, b] of mila) F(a - 1, r, b - a + 3, 1, "#14141f");
+    F(9, 6, 18, 1, "#14141f"); F(11, 22, 12, 1, "#14141f");
+    for (const [r, a, b] of mila) F(a, r, b - a + 1, 1, "#C98A2E");
+    for (const [r, a, b] of mila) { F(a, r, 1, 1, "#A86A1C"); F(b, r, 1, 1, "#A86A1C"); }
+    // salsa de tomate
+    const sauce = [[9, 9, 26], [10, 7, 28], [11, 7, 29], [12, 6, 29], [13, 6, 29], [14, 6, 29], [15, 6, 29], [16, 7, 28], [17, 7, 28], [18, 9, 26], [19, 11, 24]];
+    for (const [r, a, b] of sauce) F(a, r, b - a + 1, 1, "#D23A26");
+    // jamón
+    F(9, 11, 6, 3, "#F2A5A0"); F(20, 15, 6, 3, "#F2A5A0"); F(10, 12, 2, 1, "#FFC9C4");
+    // queso derretido
+    const cheese = [[10, 10, 24], [11, 9, 27], [12, 8, 28], [13, 8, 27], [14, 9, 28], [15, 8, 27], [16, 9, 26], [17, 10, 25], [18, 12, 23]];
+    for (const [r, a, b] of cheese) for (let x = a; x <= b; x++) if ((x * 7 + r * 3) % 5 !== 0) F(x, r, 1, 1, (x + r) % 4 ? "#FBE6A0" : "#F6D36B");
+    F(14, 19, 2, 2, "#FBE6A0"); F(23, 18, 1, 3, "#FBE6A0");
+    // orégano y aceituna
+    for (const [x, y] of [[12, 10], [17, 12], [21, 11], [15, 15], [24, 13], [11, 16], [19, 17]]) F(x, y, 1, 1, "#3E7D2C");
+    F(18, 13, 3, 2, "#2A1B14"); F(19, 13, 1, 1, "#5A4A3A");
+    // limón
+    F(29, 17, 5, 4, "#14141f"); F(30, 18, 3, 2, "#F2E36B"); F(31, 18, 1, 1, "#FFFBD0");
+    if (withFries) {
+      for (const [x, y, h] of [[34, 12, 9], [36, 10, 11], [38, 13, 8], [40, 11, 10], [37, 15, 7]]) { F(x - 1, y - 1, 3, h + 2, "#14141f"); F(x, y, 1, h, "#F7C948"); }
+    }
+    // vapor
+    F(14, 2, 1, 2, "#FFFFFF"); F(15, 0, 1, 2, "#FFFFFF"); F(21, 3, 1, 2, "#FFFFFF"); F(22, 1, 1, 2, "#FFFFFF");
+  }
+  let lastResult = { p: 0, m: 0 };
+  function gameOver(cause) {
+    S.state = "over"; S.bOpen = false;
+    const p = Math.floor(S.pts), m = Math.floor(S.dist);
+    const isRecord = p > localBest;
+    if (isRecord) { localBest = p; store.set("pileta.bestPts", String(p)); showMyBest(); }
+    $("overTitle").textContent = isRecord && p > 0 ? "¡RÉCORD PERSONAL!" : "AFUERA DEL AGUA";
+    const fries = isRecord && p > 0;
+    drawMila(fries);
+    $("prizeText").textContent = fries ? "TU PREMIO: MILANESA A LA NAPOLITANA CON FRITAS" : "TU PREMIO: UNA MILANESA A LA NAPOLITANA";
+    $("overP").textContent = fmt(p) + " PTS";
+    $("overSub").textContent = m + " M · " + Math.floor(m / 25) + " LARGOS · " + S.passed + " LENTOS PASADOS";
+    $("overCause").textContent = cause;
+    $("overExtra").textContent = "Mejor racha de respiración: " + S.bestStreak;
+    $("ovOver").hidden = false;
+    lastResult = { p, m };
+    saveScore(p, m);
+  }
+
+  $("btnShare").addEventListener("click", async () => {
+    const txt = getAlias() + " hizo " + fmt(lastResult.p) + " puntos (" + lastResult.m + " m) en Nadamos por la Milanga. ¿Quién lo supera?";
+    const box = $("shareText"), msg = $("shareMsg");
+    box.value = txt;
+    try {
+      await navigator.clipboard.writeText(txt);
+      msg.textContent = "Copiado. Pegalo en el grupo."; msg.hidden = false; box.hidden = true;
+    } catch {
+      box.hidden = false; box.focus(); box.select();
+      msg.textContent = "Mantené apretado el texto para copiarlo."; msg.hidden = false;
+    }
+  });
+
+  // ---------- Ranking compartido ----------
+  let db = null, uid = null, canWrite = null, rankDocs = [];
+  const rankList = $("rankList"), rankNote = $("rankNote");
+  function renderRank() {
+    rankList.innerHTML = "";
+    rankDocs.forEach((d, i) => {
+      const data = d.data() || {};
+      const li = document.createElement("li");
+      if (uid && d.id === uid) li.className = "me";
+      const pos = document.createElement("span"); pos.className = "pos"; pos.textContent = i + 1;
+      const who = document.createElement("span"); who.className = "who";
+      who.textContent = String(data.alias || "Sin apodo") + (uid && d.id === uid ? " (vos)" : "");
+      const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(data.best) || 0);
+      li.append(pos, who, mm); rankList.appendChild(li);
+    });
+    if (!db) rankNote.textContent = "El ranking no está disponible ahora. Igual podés mandar tu marca al grupo con el botón del final.";
+    else if (rankDocs.length === 0) rankNote.textContent = "Todavía no hay marcas. La primera partida que termines entra acá.";
+    else if (canWrite === false) rankNote.textContent = "Con este acceso podés ver el ranking pero no sumar tu marca. Mandala al grupo con el botón del final.";
+    else rankNote.textContent = "Se guarda tu mejor puntaje. El ranking se actualiza solo.";
+  }
+  // ---- Firebase (hosting propio) ----
+  // Pegá acá la configuración de tu proyecto de Firebase (Configuración del proyecto → Tus apps → Web).
+  const FIREBASE_CONFIG = null;
+  // Clave para ver el contador de visitas: entrá una vez con ?admin=CLAVE al final del link.
+  const ADMIN_KEY = "milanga-admin";
+  const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
+  let fs = null;
+  function deviceId() {
+    let id = store.get("pileta.uid");
+    if (!id) { id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); store.set("pileta.uid", id); }
+    return id;
+  }
+  async function initRanking() {
+    if (!FIREBASE_CONFIG) { renderRank(); return; }
+    try {
+      const appMod = await import(FB + "firebase-app.js");
+      fs = await import(FB + "firebase-firestore.js");
+      const app = appMod.initializeApp(FIREBASE_CONFIG);
+      db = fs.getFirestore(app);
+    } catch { db = null; renderRank(); return; }
+    uid = deviceId(); canWrite = true;
+    const now = new Date().toISOString();
+    try {
+      const ref = fs.doc(db, "visits", uid);
+      const cur = await fs.getDoc(ref);
+      if (cur.exists()) await fs.updateDoc(ref, { count: fs.increment(1), last: now });
+      else await fs.setDoc(ref, { count: 1, first: now, last: now });
+    } catch {}
+    try {
+      const q = new URLSearchParams(location.search).get("admin");
+      if (q === ADMIN_KEY) store.set("pileta.admin", "1");
+      if (store.get("pileta.admin") === "1") {
+        $("visitsPanel").hidden = false;
+        fs.onSnapshot(fs.collection(db, "visits"), (snap) => {
+          let total = 0; snap.docs.forEach((d) => { total += Number((d.data() || {}).count) || 0; });
+          $("visitsTxt").textContent = snap.size + (snap.size === 1 ? " persona" : " personas") + " distintas · " + total + " entradas en total. Se cuenta un dispositivo por persona (el mismo celular no suma dos veces).";
+        }, () => { $("visitsTxt").textContent = "No se pudo leer el contador ahora."; });
+      }
+    } catch {}
+    try {
+      fs.onSnapshot(fs.query(fs.collection(db, "scores"), fs.orderBy("best", "desc"), fs.limit(15)),
+        (snap) => { rankDocs = snap.docs; renderRank(); },
+        () => { rankNote.textContent = "No se pudo cargar el ranking ahora. Tu partida sigue funcionando."; });
+    } catch { renderRank(); }
+  }
+  async function saveScore(p, m) {
+    if (!db || !uid || p <= 0) return;
+    const mine = rankDocs.find((d) => d.id === uid);
+    const prev = mine ? Number((mine.data() || {}).best) || 0 : 0;
+    const shownMin = rankDocs.length >= 15 ? Number((rankDocs[rankDocs.length - 1].data() || {}).best) || 0 : 0;
+    if (p <= prev) return;
+    try {
+      await fs.setDoc(fs.doc(db, "scores", uid), { alias: getAlias(), best: p, metros: m, char: CH.id, at: new Date().toISOString() });
+      $("overExtra").textContent += p > shownMin ? " · Guardado en el ranking" : " · Guardado";
+    } catch (e) { renderRank(); }
+  }
+
+  // ---------- Arranque ----------
+  resize();
+  window.addEventListener("resize", resize);
+  pips(hudAir, 3, 3, "air"); pips(hudLives, 3, 3, "life");
+  addObs("senora", 0, 6); addObs("mariposa", 2, 4); addObs("lento", 1, 9);
+  document.querySelectorAll("canvas[data-icon]").forEach((c) => drawIcon(c, c.dataset.icon));
+  // pantalla de carga: globo HSJ + milanesa a la napolitana con fritas
+  (function loaderArt() {
+    g.clearRect(0, 0, 24, 33);
+    balloon(12, 13);
+    const bc = $("ldBalloon").getContext("2d");
+    bc.imageSmoothingEnabled = false; bc.drawImage(low, 0, 0, 24, 33, 0, 0, 24, 33);
+    drawMila(true, $("ldMila"));
+    const ld = $("loader");
+    const quick = reduceMotion ? 500 : 2100;
+    setTimeout(() => { ld.classList.add("out"); setTimeout(() => { ld.hidden = true; }, 500); }, quick);
+  })();
+  initRanking();
+  requestAnimationFrame(frame);
+
+  // íconos de la leyenda: dibuja con el mismo set de sprites en un canvas chico
+  function drawIcon(canvas, kind) {
+    const n = canvas.width;
+    g.clearRect(0, 0, n, n);
+    const c = n / 2;
+    if (kind === "mariposa") butterfly(c, c + 1, 0.1);
+    else if (kind === "rana") frog(c, c + 1, 0);
+    else if (kind === "gordo") gordo(c, 20, 0.5);
+    else if (kind === "charla") charlatan(c, 9, 0.1, true);
+    else if (kind === "aletas") fins(c, c + 1);
+    else if (kind === "manoplas") paddles(c, c + 1);
+    else if (kind === "milanga") milaItem(c - 1, c + 2, 0);
+    else capItem(c, c + 1);
+    const ic = canvas.getContext("2d");
+    ic.imageSmoothingEnabled = false; ic.clearRect(0, 0, n, n);
+    ic.drawImage(low, 0, 0, n, n, 0, 0, n, n);
+  }
+})();
+</script>
+
+</body>
+</html>

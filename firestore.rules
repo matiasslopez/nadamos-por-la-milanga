@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Ranking: todos leen; cada dispositivo escribe solo su propia marca, con datos razonables
+    match /scores/{id} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['alias', 'best', 'metros', 'char', 'at'])
+        && request.resource.data.alias is string && request.resource.data.alias.size() <= 18
+        && request.resource.data.best is number && request.resource.data.best > 0 && request.resource.data.best < 5000000
+        && request.resource.data.metros is number && request.resource.data.metros < 100000
+        && (resource == null || request.resource.data.best > resource.data.best);
+      allow delete: if false;
+    }
+    // Visitas: un documento por dispositivo, el contador solo sube de a 1
+    match /visits/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.count == 1;
+      allow update: if request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+  }
+}
