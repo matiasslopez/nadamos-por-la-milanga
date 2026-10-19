@@ -1496,7 +1496,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
         $("visitsPanel").hidden = false;
         fs.onSnapshot(fs.collection(db, "visits"), (snap) => {
           let total = 0; snap.docs.forEach((d) => { total += Number((d.data() || {}).count) || 0; });
-          $("visitsTxt").textContent = snap.size + (snap.size === 1 ? " persona" : " personas") + " distintas · " + total + " entradas en total. Se cuenta un dispositivo por persona (el mismo celular no suma dos veces).";
+          $("visitsTxt").textContent = snap.size + (snap.size === 1 ? " persona" : " personas distintas") + " · " + total + (total === 1 ? " entrada" : " entradas") + " en total. Se cuenta un dispositivo por persona (el mismo celular no suma dos veces).";
         }, () => { $("visitsTxt").textContent = "No se pudo leer el contador ahora."; });
       }
     } catch {}
