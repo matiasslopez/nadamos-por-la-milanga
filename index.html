@@ -1525,7 +1525,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     appId: "1:1081393218126:web:296e027470f301f0c1791f"
   };
   const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
-  let fs = null;
+  let fs = null, fbApp = null;
   function deviceId() {
     let id = store.get("pileta.uid");
     if (!id) { id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); store.set("pileta.uid", id); }
@@ -1536,7 +1536,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     try {
       const appMod = await import(FB + "firebase-app.js");
       fs = await import(FB + "firebase-firestore.js");
-      const app = appMod.initializeApp(FIREBASE_CONFIG);
+      fbApp = appMod.initializeApp(FIREBASE_CONFIG);
+      const app = fbApp;
       db = fs.getFirestore(app);
     } catch { db = null; renderRank(); return; }
     uid = deviceId(); canWrite = true;
@@ -1547,7 +1548,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (cur.exists()) await fs.updateDoc(ref, { count: fs.increment(1), last: now });
       else await fs.setDoc(ref, { count: 1, first: now, last: now });
     } catch {}
-    initAdmin(app);
+    try { initAdmin(fbApp); } catch {}
     try {
       fs.onSnapshot(fs.query(fs.collection(db, "scores"), fs.orderBy("best", "desc"), fs.limit(15)),
         (snap) => { rankDocs = snap.docs; renderRank(); },
