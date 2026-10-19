@@ -77,7 +77,7 @@ canvas{display:block;width:100%;touch-action:none;image-rendering:pixelated}
 .overlay .sub{font-family:var(--font-pixel);font-size:.6rem;color:var(--muted);line-height:1.6}
 .legend{display:grid;grid-template-columns:60px 1fr;gap:6px 10px;align-items:center;text-align:left;font-size:.92rem;color:#D7E2EE}
 .legend canvas{width:40px;height:40px;image-rendering:pixelated;justify-self:center}
-.legend canvas[data-icon=gordo]{width:60px;height:60px}
+.legend canvas[data-icon=gordo],.legend canvas[data-icon=federado]{width:60px;height:60px}
 .field{display:flex;flex-direction:column;gap:5px;width:100%;max-width:260px;text-align:left}
 .field label{font-family:var(--font-pixel);font-size:.5rem;letter-spacing:.06em;color:var(--muted)}
 input[type=text]{font:inherit;font-size:1rem;padding:9px 11px;border:3px solid #000;background:#F1F5FA;color:#101a2b;width:100%;box-sizing:border-box}
@@ -235,12 +235,14 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 200 puntos.</span>
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
       <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés 500 puntos.</span>
+      <canvas width="30" height="30" data-icon="federado"></canvas><span><b>El federado:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
     </div>
     <ul class="how">
       <li><b>Esquivá:</b> si chocás perdés una gorra. Con tres afuera, se termina.</li>
       <li><b>Pasá a los lentos:</b> cada nadador de pecho que pasás sin tocarlo suma puntos extra.</li>
       <li><b>Respirá:</b> cuando se ilumina el botón, tocá RESPIRAR. Si te lo perdés o respirás a destiempo, tragás agua. Sin aire, perdés una gorra.</li>
       <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés 500 puntos; si lo esquivás, sumás.</li>
+      <li><b>El federado:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
       <li><b>El profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, el profe te ve y perdés 300 puntos.</li>
     </ul>
@@ -617,6 +619,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     senora: "Chocaste a la señora de la gorra de flores. No paró de hablar.",
     tabla: "Una tabla de patada te dio en la frente.",
     corchera: "Te enredaste en la corchera.",
+    federado: "Te pasó por arriba el federado. ¡Mirá para atrás!",
     aire: "Te quedaste sin aire. Respirá, campeón."
   };
   let S;
@@ -625,7 +628,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200),
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
     };
   }
   S = freshState();
@@ -889,10 +892,10 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     S.x += (laneC(S.lane) + (S.walk > 0 ? S.walkSide * 15 : 0) - S.x) * Math.min(1, dt * 14);
 
     for (const o of S.obs) {
-      if (!o.pick && !o.hit && o.kind !== "corchera" && o.kind !== "tabla" && o.v) {
+      if (!o.pick && !o.hit && o.kind !== "corchera" && o.kind !== "tabla" && o.kind !== "federado" && o.v) {
         for (const q of S.obs) {
           if (q === o || q.pick || q.hit || q.kind === "corchera" || Math.abs(q.x - o.x) > 22) continue;
-          if (o.v > 0 && q.kind === "gordo") continue;
+          if (o.v > 0 && (q.kind === "gordo" || q.kind === "federado")) continue;
           const gap = 2.6;
           if (o.v > 0 && q.m > o.m && q.m - o.m < gap) o.m = Math.min(o.m, q.m - gap);
           if (o.v < 0 && !q.quipped && Math.abs(o.m - q.m) < 1.6 && (q.kind === "lento" || q.kind === "senora" || q.kind === "charla")) {
@@ -903,6 +906,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       if (o.quipT > 0) o.quipT -= dt;
       if (o.eaten) { o.eaten -= dt; o.x += o.shove * dt; o.m += 3 * dt; if (o.eaten <= 0) o.gone = true; continue; }
       if (o.sink) { o.sink -= dt; o.m = Math.max(o.m, S.dist + 2.5); if (o.sink <= 0) o.gone = true; continue; }
+      if (o.kind === "federado") o.v = speed + 4.5;
       if (o.kind === "charla" && o.hooked && chatting) o.m = S.dist + 0.3;
       else if (o.v) o.m += o.v * slow * dt;
       if (o.kind === "charla" && !o.hooked && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
@@ -920,14 +924,23 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       if (o.kind === "tablaProfe" && !o.hit && o.m < S.dist - 1.2) {
         o.hit = true; S.profe = 0; S.pts = Math.max(0, S.pts - 300); setFace("hurt", 1); toast("¡EL PROFE TE VIO! -300", "#FF9F6B");
       }
+      if (o.kind === "federado" && !o.hit && !o.passed && o.m > S.dist + 1.6) {
+        o.passed = true; const b = 150 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡ZAFASTE DEL FEDERADO! +" + b, "#FFE08A");
+      }
+      if (o.kind === "federado" && o.m > S.dist + 20) o.gone = true;
       if (o.kind === "gordo" && !o.warned && o.m - S.dist < 16) { o.warned = true; toast("¡CONTRAMANO!", "#FF9F6B"); }
       if (o.kind === "gordo" && !o.hit && !o.passed && o.m < S.dist - 1.4) {
         o.passed = true;
         const b = 100 * st.mult; S.pts += b; setFace("happy", 0.8); toast("ZAFASTE AL QUE NADA POR LA SUYA +" + b, "#FFE08A");
       }
     }
-    S.obs = S.obs.filter((o) => o.m > S.dist - 4 && !(o.pick && o.hit) && !o.gone);
+    S.obs = S.obs.filter((o) => (o.m > S.dist - 4 || o.kind === "federado") && !(o.pick && o.hit) && !o.gone);
     while (S.dist + 13 > S.nextSpawn) S.nextSpawn += spawn(S.nextSpawn);
+    if (S.dist >= S.nextFed && !S.obs.some((o) => o.kind === "federado")) {
+      S.obs.push({ kind: "federado", lane: S.lane, m: S.dist - 15, x: laneC(S.lane), hit: false, hw: 10, hl: 1.0, v: 0 });
+      S.nextFed = S.dist + rand(110, 170);
+      toast("¡ATRÁS! VIENE EL FEDERADO", "#FF9F6B"); say("¡PERMISO, PERMISO!", "#FFB4A8");
+    }
 
     for (const o of S.obs) {
       if (o.hit || o.kind === "charla") continue;
@@ -1101,6 +1114,11 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     else if (o.kind === "curita") bandaid(o.x, y);
     else if (o.kind === "gordo") { g.save(); g.setTransform(1, 0, 0, -1, 0, 2 * y); gordo(o.x, y, tt); g.restore(); }
     else if (o.kind === "charla") charlatan(o.x, y, tt, o.hooked && S.chat > 0);
+    else if (o.kind === "federado") {
+      const fr = Math.floor(S.t * 9) % 2;
+      for (let i = 0; i < 5; i++) R(Math.round(o.x) - 8 + i * 4, Math.round(y) + 11 + ((i + fr) % 2) * 3, 1, 4 + (i % 2) * 4, C.white);
+      swimmer(o.x, y, "crol", fr, { cap: "#E02424", capHi: "#FF8A8A", suit: "#111111" });
+    }
     else if (o.kind === "mariposa") { if (Math.floor(S.t * 6) % 3) R(o.x - 7, y - 7, 14, 14, "rgba(255,255,255,0.18)"); butterfly(o.x, y + Math.round(Math.sin(tt * 4)), tt); }
     else if (o.kind === "rana") frog(o.x, y, tt);
     else if (o.kind === "aletas") fins(o.x, y + Math.round(Math.sin(tt * 4)));
@@ -1133,6 +1151,16 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       const ahead = o.m - S.dist;
       if (ahead > PY / PPM - 0.5 && ahead < 16 && Math.floor(S.t * 6) % 2) {
         R(o.x - 4, 2, 8, 9, "#FFD23F"); R(o.x - 3, 3, 6, 7, C.red); R(o.x - 1, 4, 2, 3, C.white); R(o.x - 1, 8, 2, 1, C.white);
+      }
+    }
+    // aviso del federado: flecha abajo del carril por donde viene
+    for (const o of S.obs) {
+      if (o.kind !== "federado" || o.hit) continue;
+      if (S.dist - o.m > (LH - PY) / PPM - 0.8 && Math.floor(S.t * 6) % 2) {
+        const yy = LH - 40, xx = Math.round(o.x);
+        R(xx - 6, yy, 12, 14, "#FFD23F"); R(xx - 5, yy + 1, 10, 12, C.red);
+        R(xx - 1, yy + 2, 2, 1, C.white); R(xx - 2, yy + 3, 4, 1, C.white); R(xx - 3, yy + 4, 6, 1, C.white); R(xx - 4, yy + 5, 8, 1, C.white); R(xx - 1, yy + 6, 2, 5, C.white);
+        R(xx - 1, yy + 16, 2, 2, "#FFD23F"); R(xx - 1, yy + 20, 2, 2, "#FFD23F");
       }
     }
     // jugador
@@ -1546,6 +1574,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     if (kind === "mariposa") butterfly(c, c + 1, 0.1);
     else if (kind === "rana") frog(c, c + 1, 0);
     else if (kind === "gordo") gordo(c, 20, 0.5);
+    else if (kind === "federado") swimmer(c, c + 3, "crol", 0, { cap: "#E02424", capHi: "#FF8A8A", suit: "#111111" });
     else if (kind === "charla") charlatan(c, 9, 0.1, true);
     else if (kind === "aletas") fins(c, c + 1);
     else if (kind === "manoplas") paddles(c, c + 1);
