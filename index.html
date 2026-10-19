@@ -773,7 +773,10 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     S.air--; S.streak = 0;
     if (S.air <= 0) { S.air = 3; loseLife("aire"); }
   }
-  const EATABLE = { lento: 1, senora: 1, charla: 1, gordo: 3 };
+  const EATABLE = { lento: 1, senora: 1, charla: 1, gordo: 3, rapido: 3 };
+  // el rápido viene desde atrás: se lo puede agarrar si ya está cerca, aunque esté detrás
+  const inReach = (o, ahead, fwd) => o.kind === "rapido" ? ahead > -9 && ahead < fwd : ahead > -0.5 && ahead < fwd;
+  const closer = (o, t) => !t || (o.kind === "rapido" && t.kind !== "rapido") || (t.kind !== "rapido" && o.m < t.m);
   function special() {
     if (S.state !== "play" || S.cd > 0) return;
     if (CH.id === "pablito") {
@@ -788,7 +791,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       for (const o of S.obs) {
         if (o.hit || !EATABLE[o.kind]) continue;
         const ahead = o.m - S.dist;
-        if (ahead > -0.5 && ahead < 12 && Math.abs(o.x - S.x) < 16 && (!target || o.m < target.m)) target = o;
+        if (inReach(o, ahead, 12) && Math.abs(o.x - S.x) < 16 && closer(o, target)) target = o;
       }
       S.puff = 0.9;
       if (!target) { S.cd = 1; toast("PITADA AL PEDO, NO HAY NADIE", "#B8F0A0"); return; }
@@ -806,6 +809,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
         if (ahead > -0.5 && ahead < 14 && inLane && (!target || o.m < target.m)) target = o;
       }
       S.warpFrom = S.dist;
+      for (const r of S.obs) if (r.kind === "rapido" && !r.hit && Math.abs(r.x - S.x) < 16 && S.dist - r.m < 12) { r.hit = true; r.lost = true; toast("¡EL RÁPIDO TE PERDIÓ EL RASTRO!", "#E0B0FF"); }
       S.dist = target ? target.m + (target.hl || 1) + 2.2 : S.dist + 8;
       S.warp = 0.9; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.12;
       if (target && target.kind !== "corchera") { const b = 120 * STY[S.style].mult; S.pts += b; toast("¡AGUJERO DE GUSANO! +" + b, "#E0B0FF"); }
@@ -817,7 +821,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
         if (o.hit || !EATABLE[o.kind]) continue;
         const ahead = o.m - S.dist;
         const inLane = Math.abs(o.x - S.x) < 16;
-        if (ahead > -0.5 && ahead < 6 && inLane && (!target || o.m < target.m)) target = o;
+        if (inReach(o, ahead, 6) && inLane && closer(o, target)) target = o;
       }
       if (!target) { S.cd = 1; toast("NO HAY PIES PARA COMER", "#C9D4FF"); return; }
       target.hit = true; target.eaten = 0.6; target.shove = (target.x < LW / 2 ? -1 : 1) * 110;
@@ -901,8 +905,8 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       }
       if (o.quipT > 0) o.quipT -= dt;
       if (o.eaten) { o.eaten -= dt; o.x += o.shove * dt; o.m += 3 * dt; if (o.eaten <= 0) o.gone = true; continue; }
-      if (o.sink) { o.sink -= dt; o.m = Math.max(o.m, S.dist + 2.5); if (o.sink <= 0) o.gone = true; continue; }
-      if (o.kind === "rapido") o.v = speed + 4.5;
+      if (o.sink) { o.sink -= dt; if (o.kind !== "rapido") o.m = Math.max(o.m, S.dist + 2.5); else o.m += speed * dt; if (o.sink <= 0) o.gone = true; continue; }
+      if (o.kind === "rapido") o.v = o.lost ? speed * 0.4 : speed + 4.5;
       if (o.kind === "charla" && o.hooked && chatting) o.m = S.dist + 0.3;
       else if (o.v) o.m += o.v * slow * dt;
       if (o.kind === "charla" && !o.hooked && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
