@@ -234,14 +234,14 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       <canvas width="20" height="20" data-icon="aletas"></canvas><span><b>Patas de rana:</b> unos segundos de velocidad extra.</span>
       <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 200 puntos.</span>
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
-      <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés 500 puntos.</span>
+      <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés una gorra.</span>
       <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El rápido:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
     </div>
     <ul class="how">
       <li><b>Esquivá:</b> si chocás perdés una gorra. Con tres afuera, se termina.</li>
       <li><b>Pasá a los lentos:</b> cada nadador de pecho que pasás sin tocarlo suma puntos extra.</li>
       <li><b>Respirá:</b> cuando se ilumina el botón, tocá RESPIRAR. Si te lo perdés o respirás a destiempo, tragás agua. Sin aire, perdés una gorra.</li>
-      <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés 500 puntos; si lo esquivás, sumás.</li>
+      <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés una gorra; si lo esquivás, sumás.</li>
       <li><b>El rápido:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
       <li><b>El profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, el profe te ve y perdés 300 puntos.</li>
@@ -620,6 +620,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     tabla: "Una tabla de patada te dio en la frente.",
     corchera: "Te enredaste en la corchera.",
     rapido: "Te pasó por arriba el rápido. ¡Mirá para atrás!",
+    gordo: "Te chocaste al que nada por la suya, a contramano.",
     aire: "Te quedaste sin aire. Respirá, campeón."
   };
   let S;
@@ -764,11 +765,6 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     if (o.kind === "aletas") { S.fins = 6; setFace("happy", 0.8); toast("¡PATAS DE RANA! TURBO", "#8CF08C"); return; }
     if (o.kind === "gorra") { S.shield = true; toast("GORRA DE SILICONA", "#FFE08A"); return; }
     if (o.kind === "curita") { toast("¡QUÉ ASCO! UNA CURITA", "#F7D7B8"); setFace("hurt", 0.6); loseAir(); return; }
-    if (o.kind === "gordo") {
-      S.pts = Math.max(0, S.pts - 500); S.inv = Math.max(S.inv, 0.8); S.shake = reduceMotion ? 0 : 0.4;
-      if (S.style === "mariposa") setStyle("crol");
-      setFace("hurt", 1.2); toast("¡TE CRUZASTE AL QUE NADA POR LA SUYA! -500", "#FF9F6B"); slowRestart(); return;
-    }
     if (S.inv > 0) return;
     if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast("LA GORRA TE SALVÓ", "#FFE08A"); return; }
     loseLife(o.kind);
