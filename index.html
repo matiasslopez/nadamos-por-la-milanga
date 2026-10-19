@@ -1504,17 +1504,18 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     rankDocs.forEach((d, i) => {
       const data = d.data() || {};
       const li = document.createElement("li");
-      if (uid && d.id === uid) li.className = "me";
+      const mine = !!(uid && data.device === uid);
+      if (mine) li.className = "me";
       const pos = document.createElement("span"); pos.className = "pos"; pos.textContent = i + 1;
       const who = document.createElement("span"); who.className = "who";
-      who.textContent = String(data.alias || "Sin apodo") + (uid && d.id === uid ? " (vos)" : "");
-      const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(data.best) || 0);
+      who.textContent = String(data.alias || "Sin apodo") + (mine ? " (vos)" : "");
+      const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(data.pts) || 0);
       li.append(pos, who, mm); rankList.appendChild(li);
     });
     if (!db) rankNote.textContent = "El ranking no está disponible ahora. Igual podés mandar tu marca al grupo con el botón del final.";
     else if (rankDocs.length === 0) rankNote.textContent = "Todavía no hay marcas. La primera partida que termines entra acá.";
     else if (canWrite === false) rankNote.textContent = "Con este acceso podés ver el ranking pero no sumar tu marca. Mandala al grupo con el botón del final.";
-    else rankNote.textContent = "Se guarda tu mejor puntaje. El ranking se actualiza solo.";
+    else rankNote.textContent = "Las 10 mejores partidas del grupo, aunque sean de la misma persona. Se actualiza solo.";
   }
   // ---- Firebase (hosting propio) ----
   // Pegá acá la configuración de tu proyecto de Firebase (Configuración del proyecto → Tus apps → Web).
@@ -1552,7 +1553,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } catch {}
     try { initAdmin(fbApp); } catch {}
     try {
-      fs.onSnapshot(fs.query(fs.collection(db, "scores"), fs.orderBy("best", "desc"), fs.limit(15)),
+      fs.onSnapshot(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(10)),
         (snap) => { rankDocs = snap.docs; renderRank(); },
         () => { rankNote.textContent = "No se pudo cargar el ranking ahora. Tu partida sigue funcionando."; });
     } catch { renderRank(); }
@@ -1631,13 +1632,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   async function saveScore(p, m) {
     if (!db || !uid || p <= 0) return;
-    const mine = rankDocs.find((d) => d.id === uid);
-    const prev = mine ? Number((mine.data() || {}).best) || 0 : 0;
-    const shownMin = rankDocs.length >= 15 ? Number((rankDocs[rankDocs.length - 1].data() || {}).best) || 0 : 0;
-    if (p <= prev) return;
+    const shownMin = rankDocs.length >= 10 ? Number((rankDocs[rankDocs.length - 1].data() || {}).pts) || 0 : 0;
     try {
-      await fs.setDoc(fs.doc(db, "scores", uid), { alias: getAlias(), best: p, metros: m, char: CH.id, at: new Date().toISOString() });
-      $("overExtra").textContent += p > shownMin ? " · Guardado en el ranking" : " · Guardado";
+      await fs.addDoc(fs.collection(db, "runs"), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, at: new Date().toISOString() });
+      if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 10!";
     } catch (e) { renderRank(); }
   }
 

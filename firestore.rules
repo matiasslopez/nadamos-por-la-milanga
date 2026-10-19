@@ -15,6 +15,16 @@ service cloud.firestore {
         && (resource == null || request.resource.data.best > resource.data.best);
       allow delete: if isAdmin();
     }
+    // Partidas: cada partida terminada es una fila; todos leen, nadie edita
+    match /runs/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['alias', 'pts', 'metros', 'char', 'device', 'at'])
+        && request.resource.data.alias is string && request.resource.data.alias.size() <= 18
+        && request.resource.data.pts is number && request.resource.data.pts > 0 && request.resource.data.pts < 5000000
+        && request.resource.data.metros is number && request.resource.data.metros < 100000;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
     // Visitas: un documento por dispositivo; el contador solo sube de a 1; solo el admin las lee
     match /visits/{id} {
       allow get: if true;
