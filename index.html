@@ -115,6 +115,18 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
 .rank .who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .rank .m{font-family:var(--font-pixel);font-size:.62rem;color:var(--cap)}
 .note{font-size:.85rem;color:var(--muted);margin:0}
+.stars{display:flex;gap:6px}
+.star{font-size:1.9rem;line-height:1;background:none;border:0;padding:2px 3px;cursor:pointer;color:#3A4A66;text-shadow:2px 2px 0 #000}
+.star[aria-checked=true],.star.on{color:var(--cap)}
+.star:focus-visible{outline:3px solid #fff;outline-offset:1px}
+textarea{font:inherit;font-size:1rem;padding:9px 11px;border:3px solid #000;background:#F1F5FA;color:#101a2b;width:100%;box-sizing:border-box;min-height:84px;resize:vertical}
+textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
+.fb-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fb-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.fb-list li{background:rgba(255,255,255,.04);padding:8px 10px;display:flex;flex-direction:column;gap:3px}
+.fb-list .st{color:var(--cap);letter-spacing:2px}
+.fb-list .meta{font-size:.78rem;color:var(--muted)}
+.fb-list .txt{white-space:pre-wrap;overflow-wrap:anywhere}
 .styles{display:grid;grid-template-columns:auto 1fr auto;gap:8px 12px;align-items:center;font-size:.92rem}
 .styles .k{font-family:var(--font-pixel);font-size:.55rem}
 .styles .x{font-family:var(--font-pixel);font-size:.6rem;color:var(--cap)}
@@ -187,6 +199,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
         <button class="btn" id="btnAgain">VOLVER A JUGAR</button>
         <button class="btn ghost" id="btnShare">COPIAR MARCA</button>
       </div>
+      <button class="btn ghost" id="btnFeedback" type="button">⭐ DAR FEEDBACK</button>
       <input type="text" class="copybox" id="shareText" readonly hidden aria-label="Texto para copiar">
       <p class="note" id="shareMsg" hidden></p>
     </div>
@@ -211,9 +224,18 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     <p class="note" id="myBest"></p>
   </section>
 
-  <section class="panel" id="visitsPanel" aria-labelledby="visitsTitle" hidden>
-    <h3 id="visitsTitle">VISITAS · MODO ADMIN</h3>
-    <p class="note" id="visitsTxt">Contando…</p>
+  <section class="panel" id="adminPanel" aria-labelledby="adminTitle" hidden>
+    <h3 id="adminTitle">MODO ADMIN</h3>
+    <p class="note" id="adminNote">Entrá con tu cuenta de Google para ver las visitas y el feedback.</p>
+    <div class="fb-row">
+      <button class="btn" id="btnLogin" type="button">ENTRAR CON GOOGLE</button>
+      <button class="btn ghost" id="btnLogout" type="button" hidden>SALIR</button>
+    </div>
+    <div id="adminData" hidden>
+      <p class="note" id="visitsTxt">Contando…</p>
+      <p class="note" id="fbSummary"></p>
+      <ul class="fb-list" id="fbList"></ul>
+    </div>
   </section>
 
   <section class="panel" aria-labelledby="stTitle">
@@ -246,6 +268,16 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
       <li><b>El profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, el profe te ve y perdés 300 puntos.</li>
     </ul>
+  </section>
+
+  <section class="panel" id="feedbackPanel" aria-labelledby="fbTitle">
+    <h3 id="fbTitle">¿QUÉ TE PARECIÓ?</h3>
+    <div class="stars" id="fbStars" role="radiogroup" aria-label="Puntaje de 1 a 5 estrellas"></div>
+    <textarea id="fbText" maxlength="500" placeholder="Contanos qué te gustó, qué cambiarías o qué personaje falta (opcional)"></textarea>
+    <div class="fb-row">
+      <button class="btn" id="btnSendFb" type="button">ENVIAR</button>
+      <p class="note" id="fbMsg" role="status"></p>
+    </div>
   </section>
 </div>
 
@@ -1320,7 +1352,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
   btnSpecial.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); special(); } });
   btnBreathe.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); breathe(); } });
   window.addEventListener("keydown", (e) => {
-    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) return;
     if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") { move(-1); e.preventDefault(); }
     else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") { move(1); e.preventDefault(); }
     else if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") { if (S.state === "play") { special(); e.preventDefault(); } }
@@ -1492,8 +1524,6 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
     messagingSenderId: "1081393218126",
     appId: "1:1081393218126:web:296e027470f301f0c1791f"
   };
-  // Clave para ver el contador de visitas: entrá una vez con ?admin=CLAVE al final del link.
-  const ADMIN_KEY = "milanga-admin";
   const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
   let fs = null;
   function deviceId() {
@@ -1517,23 +1547,85 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
       if (cur.exists()) await fs.updateDoc(ref, { count: fs.increment(1), last: now });
       else await fs.setDoc(ref, { count: 1, first: now, last: now });
     } catch {}
-    try {
-      const q = new URLSearchParams(location.search).get("admin");
-      if (q === ADMIN_KEY) store.set("pileta.admin", "1");
-      if (store.get("pileta.admin") === "1") {
-        $("visitsPanel").hidden = false;
-        fs.onSnapshot(fs.collection(db, "visits"), (snap) => {
-          let total = 0; snap.docs.forEach((d) => { total += Number((d.data() || {}).count) || 0; });
-          $("visitsTxt").textContent = snap.size + (snap.size === 1 ? " persona" : " personas distintas") + " · " + total + (total === 1 ? " entrada" : " entradas") + " en total. Se cuenta un dispositivo por persona (el mismo celular no suma dos veces).";
-        }, () => { $("visitsTxt").textContent = "No se pudo leer el contador ahora."; });
-      }
-    } catch {}
+    initAdmin(app);
     try {
       fs.onSnapshot(fs.query(fs.collection(db, "scores"), fs.orderBy("best", "desc"), fs.limit(15)),
         (snap) => { rankDocs = snap.docs; renderRank(); },
         () => { rankNote.textContent = "No se pudo cargar el ranking ahora. Tu partida sigue funcionando."; });
     } catch { renderRank(); }
   }
+  // ---- Feedback ----
+  let fbRating = 0;
+  const fbStars = $("fbStars"), fbMsg = $("fbMsg");
+  const starBtns = [1, 2, 3, 4, 5].map((n) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "star"; b.textContent = "★";
+    b.setAttribute("role", "radio"); b.setAttribute("aria-label", n + (n === 1 ? " estrella" : " estrellas"));
+    b.addEventListener("click", () => setRating(n));
+    b.addEventListener("mouseenter", () => paintStars(n));
+    b.addEventListener("mouseleave", () => paintStars(fbRating));
+    fbStars.appendChild(b); return b;
+  });
+  function paintStars(n) { starBtns.forEach((b, i) => b.classList.toggle("on", i < n)); }
+  function setRating(n) { fbRating = n; starBtns.forEach((b, i) => b.setAttribute("aria-checked", i === n - 1 ? "true" : "false")); paintStars(n); fbMsg.textContent = ""; }
+  setRating(0);
+  $("btnFeedback").addEventListener("click", () => { $("feedbackPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" }); setTimeout(() => starBtns[0].focus({ preventScroll: true }), 400); });
+  $("btnSendFb").addEventListener("click", async () => {
+    if (!fbRating) { fbMsg.textContent = "Elegí de 1 a 5 estrellas."; return; }
+    if (!db || !fs) { fbMsg.textContent = "No se pudo enviar ahora. Probá en un rato."; return; }
+    const btn = $("btnSendFb"); btn.disabled = true; fbMsg.textContent = "Enviando…";
+    try {
+      await fs.addDoc(fs.collection(db, "feedback"), { rating: fbRating, comment: $("fbText").value.trim().slice(0, 500), alias: getAlias(), char: CH.id, best: localBest, device: uid || "", at: new Date().toISOString() });
+      fbMsg.textContent = "¡Gracias! Lo vamos a leer."; $("fbText").value = ""; setRating(0);
+    } catch { fbMsg.textContent = "No se pudo enviar ahora. Probá en un rato."; }
+    btn.disabled = false;
+  });
+
+  // ---- Modo admin: login con Google, los datos solo los puede leer la cuenta admin ----
+  async function initAdmin(app) {
+    let au;
+    try { au = await import(FB + "firebase-auth.js"); } catch { return; }
+    const auth = au.getAuth(app);
+    const wantsAdmin = new URLSearchParams(location.search).has("admin");
+    let unsub = [];
+    const stop = () => { unsub.forEach((u) => { try { u(); } catch {} }); unsub = []; };
+    $("btnLogin").addEventListener("click", async () => {
+      try { await au.signInWithPopup(auth, new au.GoogleAuthProvider()); }
+      catch (e) { $("adminNote").textContent = "No se pudo entrar (" + (e.code || "error") + ")."; }
+    });
+    $("btnLogout").addEventListener("click", () => au.signOut(auth));
+    au.onAuthStateChanged(auth, (user) => {
+      stop();
+      $("adminPanel").hidden = !(wantsAdmin || user);
+      $("btnLogin").hidden = !!user; $("btnLogout").hidden = !user;
+      $("adminData").hidden = true;
+      if (!user) { $("adminNote").textContent = "Entrá con tu cuenta de Google para ver las visitas y el feedback."; return; }
+      $("adminNote").textContent = "Conectado como " + (user.displayName || "admin") + ".";
+      const denied = () => { $("adminData").hidden = true; $("adminNote").textContent = "Esta cuenta no tiene permiso de admin."; };
+      unsub.push(fs.onSnapshot(fs.collection(db, "visits"), (snap) => {
+        $("adminData").hidden = false;
+        let total = 0; snap.docs.forEach((d) => { total += Number((d.data() || {}).count) || 0; });
+        $("visitsTxt").textContent = "Visitas: " + snap.size + (snap.size === 1 ? " persona" : " personas distintas") + " · " + total + (total === 1 ? " entrada" : " entradas") + " en total (un registro por dispositivo).";
+      }, denied));
+      unsub.push(fs.onSnapshot(fs.query(fs.collection(db, "feedback"), fs.orderBy("at", "desc"), fs.limit(200)), (snap) => {
+        const list = $("fbList"); list.innerHTML = "";
+        let sum = 0;
+        snap.docs.forEach((d) => {
+          const f = d.data() || {}; const r = Math.max(0, Math.min(5, Number(f.rating) || 0)); sum += r;
+          const li = document.createElement("li");
+          const st = document.createElement("span"); st.className = "st"; st.textContent = "★".repeat(r) + "☆".repeat(5 - r);
+          const meta = document.createElement("span"); meta.className = "meta";
+          const when = f.at ? new Date(f.at).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+          meta.textContent = String(f.alias || "Sin apodo") + " · " + when;
+          li.append(st, meta);
+          if (f.comment) { const t = document.createElement("span"); t.className = "txt"; t.textContent = String(f.comment); li.append(t); }
+          list.appendChild(li);
+        });
+        $("fbSummary").textContent = snap.size ? "Feedback: " + snap.size + (snap.size === 1 ? " respuesta" : " respuestas") + " · promedio " + (sum / snap.size).toFixed(1) + " ★" : "Feedback: todavía no hay respuestas.";
+      }, denied));
+    });
+  }
+
   async function saveScore(p, m) {
     if (!db || !uid || p <= 0) return;
     const mine = rankDocs.find((d) => d.id === uid);
