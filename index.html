@@ -368,7 +368,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       L.push([cx - 3, cy + 8, 2, 4 + k, skin], [cx + 1, cy + 8, 2, 4 - k, skin]);
     }
     // torso, malla, cabeza
-    L.push([cx - 3, cy - 1, 6, 8, skin], [cx - 3, cy + 5, 6, 3, suit], [cx - 4, cy - 9, 8, 8, cap], [cx - 5, cy - 5, 1, 2, skin], [cx + 4, cy - 5, 1, 2, skin]);
+    const tw = o.slim ? 4 : 6, tx = cx - tw / 2;
+    L.push([tx, cy - 1, tw, 8, skin], [tx, cy + 5, tw, 3, suit], [cx - 4, cy - 9, 8, 8, cap], [cx - 5, cy - 5, 1, 2, skin], [cx + 4, cy - 5, 1, 2, skin]);
     parts(L);
     // detalles sin contorno
     R(cx - 4, cy - 4, 8, 1, C.out);             // tira de las antiparras
@@ -504,8 +505,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.13, breath: -0.1, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
     { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5,
-      cap: "#F2F2F2", capHi: "#FFFFFF", suit: "#1A1A1A", speed: 1, breath: 0, passMult: 1, lunges: true,
-      face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#F2F2F2", capC2: "#C4CCD6", capHi: "#FFFFFF", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
+      cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1, breath: 0, passMult: 1, lunges: true,
+      face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#1A1A1E", capC2: "#0A0A0C", capHi: "#4A4D58", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
       face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
@@ -513,17 +514,18 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 1.02, breath: 0.05, passMult: 1, tail: "#2A1C14",
       face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
     { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
-      cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618",
-      face: { skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } }
+      cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618", slim: true,
+      face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } }
   ];
   let CH = CHARS[0];
   const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡EL PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
   const BASE = { out: "#2A1B14", lip: "#8A4436", water: "#2E9ED8", waterL: "#6FD3F5" };
-  const HEAD = [[2, 8, 15], [3, 6, 17], [4, 5, 18], [5, 4, 19], [6, 4, 19], [7, 4, 19], [8, 4, 19], [9, 4, 19], [10, 4, 19], [11, 4, 19], [12, 4, 19], [13, 4, 19], [14, 4, 19], [15, 4, 19], [16, 5, 18], [17, 5, 18], [18, 6, 17], [19, 7, 16], [20, 9, 14]];
-  const headRow = (r) => HEAD.find((h) => h[0] === r);
+  const HEAD_BASE = [[2, 8, 15], [3, 6, 17], [4, 5, 18], [5, 4, 19], [6, 4, 19], [7, 4, 19], [8, 4, 19], [9, 4, 19], [10, 4, 19], [11, 4, 19], [12, 4, 19], [13, 4, 19], [14, 4, 19], [15, 4, 19], [16, 5, 18], [17, 5, 18], [18, 6, 17], [19, 7, 16], [20, 9, 14]];
+  const headRow = (r) => HEAD_BASE.find((h) => h[0] === r);
 
   function drawFace(expr, t, ch, ctx2) {
     const P = ch.face, c = ctx2 || fc;
+    const HEAD = P.slim ? HEAD_BASE.map(([r, a, b]) => r >= 14 ? [r, Math.min(a + 1, b), Math.max(b - 1, a)] : [r, a, b]) : HEAD_BASE;
     const F = (x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
     F(0, 0, 24, 24, BASE.water);
     F(1, 22, 6, 1, BASE.waterL); F(16, 21, 5, 1, BASE.waterL); F(3, 3, 2, 1, BASE.waterL);
@@ -1228,7 +1230,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.fins > 0 && !blink) { R(px - 6, pyy + 13, 4, 5, "#2FBF71"); R(px + 2, pyy + 13, 4, 5, "#2FBF71"); }
     const pStyle = S.walk > 0 ? "camina" : S.kick > 0 ? "patada" : (CH.lazy && S.back && S.style === "crol") ? "espalda" : S.style;
-    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail };
+    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail, slim: CH.slim };
     if (S.dive > 0) {
       g.save(); g.globalAlpha = 0.45; g.translate(px, pyy); g.scale(0.7, 0.7); g.translate(-px, -pyy);
       swimmer(px, pyy, "crol", frame, pOpts); g.restore();
