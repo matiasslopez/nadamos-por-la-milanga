@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Admin: solo la cuenta de Google del dueño (por UID, no por mail)
     function isAdmin() {
-      return request.auth != null && request.auth.uid == 'ADMIN_UID_PENDIENTE';
+      return request.auth != null && request.auth.uid == '38miaym8hSf7it9StkESOmBEDk73';
     }
     // Ranking: todos leen; cada dispositivo escribe solo su propia marca, con datos razonables
     match /scores/{id} {
