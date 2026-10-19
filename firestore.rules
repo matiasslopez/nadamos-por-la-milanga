@@ -1,6 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Admin: solo la cuenta de Google del dueño (por UID, no por mail)
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'ADMIN_UID_PENDIENTE';
+    }
     // Ranking: todos leen; cada dispositivo escribe solo su propia marca, con datos razonables
     match /scores/{id} {
       allow read: if true;
@@ -9,14 +13,24 @@ service cloud.firestore {
         && request.resource.data.best is number && request.resource.data.best > 0 && request.resource.data.best < 5000000
         && request.resource.data.metros is number && request.resource.data.metros < 100000
         && (resource == null || request.resource.data.best > resource.data.best);
-      allow delete: if false;
+      allow delete: if isAdmin();
     }
-    // Visitas: un documento por dispositivo, el contador solo sube de a 1
+    // Visitas: un documento por dispositivo; el contador solo sube de a 1; solo el admin las lee
     match /visits/{id} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if isAdmin();
       allow create: if request.resource.data.count == 1;
       allow update: if request.resource.data.count == resource.data.count + 1;
       allow delete: if false;
+    }
+    // Feedback: cualquiera puede dejar uno; solo el admin lo lee
+    match /feedback/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['rating', 'comment', 'alias', 'char', 'best', 'device', 'at'])
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.comment is string && request.resource.data.comment.size() <= 500
+        && request.resource.data.alias is string && request.resource.data.alias.size() <= 18;
+      allow read, delete: if isAdmin();
+      allow update: if false;
     }
   }
 }

@@ -1577,7 +1577,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const btn = $("btnSendFb"); btn.disabled = true; fbMsg.textContent = "Enviando…";
     try {
       await fs.addDoc(fs.collection(db, "feedback"), { rating: fbRating, comment: $("fbText").value.trim().slice(0, 500), alias: getAlias(), char: CH.id, best: localBest, device: uid || "", at: new Date().toISOString() });
-      fbMsg.textContent = "¡Gracias! Lo vamos a leer."; $("fbText").value = ""; setRating(0);
+      $("fbText").value = ""; setRating(0); fbMsg.textContent = "¡Gracias! Lo vamos a leer.";
     } catch { fbMsg.textContent = "No se pudo enviar ahora. Probá en un rato."; }
     btn.disabled = false;
   });
