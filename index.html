@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-apodo3";
+  const VERSION = "2026-10-20-hist150";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -2017,7 +2017,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     });
   }
 
-  // ---- Ranking histórico: hasta 100 partidas, se carga solo al abrirlo ----
+  // ---- Ranking histórico: hasta 150 partidas, se carga solo al abrirlo ----
   let histLoaded = false;
   $("btnHist").addEventListener("click", async () => {
     const box = $("histBox"), btn = $("btnHist");
@@ -2026,7 +2026,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!open || histLoaded) return;
     if (!db || !fs) { $("histNote").textContent = "No se pudo cargar ahora."; return; }
     try {
-      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(100)));
+      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(150)));
       const list = $("histList"); list.innerHTML = "";
       snap.docs.forEach((d, i) => {
         const x = d.data() || {}; const li = document.createElement("li");
