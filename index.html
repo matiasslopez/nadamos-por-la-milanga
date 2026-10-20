@@ -85,6 +85,10 @@ input[type=text]:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 .btn{font-family:var(--font-pixel);font-weight:400;font-size:.75rem;letter-spacing:.02em;border:3px solid #000;padding:12px 16px;cursor:pointer;background:var(--cap);color:#1A1200;box-shadow:4px 4px 0 #000}
 .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
 .btn.ghost{background:#F1F5FA;color:#101a2b}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.music{font-family:var(--font-pixel);font-size:.5rem;padding:7px 9px;border:2px solid #000;background:#1B2A44;color:var(--cap);cursor:pointer;box-shadow:2px 2px 0 #000}
+.music[aria-pressed=false]{color:var(--muted)}
+.music:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .copybox{width:100%;max-width:300px;font-size:.85rem}
@@ -162,7 +166,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <div class="wrap">
   <header>
     <h1>Nadamos por la <span>Milanga</span></h1>
-    <div class="tag">CARRIL RÁPIDO · 25 M</div>
+    <div class="hdr-right"><div class="tag">CARRIL RÁPIDO · 25 M</div><button class="music" id="btnMusic" type="button" aria-pressed="true" title="Prender o apagar la música (tecla M)">♪ MÚSICA: SÍ</button></div>
   </header>
 
   <div class="board">
@@ -215,7 +219,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     <button class="breathe" id="btnBreathe" type="button"><div class="fill" id="breatheFill"></div><span id="breatheLabel">RESPIRAR</span></button>
     <button class="breathe special ready" id="btnSpecial" type="button"><div class="fill" id="specialFill"></div><span id="specialLabel">CAMINAR</span></button>
   </div>
-  <p class="hint">Tocá a la izquierda o derecha de la pileta (o deslizá) para cambiar de andarivel. En compu: ← → para cambiar de andarivel, ↑ para el botón especial y ↓ para respirar.</p>
+  <p class="hint">Tocá a la izquierda o derecha de la pileta (o deslizá) para cambiar de andarivel. En compu: ← → para cambiar de andarivel, ↑ para el botón especial, ↓ para respirar y M para prender o apagar la música.</p>
 
   <section class="panel" aria-labelledby="rankTitle">
     <h3 id="rankTitle">RANKING DEL GRUPO</h3>
@@ -266,7 +270,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés una gorra; si lo esquivás, sumás.</li>
       <li><b>El rápido:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
-      <li><b>El profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, el profe te ve y perdés 300 puntos.</li>
+      <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
     </ul>
   </section>
 
@@ -504,7 +508,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "luis", name: "LUIS", tag: "Nadador rápido, pero te da vueltas para arrancar", breathGap: 1.5, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
       cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.13, breath: -0.1, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
-    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5,
+    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
       cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1, breath: 0, passMult: 1, lunges: true,
       face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#1A1A1E", capC2: "#0A0A0C", capHi: "#4A4D58", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
@@ -518,7 +522,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } }
   ];
   let CH = CHARS[0];
-  const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡EL PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
+  const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡LA PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
   const BASE = { out: "#2A1B14", lip: "#8A4436", water: "#2E9ED8", waterL: "#6FD3F5" };
   const HEAD_BASE = [[2, 8, 15], [3, 6, 17], [4, 5, 18], [5, 4, 19], [6, 4, 19], [7, 4, 19], [8, 4, 19], [9, 4, 19], [10, 4, 19], [11, 4, 19], [12, 4, 19], [13, 4, 19], [14, 4, 19], [15, 4, 19], [16, 5, 18], [17, 5, 18], [18, 6, 17], [19, 7, 16], [20, 9, 14]];
   const headRow = (r) => HEAD_BASE.find((h) => h[0] === r);
@@ -662,7 +666,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
-      streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200),
+      streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
     };
   }
@@ -923,7 +927,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.kick > 0) { S.kick -= dt; if (S.kick <= 0) { S.kick = 0; const b = 200 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡BIEN AHÍ! +" + b, "#FFE08A"); } }
     S.shake = Math.max(0, S.shake - dt); S.face = Math.max(0, S.face - dt);
     if (S.styleT > 0) { S.styleT -= dt; if (S.styleT <= 0) { S.styleT = 0; S.style = "crol"; toast("DE VUELTA A CROL", "#FFE08A"); } }
-    S.x += (laneC(S.lane) + (S.walk > 0 ? S.walkSide * 15 : 0) - S.x) * Math.min(1, dt * 14);
+    S.x += (laneC(S.lane) + (S.walk > 0 ? S.walkSide * 15 : 0) - S.x) * Math.min(1, dt * (CH.laneK || 14));
 
     for (const o of S.obs) {
       if (!o.pick && !o.hit && o.kind !== "corchera" && o.kind !== "tabla" && o.kind !== "rapido" && o.v) {
@@ -956,7 +960,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         const b = 50 * st.mult * CH.passMult; S.pts += b; toast((CH.passMult > 1 ? "¡LE COMISTE LOS PIES! +" : "¡PASASTE AL LENTO! +") + b, "#FFE08A");
       }
       if (o.kind === "tablaProfe" && !o.hit && o.m < S.dist - 1.2) {
-        o.hit = true; S.profe = 0; S.pts = Math.max(0, S.pts - 300); setFace("hurt", 1); toast("¡EL PROFE TE VIO! -300", "#FF9F6B");
+        o.hit = true; S.profe = 0; S.pts = Math.max(0, S.pts - 300); setFace("hurt", 1); toast("¡LA PROFE TE VIO! -300", "#FF9F6B");
       }
       if (o.kind === "rapido" && !o.hit && !o.passed && o.m > S.dist + 1.6) {
         o.passed = true; const b = 150 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡ZAFASTE DEL RÁPIDO! +" + b, "#FFE08A");
@@ -998,6 +1002,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.bT -= dt;
       if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
     }
+    if (S.cheer > 0) S.cheer = Math.max(0, S.cheer - dt);
+    if (S.t >= S.nextCheer) {
+      S.nextCheer = S.t + rand(25, 40);
+      if (!S.profe && S.kick <= 0) { S.cheer = 2.8; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); }
+    }
     if (S.dist >= S.nextProfe && S.kick <= 0 && !S.profe) {
       S.profe = 1; S.nextProfe = S.dist + rand(200, 280);
       addObs("tablaProfe", Math.floor(Math.random() * 3), S.dist + 12);
@@ -1035,8 +1044,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
   function profe(x, y, t) {
     const f = Math.floor(t * 6) % 2;
-    parts([[x - 3, y - 2, 6, 7, C.red], [x - 2, y - 7, 4, 5, C.skin], [x - 3, y + 5, 2, 4, "#2B2B44"], [x + 1, y + 5, 2, 4, "#2B2B44"], [x + 3, y - 1 - f, 2, 4, C.skin]]);
-    R(x - 2, y - 7, 4, 2, "#3A2A1E");
+    parts([[x - 3, y - 2, 6, 4, C.red], [x - 3, y + 2, 6, 3, "#DFFF1F"], [x - 2, y - 7, 4, 5, C.skin], [x + 3, y - 1 - f, 2, 4, C.skin], [x - 5, y - 6, 2, 4, "#3A2A1E"]]);
+    R(x - 3, y + 5, 2, 4, C.skin); R(x + 1, y + 5, 2, 4, C.skin); R(x - 3, y + 9, 2, 1, C.white); R(x + 1, y + 9, 2, 1, C.white);
+    R(x - 2, y - 7, 4, 2, "#3A2A1E"); R(x - 3, y - 7, 1, 1, "#FF6FB0");
+    R(x - 1, y - 4, 1, 1, "#C8506A"); R(x + 1, y - 4, 1, 1, "#C8506A");
     R(x + 4, y - 3 - f, 2, 2, "#C8C8C8");
     if (f) { R(x + 7, y - 6, 1, 1, C.white); R(x + 9, y - 8, 1, 1, C.white); }
   }
@@ -1178,7 +1189,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       }
       drawObs(o);
     }
-    if (S.profe > 0 || S.kick > 0) { g.save(); g.translate(6, Math.round(LH * 0.24)); g.scale(2, 2); profe(0, 0, S.t); g.restore(); }
+    if (S.profe > 0 || S.kick > 0 || S.cheer > 0) { g.save(); g.translate(9, Math.round(LH * 0.24)); g.scale(2, 2); profe(0, 0, S.t); g.restore(); }
     // aviso de contramano
     for (const o of S.obs) {
       if (o.kind !== "gordo" || o.hit) continue;
@@ -1288,7 +1299,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       ctx.fillStyle = flash ? "#C62828" : "#8E1B1B"; ctx.fillRect(0, 8, W, fs * 4 + 12);
       ctx.fillStyle = "#000"; ctx.fillRect(0, 8 + fs * 4 + 12, W, 3);
       ctx.font = (fs + 2) + "px 'Press Start 2P', monospace";
-      outlined("¡PRIIIIP! EL PROFE", W / 2, 14 + fs * 1.7, "#FFE08A");
+      outlined("¡PRIIIIP! LA PROFE", W / 2, 14 + fs * 1.7, "#FFE08A");
       ctx.font = fs + "px 'Press Start 2P', monospace";
       outlined("AGARRÁ LA TABLA Y A PATADA", W / 2, 14 + fs * 3.6, "#FFFFFF");
     } else if (S.kick > 0) {
@@ -1421,6 +1432,50 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     btnBreathe.focus({ preventScroll: true });
   }
   $("btnStart").addEventListener("click", start);
+
+  // ---------- Música estilo 8 bits (melodía original, se apaga con el botón o la tecla M) ----------
+  const Music = (() => {
+    let ac = null, master = null, timer = null, step = 0, nextT = 0;
+    let on = (() => { try { return localStorage.getItem("pileta.music") !== "off"; } catch { return true; } })();
+    const E = 0.15; // duración de una corchea
+    const LEAD = [69, 0, 72, 74, 76, 0, 74, 72, 69, 0, 67, 69, 72, 0, 0, 0, 71, 0, 74, 76, 79, 0, 76, 74, 72, 71, 69, 0, 71, 0, 0, 0,
+                  76, 0, 76, 74, 72, 0, 74, 76, 77, 0, 76, 74, 72, 0, 0, 0, 74, 0, 72, 71, 69, 0, 71, 72, 71, 0, 67, 0, 69, 0, 0, 0];
+    const ROOTS = [45, 41, 43, 40, 45, 41, 43, 44];
+    const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    function note(type, m, t, len, vol) {
+      const o = ac.createOscillator(), gn = ac.createGain();
+      o.type = type; o.frequency.setValueAtTime(hz(m), t);
+      gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      o.connect(gn); gn.connect(master); o.start(t); o.stop(t + len + 0.02);
+    }
+    function tick() {
+      while (nextT < ac.currentTime + 0.12) {
+        const i = step % LEAD.length, bar = Math.floor(i / 8);
+        if (LEAD[i]) note("square", LEAD[i], nextT, E * 0.9, 0.09);
+        note("triangle", ROOTS[bar] + (i % 2 ? 12 : 0), nextT, E * 0.85, 0.16);
+        if (i % 2) note("square", 96, nextT, 0.02, 0.025);
+        nextT += E; step++;
+      }
+    }
+    function ensure() {
+      if (ac) return true;
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+      ac = new AC(); master = ac.createGain(); master.gain.value = 0.5; master.connect(ac.destination);
+      return true;
+    }
+    function play() { if (!on || !ensure()) return; if (ac.state === "suspended") ac.resume(); if (timer) return; nextT = ac.currentTime + 0.05; timer = setInterval(tick, 25); }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    const btn = $("btnMusic");
+    function paint() { btn.textContent = on ? "♪ MÚSICA: SÍ" : "♪ MÚSICA: NO"; btn.setAttribute("aria-pressed", on ? "true" : "false"); }
+    function toggle() { on = !on; try { localStorage.setItem("pileta.music", on ? "on" : "off"); } catch {} paint(); if (on) play(); else stop(); }
+    btn.addEventListener("click", toggle);
+    paint();
+    document.addEventListener("visibilitychange", () => { if (!ac) return; if (document.hidden) ac.suspend(); else if (on) ac.resume(); });
+    return { play, toggle };
+  })();
+  $("btnStart").addEventListener("click", () => Music.play());
+  $("btnAgain").addEventListener("click", () => Music.play());
+  window.addEventListener("keydown", (e) => { if ((e.key === "m" || e.key === "M") && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) Music.toggle(); });
   $("btnAgain").addEventListener("click", () => {
     S = freshState();
     $("ovOver").hidden = true; $("shareText").hidden = true; $("shareMsg").hidden = true;
