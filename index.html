@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-jac-pixel";
+  const VERSION = "2026-10-20-jac-pixel2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1155,7 +1155,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   };
   function jacFloor(cx, cy) {
     cx = Math.round(cx); cy = Math.round(cy);
-    g.save(); g.globalAlpha = 0.88;
+    g.save(); g.globalAlpha = 0.5;
     const r = 15;
     for (let dy = -r - 1; dy <= r + 1; dy++) { const hw = Math.round(Math.sqrt(Math.max(0, (r + 1) * (r + 1) - dy * dy))); R(cx - hw, cy + dy, hw * 2, 1, "#F2F2F2"); }
     for (let dy = -r; dy <= r; dy++) { const hw = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy))); R(cx - hw, cy + dy, hw * 2, 1, "#111318"); }
