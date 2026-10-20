@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-pote2";
+  const VERSION = "2026-10-20-pote3";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -867,7 +867,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (o.kind === "gorra") { S.shield = true; toast(CH.id === "pablito" ? "POTE DE DULCE DE LECHE" : "GORRA DE SILICONA", "#FFE08A"); return; }
     if (o.kind === "curita") { toast("¡QUÉ ASCO! UNA CURITA", "#F7D7B8"); setFace("hurt", 0.6); loseAir(); return; }
     if (S.inv > 0) return;
-    if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast(CH.id === "pablito" ? "EL POTE TE SALVÓ" : "LA GORRA TE SALVÓ", "#FFE08A"); return; }
+    if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast(CH.id === "pablito" ? "¡POR EL PODER DEL DULCE DE LECHE!" : "LA GORRA TE SALVÓ", "#FFE08A"); return; }
     loseLife(o.kind);
   }
   function loseAir() {
