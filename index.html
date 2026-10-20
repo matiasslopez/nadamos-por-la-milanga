@@ -373,7 +373,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       L.push([cx - 3, cy + 8, 2, 4 + k, skin], [cx + 1, cy + 8, 2, 4 - k, skin]);
     }
     // torso, malla, cabeza
-    const tw = o.slim ? 4 : 6, tx = cx - tw / 2;
+    const tw = o.slim ? 4 : o.athletic ? 8 : 6, tx = cx - tw / 2;
     L.push([tx, cy - 1, tw, 8, skin], [tx, cy + 5, tw, 3, suit], [cx - 4, cy - 9, 8, 8, cap], [cx - 5, cy - 5, 1, 2, skin], [cx + 4, cy - 5, 1, 2, skin]);
     parts(L);
     // detalles sin contorno
@@ -524,7 +524,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } },
     { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y pierde una gorra.", special: "NAVEGANTE", cd: 6, drowns: true,
       cap: "#A9A9A9", capHi: "#D6D6D6", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1,
-      face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "hair", hairC: "#A9A9A9", hairC2: "#C8C8C8", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } }
+      face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "hair", hairC: "#A9A9A9", hairC2: "#C8C8C8", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } },
+    { id: "felix", name: "FÉLIX", tag: "Atlético y educado: pide permiso y le abren cancha", breathGap: 1.1, perk: "PERMISO: pide permiso y los que tiene adelante se corren de carril. Hasta el que nada por la suya y el rápido le abren paso.", special: "PERMISO", cd: 5,
+      cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
+      face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } }
   ];
   let CH = CHARS[0];
   const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡LA PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
@@ -685,7 +688,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, nextDrown: rand(80, 120), drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, nextDrown: rand(80, 120), drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
     };
   }
   S = freshState();
@@ -829,6 +832,19 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.air--; S.streak = 0;
     if (S.air <= 0) { S.air = 3; loseLife("aire"); }
   }
+  // Félix: los que tiene adelante (y el rápido atrás) se corren a otro carril
+  const YIELD = ["¡Pasá, pasá!", "¡Todo tuyo!", "¡Perdón!", "¡Dale, campeón!", "¡Adelante!"];
+  function clearWay() {
+    for (const o of S.obs) {
+      if (o.hit || o.moved || !(EATABLE[o.kind] || o.kind === "rapido")) continue;
+      const ahead = o.m - S.dist;
+      if (!(ahead > -10 && ahead < 14) || Math.abs(o.x - S.x) > 16) continue;
+      const opts = [S.lane - 1, S.lane + 1].filter((l) => l >= 0 && l <= 2);
+      const lane = opts.length === 1 ? opts[0] : (o.x < S.x ? opts[0] : opts[opts.length - 1]);
+      o.lane = lane; o.tx = laneC(lane); o.moved = true;
+      o.quip = pick(YIELD); o.quipT = 1.8;
+    }
+  }
   const EATABLE = { lento: 1, senora: 1, charla: 1, gordo: 3, rapido: 3 };
   // el rápido viene desde atrás: se lo puede agarrar si ya está cerca, aunque esté detrás
   const inReach = (o, ahead, fwd) => o.kind === "rapido" ? ahead > -9 && ahead < fwd : ahead > -0.5 && ahead < fwd;
@@ -856,6 +872,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = CH.cd; setFace("happy", 1);
       toast("¡LA YIYA! +" + b, "#B8F0A0"); say("¡TOMÁ, PROBÁ ESTE SABOR!", "#B8F0A0");
+    } else if (CH.id === "felix") {
+      S.permiso = 2.6; S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
+      clearWay();
     } else if (CH.id === "gaston") {
       S.boat = 2.4; S.cd = CH.cd; toast("¡NAVEGANTE! ¡ABRAN CANCHA!", "#8FE3FF"); say(pick(["¡SOLTANDO AMARRAS!", "¡TIERRA A LA VISTA!", "¡PASO, QUE VA EL BARCO!"]), "#8FE3FF");
     } else if (CH.id === "mika") {
@@ -928,6 +947,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.dive > 0) S.dive = Math.max(0, S.dive - dt);
     if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
     if (S.boat > 0) S.boat = Math.max(0, S.boat - dt);
+    if (S.permiso > 0) { S.permiso = Math.max(0, S.permiso - dt); clearWay(); }
     // Gastón: muy de vez en cuando le agarra un ahogo (aviso de 1,5 s y pierde una gorra)
     if (CH.drowns) {
       if (S.drown > 0) {
@@ -973,6 +993,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         }
       }
       if (o.quipT > 0) o.quipT -= dt;
+      if (o.tx !== undefined && !o.eaten) { o.x += (o.tx - o.x) * Math.min(1, dt * 7); if (Math.abs(o.tx - o.x) < 0.3) { o.x = o.tx; o.tx = undefined; } }
       if (o.eaten) { o.eaten -= dt; o.x += o.shove * dt; o.m += 3 * dt; if (o.eaten <= 0) o.gone = true; continue; }
       if (o.sink) { o.sink -= dt; if (o.kind !== "rapido") o.m = Math.max(o.m, S.dist + 2.5); else o.m += speed * dt; if (o.sink <= 0) o.gone = true; continue; }
       if (o.kind === "rapido") o.v = o.lost ? speed * 0.4 : speed + 4.5;
@@ -1276,7 +1297,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.fins > 0 && !blink) { R(px - 6, pyy + 13, 4, 5, "#2FBF71"); R(px + 2, pyy + 13, 4, 5, "#2FBF71"); }
     const pStyle = S.walk > 0 ? "camina" : S.kick > 0 ? "patada" : (CH.lazy && S.back && S.style === "crol") ? "espalda" : S.style;
-    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail, slim: CH.slim, curls: CH.curls };
+    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail, slim: CH.slim, athletic: CH.athletic };
     if (S.dive > 0) {
       g.save(); g.globalAlpha = 0.45; g.translate(px, pyy); g.scale(0.7, 0.7); g.translate(-px, -pyy);
       swimmer(px, pyy, "crol", frame, pOpts); g.restore();
