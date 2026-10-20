@@ -380,6 +380,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     R(cx - 2, cy - 8, 2, 1, o.capHi || C.capHi); // brillo de la gorra
     R(cx - 3, cy - 7, 1, 1, o.capHi || C.capHi);
     if (o.part) { R(cx, cy - 9, 1, 4, C.skin); }
+    if (o.curls) { R(cx - 3, cy - 9, 1, 1, "#7E7E7E"); R(cx, cy - 8, 1, 1, "#7E7E7E"); R(cx + 2, cy - 7, 1, 1, "#7E7E7E"); R(cx - 2, cy - 6, 1, 1, "#7E7E7E"); R(cx + 1, cy - 10, 2, 1, "#A9A9A9"); R(cx - 4, cy - 10, 2, 1, "#A9A9A9"); }
     if (o.tail && style !== "espalda") { R(cx - 2, cy - 2, 4, 5, C.out); R(cx - 1, cy - 2, 2, 4, o.tail); R(cx - 1, cy - 1, 2, 1, "#FF6FB0"); }
     if (style === "espalda") {
       R(cx - 3, cy - 6, 6, 4, C.skin); R(cx - 2, cy - 5, 1, 1, C.out); R(cx + 1, cy - 5, 1, 1, C.out); R(cx - 1, cy - 3, 2, 1, "#8A4436");
@@ -521,8 +522,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618", slim: true,
       face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } },
     { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y pierde una gorra.", special: "NAVEGANTE", cd: 6, drowns: true,
-      cap: "#F2F2F2", capHi: "#FFFFFF", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1,
-      face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "cap", capC: "#F2F2F2", capC2: "#1E3A5F", capHi: "#FFFFFF", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } }
+      cap: "#A9A9A9", capHi: "#D6D6D6", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1, curls: true,
+      face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "curls", hairC: "#A9A9A9", hairC2: "#7E7E7E", hairC3: "#D6D6D6", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } }
   ];
   let CH = CHARS[0];
   const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡LA PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
@@ -556,6 +557,18 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       F(11, 2, 2, 5, "#F5D9B8");
       for (const [x, y] of [[8, 3], [7, 4], [6, 5], [5, 6], [15, 3], [16, 4], [17, 5], [18, 6], [9, 5], [14, 5]]) F(x, y, 1, 1, P.hairC2);
       F(7, 2, 3, 1, "#FFF3B8"); F(14, 2, 3, 1, "#FFF3B8"); F(5, 4, 1, 1, "#FFF3B8"); F(18, 4, 1, 1, "#FFF3B8");
+    } else if (P.top === "curls") {
+      const BUMPS = [[3, 4], [6, 1], [10, 0], [14, 1], [17, 3], [2, 8], [19, 8]];
+      for (const [x, y] of BUMPS) F(x - 1, y - 1, 5, 5, BASE.out);
+      for (const [r, a, b] of HEAD) if (r <= 7) F(a, r, b - a + 1, 1, P.hairC);
+      for (const [x, y] of BUMPS) F(x, y, 3, 3, P.hairC);
+      F(4, 8, 2, 3, P.hairC); F(18, 8, 2, 3, P.hairC);
+      for (let y = 0; y <= 10; y++) for (let x = 2; x <= 21; x++) {
+        const row = headRow(y); const inHair = (row && y <= 7 && x >= row[1] && x <= row[2]) || BUMPS.some(([bx, by]) => x >= bx && x < bx + 3 && y >= by && y < by + 3) || ((x === 4 || x === 5 || x === 18 || x === 19) && y >= 8);
+        if (!inHair) continue;
+        if ((x * 3 + y * 2) % 5 === 0) F(x, y, 1, 1, P.hairC2);
+        else if ((x + y * 3) % 7 === 0) F(x, y, 1, 1, P.hairC3);
+      }
     } else if (P.top === "hair") {
       for (const [r, a, b] of HEAD) if (r <= 6) F(a, r, b - a + 1, 1, P.hairC);
       F(4, 7, 3, 1, P.hairC); F(9, 7, 4, 1, P.hairC); F(16, 7, 4, 1, P.hairC); F(4, 8, 1, 3, P.hairC); F(19, 8, 1, 3, P.hairC);
@@ -1262,7 +1275,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.fins > 0 && !blink) { R(px - 6, pyy + 13, 4, 5, "#2FBF71"); R(px + 2, pyy + 13, 4, 5, "#2FBF71"); }
     const pStyle = S.walk > 0 ? "camina" : S.kick > 0 ? "patada" : (CH.lazy && S.back && S.style === "crol") ? "espalda" : S.style;
-    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail, slim: CH.slim };
+    const pOpts = { face: S.face > 0, cap: CH.cap, capHi: CH.capHi, suit: CH.suit, part: CH.part, tail: CH.tail, slim: CH.slim, curls: CH.curls };
     if (S.dive > 0) {
       g.save(); g.globalAlpha = 0.45; g.translate(px, pyy); g.scale(0.7, 0.7); g.translate(-px, -pyy);
       swimmer(px, pyy, "crol", frame, pOpts); g.restore();
