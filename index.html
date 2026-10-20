@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-jac";
+  const VERSION = "2026-10-20-jac-chico";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1294,6 +1294,15 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         R(o.x - 4, 2, 8, 9, "#FFD23F"); R(o.x - 3, 3, 6, 7, C.red); R(o.x - 1, 4, 2, 3, C.white); R(o.x - 1, 8, 2, 1, C.white);
       }
     }
+    // sponsor: logo chiquito en el borde derecho, mismo estilo pixelado que el globo de HSJ
+    if (sponsorImg.complete && sponsorImg.naturalWidth) {
+      const sy2 = Math.round(yOf(S.sponsorM));
+      if (sy2 > -10 && sy2 < LH + 10) {
+        const cx2 = LW - 8, d = 14;
+        g.fillStyle = C.out; g.beginPath(); g.arc(cx2, sy2, d / 2 + 1, 0, Math.PI * 2); g.fill();
+        g.imageSmoothingEnabled = true; g.drawImage(sponsorImg, cx2 - d / 2, sy2 - d / 2, d, d); g.imageSmoothingEnabled = false;
+      }
+    }
     // aviso del rápido: flecha abajo del carril por donde viene
     for (const o of S.obs) {
       if (o.kind !== "rapido" || o.hit) continue;
@@ -1384,16 +1393,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const sx = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     const sy = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     ctx.drawImage(low, sx, sy, W, H);
-    // sponsor: cartel redondo al costado de la pileta que pasa con el paisaje
-    if (sponsorImg.complete && sponsorImg.naturalWidth) {
-      const sy2 = yOf(S.sponsorM) * (W / LW);
-      const sz = Math.max(60, Math.min(104, Math.round(W * 0.22)));
-      if (sy2 > -sz && sy2 < H + sz) {
-        const x0 = W - sz - 4; // siempre a la derecha (la profe aparece a la izquierda)
-        ctx.save(); ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.beginPath(); ctx.arc(x0 + sz / 2 + 3, sy2 + 3, sz / 2, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-        ctx.imageSmoothingEnabled = true; ctx.drawImage(sponsorImg, x0, sy2 - sz / 2, sz, sz); ctx.imageSmoothingEnabled = false;
-      }
-    }
+
     const sc = W / LW;
     const fs = Math.max(8, Math.round(W / 40));
     const fm = Math.max(10, Math.round(fs * 1.25)); // mensajes un poco más grandes
