@@ -287,6 +287,20 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 </div>
 
 <script>
+// Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
+(() => {
+  const VERSION = "2026-10-19-turbo";
+  try {
+    fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
+      if (!j || !j.v || j.v === VERSION) return;
+      const u = new URL(location.href);
+      if (u.searchParams.get("v") === j.v) return; // ya lo intentamos, no entrar en bucle
+      u.searchParams.set("v", j.v); location.replace(u.toString());
+    }).catch(() => {});
+  } catch {}
+})();
+</script>
+<script>
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -929,7 +943,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.t += dt;
     const st = STY[S.style];
     // se acelera con el tiempo: a los 90–120 s ya va bastante rápido
-    const prog = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012);
+    const turbo = Math.max(0, S.pts - 30000) / 10000; // cada 10.000 puntos extra, bastante más rápido
+    const prog = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012) * (1 + Math.min(1.6, turbo * 0.45));
+    if (turbo > 0 && !S.turboOn) { S.turboOn = true; toast("¡+30.000! ¡AHORA SE PONE PICANTE!", "#FF9F6B"); say("¡A FONDO!", "#FF9F6B"); S.shake = reduceMotion ? 0 : 0.25; }
     const slow = S.kick > 0 ? 0.6 : 1;
     const chatting = S.chat > 0;
     if (S.restart > 0) S.restart = Math.max(0, S.restart - dt);
