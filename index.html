@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-jac-chico";
+  const VERSION = "2026-10-20-jac-fondo";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1097,7 +1097,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
     }
     if (S.cheer > 0) S.cheer = Math.max(0, S.cheer - dt);
-    if (S.t >= S.nextSponsor) { S.nextSponsor = S.t + rand(30, 45); S.sponsorM = S.dist + 14; S.sponsorSide = Math.random() < 0.5 ? 0 : 1; }
+    if (S.t >= S.nextSponsor) { S.nextSponsor = S.t + rand(22, 34); S.sponsorM = S.dist + 16; { const r = (((S.sponsorM - 34) % 60) + 60) % 60; if (r < 8 || r > 52) S.sponsorM += 15; } S.sponsorSide = Math.random() < 0.5 ? 0 : 1; }
     if (S.t >= S.nextCheer) {
       S.nextCheer = S.t + rand(25, 40);
       if (!S.profe && S.kick <= 0) { S.cheer = 3.6; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); S.says[S.says.length - 1].life = S.says[S.says.length - 1].max = 3.6; }
@@ -1269,6 +1269,17 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   function draw() {
     drawScene();
+    // sponsor pintado en el fondo de la pileta, en el carril del medio, difuminado por el agua
+    if (sponsorImg.complete && sponsorImg.naturalWidth) {
+      const sy2 = Math.round(yOf(S.sponsorM)), d = 30;
+      if (sy2 > -d && sy2 < LH + d) {
+        const cx2 = laneC(1);
+        g.save(); g.globalAlpha = 0.42; try { g.filter = "blur(0.7px)"; } catch {}
+        g.imageSmoothingEnabled = true; g.drawImage(sponsorImg, cx2 - d / 2, sy2 - d / 2, d, d); g.imageSmoothingEnabled = false;
+        g.restore();
+        g.save(); g.globalAlpha = 0.18; g.fillStyle = "#2E9ED8"; g.beginPath(); g.arc(cx2, sy2, d / 2, 0, Math.PI * 2); g.fill(); g.restore();
+      }
+    }
     for (const o of S.obs) {
       if (o.pick && o.hit) continue;
       if (o.sink) {
@@ -1292,15 +1303,6 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const ahead = o.m - S.dist;
       if (ahead > PY / PPM - 0.5 && ahead < 16 && Math.floor(S.t * 6) % 2) {
         R(o.x - 4, 2, 8, 9, "#FFD23F"); R(o.x - 3, 3, 6, 7, C.red); R(o.x - 1, 4, 2, 3, C.white); R(o.x - 1, 8, 2, 1, C.white);
-      }
-    }
-    // sponsor: logo chiquito en el borde derecho, mismo estilo pixelado que el globo de HSJ
-    if (sponsorImg.complete && sponsorImg.naturalWidth) {
-      const sy2 = Math.round(yOf(S.sponsorM));
-      if (sy2 > -10 && sy2 < LH + 10) {
-        const cx2 = LW - 8, d = 14;
-        g.fillStyle = C.out; g.beginPath(); g.arc(cx2, sy2, d / 2 + 1, 0, Math.PI * 2); g.fill();
-        g.imageSmoothingEnabled = true; g.drawImage(sponsorImg, cx2 - d / 2, sy2 - d / 2, d, d); g.imageSmoothingEnabled = false;
       }
     }
     // aviso del rápido: flecha abajo del carril por donde viene
