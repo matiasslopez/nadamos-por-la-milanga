@@ -1005,7 +1005,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.cheer > 0) S.cheer = Math.max(0, S.cheer - dt);
     if (S.t >= S.nextCheer) {
       S.nextCheer = S.t + rand(25, 40);
-      if (!S.profe && S.kick <= 0) { S.cheer = 2.8; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); }
+      if (!S.profe && S.kick <= 0) { S.cheer = 3.6; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); S.says[S.says.length - 1].life = S.says[S.says.length - 1].max = 3.6; }
     }
     if (S.dist >= S.nextProfe && S.kick <= 0 && !S.profe) {
       S.profe = 1; S.nextProfe = S.dist + rand(200, 280);
@@ -1280,18 +1280,28 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       outlined(t.text, W / 2, y, t.color);
       ctx.globalAlpha = 1;
     });
-    S.says.forEach((t, i) => {
-      const k = 1 - t.life / t.max;
-      const a = Math.min(1, t.life / 0.4);
-      const rise = Math.min(1, k / 0.15);
-      const y = H - 14 - (S.says.length - 1 - i) * (fs + 14) + (1 - rise) * 30;
-      ctx.font = fs + "px 'Press Start 2P', monospace";
-      const tw = ctx.measureText(t.text).width + 18;
+    // mensajes de abajo: se parten en varias líneas si no entran en el ancho de la pileta
+    ctx.font = fs + "px 'Press Start 2P', monospace";
+    const maxW = W - 24, lineH = fs + 8;
+    const wrap = (text) => {
+      const words = text.split(" "), lines = []; let cur = "";
+      for (const w of words) { const tryL = cur ? cur + " " + w : w; if (ctx.measureText(tryL).width <= maxW - 18 || !cur) cur = tryL; else { lines.push(cur); cur = w; } }
+      if (cur) lines.push(cur); return lines;
+    };
+    let yBase = H - 14;
+    for (let i = S.says.length - 1; i >= 0; i--) {
+      const t = S.says[i];
+      const k = 1 - t.life / t.max, a = Math.min(1, t.life / 0.4), rise = Math.min(1, k / 0.15);
+      const lines = wrap(t.text);
+      const boxH = lines.length * lineH + 6;
+      const off = (1 - rise) * 30;
+      const tw = Math.min(maxW, Math.max(...lines.map((l) => ctx.measureText(l).width)) + 18);
       ctx.globalAlpha = Math.max(0, a);
-      ctx.fillStyle = "rgba(10,14,26,.82)"; ctx.fillRect(W / 2 - tw / 2, y - fs - 6, tw, fs + 12);
-      outlined(t.text, W / 2, y, t.color);
+      ctx.fillStyle = "rgba(10,14,26,.82)"; ctx.fillRect(W / 2 - tw / 2, yBase - boxH + 4 + off, tw, boxH);
+      lines.forEach((l, j) => outlined(l, W / 2, yBase - (lines.length - 1 - j) * lineH + off, t.color));
       ctx.globalAlpha = 1;
-    });
+      yBase -= boxH + 6;
+    }
     quipBubbles(sc, fs);
     chatBubble();
     if (S.profe > 0) {
