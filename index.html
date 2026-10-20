@@ -289,7 +289,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-19-felix2";
+  const VERSION = "2026-10-19-ahogo";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -955,7 +955,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
       if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
     }
-    const speed = st.v * prog * slow * CH.speed * (chatting ? 0.12 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
+    const speed = st.v * prog * slow * CH.speed * (S.drown > 0 ? 0.04 : 1) * (chatting ? 0.12 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
     if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
     if (S.pads > 0) { S.pads -= dt; if (S.pads <= 0) S.pads = 0; }
     if (S.jump > 0) S.jump = Math.max(0, S.jump - dt);
@@ -1319,6 +1319,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       swimmer(px, pyy, "crol", frame, pOpts); g.restore();
       const bt = Math.floor(S.t * 6);
       R(px - 3 + (bt % 3), pyy - 14 - (bt % 4) * 2, 2, 2, C.white); R(px + 3 - (bt % 2), pyy - 18 - (bt % 3) * 2, 1, 1, C.white); R(px, pyy - 22 - (bt % 2) * 3, 1, 1, C.white);
+    } else if (S.drown > 0) {
+      // Gastón ahogándose: se hunde y sube, brazos arriba, burbujas
+      const ph = Math.floor(S.t * 8) % 2, sink = Math.round(Math.sin(S.t * 14) * 2);
+      g.save(); g.globalAlpha = 0.85; swimmer(px, pyy + sink, "flota", ph, pOpts); g.restore();
+      R(px - 7, pyy - 14 - ph * 3, 2, 6, C.skin); R(px + 5, pyy - 14 - (1 - ph) * 3, 2, 6, C.skin);
+      R(px - 8, pyy - 15 - ph * 3, 4, 2, C.skin); R(px + 4, pyy - 15 - (1 - ph) * 3, 4, 2, C.skin);
+      for (let k = 0; k < 6; k++) { const by2 = pyy - 18 - ((Math.floor(S.t * 20) + k * 5) % 18); R(px - 6 + k * 2 + (k % 2), by2, 2, 2, k % 2 ? C.white : "#B9F4FF"); }
+      R(px - 10, pyy + 4, 3, 1, C.white); R(px + 8, pyy + 3, 3, 1, C.white); R(px - 12, pyy - 2 + ph, 2, 1, C.white); R(px + 10, pyy - 1 - ph, 2, 1, C.white);
     } else if (S.boat > 0) {
       const bob = Math.floor(S.t * 4) % 2, bx = px, by = pyy + bob;
       // estela
