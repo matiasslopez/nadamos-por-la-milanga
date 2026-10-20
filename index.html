@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-sancayetano";
+  const VERSION = "2026-10-20-apodo2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1622,7 +1622,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} }
   };
-  aliasIn.value = store.get("pileta.alias") || "";
+  const isAnon = (v) => !v || /^nadador an[oó]nimo$/i.test(v.trim());
+  { const saved = store.get("pileta.alias") || ""; aliasIn.value = isAnon(saved) ? "" : saved; }
   const getAlias = () => (aliasIn.value.trim() || "Nadador anónimo").slice(0, 18);
   let localBest = parseInt(store.get("pileta.bestPts") || "0", 10) || 0;
   function showMyBest() { $("myBest").textContent = localBest > 0 ? "Tu mejor marca en este dispositivo: " + fmt(localBest) + " puntos." : ""; }
@@ -1664,7 +1665,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   selectChar(CH.id);
 
   function start() {
-    if (!aliasIn.value.trim()) {
+    if (isAnon(aliasIn.value)) {
+      aliasIn.value = "";
       $("aliasErr").hidden = false; aliasIn.classList.add("err");
       aliasIn.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" }); aliasIn.focus({ preventScroll: true });
       return;
@@ -1805,7 +1807,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const sel = document.querySelector('.char[aria-checked="true"]'); if (sel) sel.focus({ preventScroll: true });
   });
   aliasIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
-  aliasIn.addEventListener("input", () => { if (aliasIn.value.trim()) { $("aliasErr").hidden = true; aliasIn.classList.remove("err"); } });
+  aliasIn.addEventListener("input", () => { if (!isAnon(aliasIn.value)) { $("aliasErr").hidden = true; aliasIn.classList.remove("err"); } });
 
   function drawMila(withFries, cnv) {
     const mc = (cnv || $("mila")).getContext("2d");
