@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-jac-fondo";
+  const VERSION = "2026-10-20-jac-fondo2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1274,10 +1274,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const sy2 = Math.round(yOf(S.sponsorM)), d = 30;
       if (sy2 > -d && sy2 < LH + d) {
         const cx2 = laneC(1);
-        g.save(); g.globalAlpha = 0.42; try { g.filter = "blur(0.7px)"; } catch {}
+        g.save(); g.globalAlpha = 0.6; try { g.filter = "blur(0.4px)"; } catch {}
         g.imageSmoothingEnabled = true; g.drawImage(sponsorImg, cx2 - d / 2, sy2 - d / 2, d, d); g.imageSmoothingEnabled = false;
         g.restore();
-        g.save(); g.globalAlpha = 0.18; g.fillStyle = "#2E9ED8"; g.beginPath(); g.arc(cx2, sy2, d / 2, 0, Math.PI * 2); g.fill(); g.restore();
+        g.save(); g.globalAlpha = 0.1; g.fillStyle = "#2E9ED8"; g.beginPath(); g.arc(cx2, sy2, d / 2, 0, Math.PI * 2); g.fill(); g.restore();
       }
     }
     for (const o of S.obs) {
