@@ -519,7 +519,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
     { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
       cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618", slim: true,
-      face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } }
+      face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } },
+    { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y pierde una gorra.", special: "NAVEGANTE", cd: 6, drowns: true,
+      cap: "#F2F2F2", capHi: "#FFFFFF", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1,
+      face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "cap", capC: "#F2F2F2", capC2: "#1E3A5F", capHi: "#FFFFFF", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } }
   ];
   let CH = CHARS[0];
   const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡LA PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
@@ -658,6 +661,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     tabla: "Una tabla de patada te dio en la frente.",
     corchera: "Te enredaste en la corchera.",
     rapido: "Te pasó por arriba el rápido. ¡Mirá para atrás!",
+    ahogo: "Le agarró el ahogo. ¡Guardavidaaas!",
     gordo: "Te chocaste al que nada por la suya, a contramano.",
     aire: "Te quedaste sin aire. Respirá, campeón."
   };
@@ -667,7 +671,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, nextDrown: rand(80, 120), drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
     };
   }
   S = freshState();
@@ -838,6 +842,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = CH.cd; setFace("happy", 1);
       toast("¡LA YIYA! +" + b, "#B8F0A0"); say("¡TOMÁ, PROBÁ ESTE SABOR!", "#B8F0A0");
+    } else if (CH.id === "gaston") {
+      S.boat = 2.4; S.cd = CH.cd; toast("¡NAVEGANTE! ¡ABRAN CANCHA!", "#8FE3FF"); say(pick(["¡SOLTANDO AMARRAS!", "¡TIERRA A LA VISTA!", "¡PASO, QUE VA EL BARCO!"]), "#8FE3FF");
     } else if (CH.id === "mika") {
       let target = null;
       for (const o of S.obs) {
@@ -907,6 +913,17 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.walk > 0) S.walk = Math.max(0, S.walk - dt);
     if (S.dive > 0) S.dive = Math.max(0, S.dive - dt);
     if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
+    if (S.boat > 0) S.boat = Math.max(0, S.boat - dt);
+    // Gastón: muy de vez en cuando le agarra un ahogo (aviso de 1,5 s y pierde una gorra)
+    if (CH.drowns) {
+      if (S.drown > 0) {
+        S.drown -= dt;
+        if (S.drown <= 0) { S.drown = 0; S.inv = 0; loseLife("ahogo"); if (S.state !== "play") return; }
+      } else if (S.t >= S.nextDrown && S.boat <= 0) {
+        S.nextDrown = S.t + rand(80, 120); S.drown = 1.5; setFace("gulp", 1.5); S.shake = reduceMotion ? 0 : 0.2;
+        toast("¡GLUB GLUB! ¡SE AHOGA!", "#FF9F6B"); say(pick(["¡AGUA, TRAGUÉ AGUA!", "¡ME AHOGO, ME AHOGO!", "¡SOCORRO, GUARDAVIDAS!"]), "#FFB4A8");
+      }
+    }
     if (S.puff > 0) S.puff = Math.max(0, S.puff - dt);
     if (CH.lazy) {
       S.lazyT -= dt;
@@ -984,7 +1001,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (o.hit || o.kind === "charla") continue;
       if (!o.pick) {
         if (S.jump > 0) continue;
-        if (S.walk > 0 || S.dive > 0 || S.warp > 0) continue;
+        if (S.boat > 0 && Math.abs(o.m - S.dist) < o.hl + 1.2 && Math.abs(S.x - o.x) < o.hw + 8) {
+          o.hit = true; o.eaten = 0.6; o.shove = (o.x < S.x ? -1 : 1) * 120; if (o.kind === "charla") o.hooked = true;
+          const b = 100 * STY[S.style].mult; S.pts += b; toast("¡AL AGUA! +" + b, "#8FE3FF"); S.shake = reduceMotion ? 0 : 0.12; continue;
+        }
+        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0) continue;
         if (S.lunge > 0 && EATABLE[o.kind] && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 5) {
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < LW / 2 ? -1 : 1) * 110; if (o.kind === "charla") o.hooked = true;
           const b = 150 * EATABLE[o.kind] * STY[S.style].mult; S.pts += b; toast("¡PIECITOS! +" + b, "#FFE08A"); continue;
@@ -1247,6 +1268,22 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       swimmer(px, pyy, "crol", frame, pOpts); g.restore();
       const bt = Math.floor(S.t * 6);
       R(px - 3 + (bt % 3), pyy - 14 - (bt % 4) * 2, 2, 2, C.white); R(px + 3 - (bt % 2), pyy - 18 - (bt % 3) * 2, 1, 1, C.white); R(px, pyy - 22 - (bt % 2) * 3, 1, 1, C.white);
+    } else if (S.boat > 0) {
+      const bob = Math.floor(S.t * 4) % 2, bx = px, by = pyy + bob;
+      // estela
+      for (let k = 0; k < 6; k++) R(bx - 9 + k * 3 + (k % 2), by + 12 + (k % 3) * 2, 2, 1 + (k % 2), C.white);
+      // casco visto desde arriba, proa hacia adelante
+      const HULL = [[-12, 1], [-11, 2], [-10, 3], [-9, 4], [-8, 5], [-7, 6], [-6, 7], [-5, 7], [-4, 8], [-3, 8], [-2, 8], [-1, 8], [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [8, 7], [9, 7], [10, 6]];
+      for (const [dy, hw] of HULL) R(bx - hw - 1, by + dy, hw * 2 + 2, 1, C.out);
+      for (const [dy, hw] of HULL) R(bx - hw, by + dy, hw * 2, 1, dy < 9 ? "#F4F4F4" : "#C62828");
+      for (const [dy, hw] of HULL) if (dy > -8 && dy < 9) { R(bx - hw, by + dy, 1, 1, "#1E3A5F"); R(bx + hw - 1, by + dy, 1, 1, "#1E3A5F"); }
+      R(bx - 5, by - 2, 10, 7, "#8B5A2B"); R(bx - 4, by - 1, 8, 5, "#A8743C");
+      // mástil y vela
+      R(bx, by - 10, 1, 14, "#5A3A1E");
+      for (let k = 0; k < 9; k++) R(bx + 1, by - 9 + k, Math.max(1, 7 - Math.abs(k - 4)), 1, C.white);
+      R(bx + 1, by - 11, 4, 2, C.red);
+      // Gastón al timón
+      R(bx - 2, by + 3, 4, 4, CH.cap); R(bx - 1, by + 4, 2, 1, "#1E3A5F");
     } else if (S.warp > 0.55) {
       // todavía en el "más allá": casi invisible
       g.save(); g.globalAlpha = 0.25; swimmer(px, pyy, "crol", frame, pOpts); g.restore();
