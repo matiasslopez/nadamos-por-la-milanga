@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-jac-fondo2";
+  const VERSION = "2026-10-20-jac-pixel";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1147,6 +1147,29 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (f) { R(x + 7, y - 6, 1, 1, C.white); R(x + 9, y - 8, 1, 1, C.white); }
   }
 
+  // Logo de JAC en pixel art: círculo negro, borde blanco, letras azules
+  const JAC_FONT = {
+    J: ["..###", "...#.", "...#.", "...#.", "#..#.", "#..#.", ".##.."],
+    A: [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
+    C: [".####", "#....", "#....", "#....", "#....", "#....", ".####"]
+  };
+  function jacFloor(cx, cy) {
+    cx = Math.round(cx); cy = Math.round(cy);
+    g.save(); g.globalAlpha = 0.88;
+    const r = 15;
+    for (let dy = -r - 1; dy <= r + 1; dy++) { const hw = Math.round(Math.sqrt(Math.max(0, (r + 1) * (r + 1) - dy * dy))); R(cx - hw, cy + dy, hw * 2, 1, "#F2F2F2"); }
+    for (let dy = -r; dy <= r; dy++) { const hw = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy))); R(cx - hw, cy + dy, hw * 2, 1, "#111318"); }
+    R(cx - 7, cy - 11, 14, 1, "#BFC6D0"); R(cx - 5, cy + 11, 10, 1, "#BFC6D0");
+    const word = "JAC", lw = 5, gap = 1, total = word.length * lw + (word.length - 1) * gap;
+    const x0 = cx - Math.floor(total / 2), y0 = cy - 7;
+    [...word].forEach((ch, k) => JAC_FONT[ch].forEach((row, yy) => [...row].forEach((c, xx) => {
+      if (c !== "#") return;
+      const px2 = x0 + k * (lw + gap) + xx, py2 = y0 + yy;
+      R(px2 + 1, py2 + 1, 1, 1, "#E8EEF6"); R(px2, py2, 1, 1, "#3D7BE0");
+    })));
+    R(cx - 12, cy + 3, 24, 3, "#2F62C0"); R(cx - 10, cy + 4, 20, 1, "#F2F2F2");
+    g.restore();
+  }
   function crest(cx, cy) {
     cx = Math.round(cx); cy = Math.round(cy);
     const ink = "#1A4E86", gold = "#E6B44A", gold2 = "#C08A2E", lemon = "#F2E36B";
@@ -1269,17 +1292,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   function draw() {
     drawScene();
-    // sponsor pintado en el fondo de la pileta, en el carril del medio, difuminado por el agua
-    if (sponsorImg.complete && sponsorImg.naturalWidth) {
-      const sy2 = Math.round(yOf(S.sponsorM)), d = 30;
-      if (sy2 > -d && sy2 < LH + d) {
-        const cx2 = laneC(1);
-        g.save(); g.globalAlpha = 0.6; try { g.filter = "blur(0.4px)"; } catch {}
-        g.imageSmoothingEnabled = true; g.drawImage(sponsorImg, cx2 - d / 2, sy2 - d / 2, d, d); g.imageSmoothingEnabled = false;
-        g.restore();
-        g.save(); g.globalAlpha = 0.1; g.fillStyle = "#2E9ED8"; g.beginPath(); g.arc(cx2, sy2, d / 2, 0, Math.PI * 2); g.fill(); g.restore();
-      }
-    }
+    // sponsor pintado en el fondo de la pileta, en el carril del medio (pixel art para que se lea)
+    { const sy2 = Math.round(yOf(S.sponsorM)); if (sy2 > -22 && sy2 < LH + 22) jacFloor(laneC(1), sy2); }
     for (const o of S.obs) {
       if (o.pick && o.hit) continue;
       if (o.sink) {
