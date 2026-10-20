@@ -82,6 +82,8 @@ canvas{display:block;width:100%;touch-action:none;image-rendering:pixelated}
 .legend canvas{width:40px;height:40px;image-rendering:pixelated;justify-self:center}
 .legend canvas[data-icon=gordo],.legend canvas[data-icon=rapido]{width:60px;height:60px}
 .field{display:flex;flex-direction:column;gap:5px;width:100%;max-width:260px;text-align:left}
+.alias-err{font-size:.8rem;color:#FFB4A8;font-weight:600}
+.field input.err{outline:3px solid #FF5A4E;outline-offset:1px}
 .field label{font-family:var(--font-pixel);font-size:.5rem;letter-spacing:.06em;color:var(--muted)}
 input[type=text]{font:inherit;font-size:1rem;padding:9px 11px;border:3px solid #000;background:#F1F5FA;color:#101a2b;width:100%;box-sizing:border-box}
 input[type=text]:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
@@ -199,7 +201,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <div class="char-info"><span class="tagline" id="charTag"></span><span class="perk" id="charPerk"></span></div>
       <div class="field">
         <label for="alias">TU APODO</label>
-        <input type="text" id="alias" maxlength="18" autocomplete="nickname" placeholder="Ej: El Tiburón de San Justo">
+        <input type="text" id="alias" maxlength="18" autocomplete="nickname" placeholder="Ej: El Tiburón de San Justo" required aria-describedby="aliasErr">
+        <span class="alias-err" id="aliasErr" role="alert" hidden>Poné un apodo para el ranking (aunque sea un punto).</span>
       </div>
       <div class="resume" id="resumeBox" hidden>
         <p class="note" id="resumeTxt"></p>
@@ -313,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-guardar";
+  const VERSION = "2026-10-20-apodo";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1613,6 +1616,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   selectChar(CH.id);
 
   function start() {
+    if (!aliasIn.value.trim()) {
+      $("aliasErr").hidden = false; aliasIn.classList.add("err");
+      aliasIn.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" }); aliasIn.focus({ preventScroll: true });
+      return;
+    }
+    $("aliasErr").hidden = true; aliasIn.classList.remove("err");
     store.set("pileta.alias", getAlias());
     S = freshState(); S.state = "play";
     $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true;
@@ -1709,7 +1718,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     document.addEventListener("visibilitychange", () => { if (!ac) return; if (document.hidden) ac.suspend(); else if (on) ac.resume(); });
     return { play, toggle };
   })();
-  $("btnStart").addEventListener("click", () => Music.play());
+  $("btnStart").addEventListener("click", () => { if (S.state === "play") Music.play(); });
   $("btnAgain").addEventListener("click", () => Music.play());
   window.addEventListener("keydown", (e) => { if ((e.key === "m" || e.key === "M") && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) Music.toggle(); });
   $("btnAgain").addEventListener("click", () => {
@@ -1719,6 +1728,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const sel = document.querySelector('.char[aria-checked="true"]'); if (sel) sel.focus({ preventScroll: true });
   });
   aliasIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
+  aliasIn.addEventListener("input", () => { if (aliasIn.value.trim()) { $("aliasErr").hidden = true; aliasIn.classList.remove("err"); } });
 
   function drawMila(withFries, cnv) {
     const mc = (cnv || $("mila")).getContext("2d");
