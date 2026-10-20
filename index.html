@@ -89,6 +89,11 @@ input[type=text]:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
 .btn.ghost{background:#F1F5FA;color:#101a2b}
 .hdr-right{display:flex;align-items:center;gap:10px}
+.save-btn{font-family:var(--font-pixel);font-size:.5rem;padding:7px 9px;border:2px solid #000;background:#1B2A44;color:var(--cap);cursor:pointer;box-shadow:2px 2px 0 #000;white-space:nowrap}
+.save-btn:disabled{color:var(--muted);cursor:default;opacity:.75}
+.save-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.resume{display:flex;flex-direction:column;gap:8px;align-items:center;background:rgba(255,179,26,.12);border:2px solid #000;padding:10px;max-width:320px}
+.resume .note{color:var(--ink)}
 .music{font-family:var(--font-pixel);font-size:.5rem;padding:7px 9px;border:2px solid #000;background:#1B2A44;color:var(--cap);cursor:pointer;box-shadow:2px 2px 0 #000}
 .music[aria-pressed=false]{color:var(--muted)}
 .music:focus-visible{outline:3px solid #fff;outline-offset:2px}
@@ -173,7 +178,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <div class="wrap">
   <header>
     <h1>Nadamos por la <span>Milanga</span></h1>
-    <div class="hdr-right"><div class="tag">CARRIL RÁPIDO · 25 M</div><button class="music" id="btnMusic" type="button" aria-pressed="true" title="Prender o apagar la música (tecla M)">♪ MÚSICA: SÍ</button></div>
+    <div class="hdr-right"><div class="tag">CARRIL RÁPIDO · 25 M</div><button class="save-btn" id="btnSave" type="button" disabled title="Guardar la partida y seguir después. Se recarga cada 10.000 puntos.">💾 GUARDAR</button><button class="music" id="btnMusic" type="button" aria-pressed="true" title="Prender o apagar la música (tecla M)">♪ MÚSICA: SÍ</button></div>
   </header>
 
   <div class="board">
@@ -195,6 +200,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <div class="field">
         <label for="alias">TU APODO</label>
         <input type="text" id="alias" maxlength="18" autocomplete="nickname" placeholder="Ej: El Tiburón de San Justo">
+      </div>
+      <div class="resume" id="resumeBox" hidden>
+        <p class="note" id="resumeTxt"></p>
+        <div class="row">
+          <button class="btn" id="btnContinue" type="button">CONTINUAR PARTIDA</button>
+          <button class="btn ghost" id="btnDiscard" type="button">DESCARTAR</button>
+        </div>
       </div>
       <button class="btn" id="btnStart">LARGAR</button>
     </div>
@@ -281,6 +293,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <li><b>Respirá:</b> cuando se ilumina el botón, tocá RESPIRAR. Si te lo perdés o respirás a destiempo, tragás agua. Sin aire, perdés una gorra.</li>
       <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés una gorra; si lo esquivás, sumás.</li>
       <li><b>El rápido:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
+      <li><b>Guardar:</b> si te tenés que ir, tocá 💾 GUARDAR (arriba, al lado de la música) y después seguís con CONTINUAR PARTIDA. Se puede usar una vez y se recarga cada 10.000 puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
       <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x2 y un bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
     </ul>
@@ -300,7 +313,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-pote3";
+  const VERSION = "2026-10-20-guardar";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -729,7 +742,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorSide: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
   }
   S = freshState();
@@ -745,7 +758,19 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     [...el.children].forEach((d, i) => { d.className = "pip " + cls + (i < on ? " on" : ""); });
   }
   let lastHud = "";
+  const SAVE_EVERY = 10000; // puntos para recargar el guardado
+  const btnSave = $("btnSave");
+  let lastSaveLbl = "";
+  function updateSaveBtn() {
+    const playing = S.state === "play";
+    const ready = playing && S.pts >= S.saveReadyAt;
+    const left = Math.ceil(S.saveReadyAt - S.pts);
+    const lbl = !playing || ready ? "💾 GUARDAR" : "💾 EN " + (left >= 1000 ? (left / 1000).toFixed(1).replace(".", ",") + "K" : left);
+    if (lbl !== lastSaveLbl) { lastSaveLbl = lbl; btnSave.textContent = lbl; }
+    btnSave.disabled = !ready;
+  }
   function updateHud() {
+    updateSaveBtn();
     const key = CH.id + "|" + Math.floor(S.pts) + "|" + Math.floor(S.dist) + "|" + S.air + "|" + S.lives + "|" + S.style;
     if (key !== lastHud) {
       lastHud = key;
@@ -1597,6 +1622,53 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
   $("btnStart").addEventListener("click", start);
 
+  // ---------- Guardar y seguir después ----------
+  // Se puede guardar una vez y se recarga cada 10.000 puntos. Una partida guardada se continúa una sola vez.
+  const SAVE_KEY = "pileta.save";
+  function readSave() { try { const j = JSON.parse(store.get(SAVE_KEY) || "null"); return j && j.v === 1 ? j : null; } catch { return null; } }
+  function showResume() {
+    const sv = readSave(), box = $("resumeBox");
+    if (!sv) { box.hidden = true; return; }
+    const ch = CHARS.find((c) => c.id === sv.char);
+    $("resumeTxt").textContent = "Tenés una partida guardada: " + (ch ? ch.name : "") + " · " + fmt(sv.pts) + " pts · " + sv.dist + " m · " + sv.lives + (sv.lives === 1 ? " gorra" : " gorras");
+    box.hidden = false;
+  }
+  function saveGame() {
+    if (S.state !== "play" || S.pts < S.saveReadyAt) return;
+    const sv = { v: 1, char: CH.id, alias: getAlias(), pts: Math.floor(S.pts), dist: Math.floor(S.dist), t: S.t, lives: S.lives, air: S.air,
+      passed: S.passed, bestStreak: S.bestStreak, drowned: S.drowned, drownPts: S.drownPts, at: new Date().toISOString() };
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(sv)); } catch { toast("NO SE PUDO GUARDAR", "#FFB4A8"); return; }
+    S = freshState(); updateHud();
+    $("ovPause").hidden = true; $("ovOver").hidden = true; $("ovStart").hidden = false; lastFaceKey = "";
+    showResume();
+    $("resumeTxt").textContent = "¡Partida guardada! " + $("resumeTxt").textContent.replace("Tenés una partida guardada: ", "");
+  }
+  function continueGame() {
+    const sv = readSave(); if (!sv) { showResume(); return; }
+    try { localStorage.removeItem(SAVE_KEY); } catch {}
+    const ch = CHARS.find((c) => c.id === sv.char); if (ch) selectChar(ch.id);
+    if (sv.alias && sv.alias !== "Nadador anónimo") aliasIn.value = sv.alias;
+    S = freshState();
+    const d = sv.dist, t = sv.t;
+    Object.assign(S, { pts: sv.pts, dist: d, t, lives: Math.max(1, sv.lives), air: sv.air || 3, passed: sv.passed || 0, bestStreak: sv.bestStreak || 0,
+      drowned: !!sv.drowned, drownPts: sv.drownPts || S.drownPts, turboOn: sv.pts > 30000, largo: Math.floor(d / 25) });
+    // lo que se programa por metros o por tiempo se corre al punto donde quedaste
+    for (const k of ["nextSpawn", "nextProfe", "nextGordo", "nextFed", "nextMila", "nextCharla"]) S[k] += d;
+    for (const k of ["nextCheer", "nextSponsor"]) S[k] += t;
+    S.nextDrown = t + rand(40, 80);
+    S.saveReadyAt = sv.pts + SAVE_EVERY;
+    S.inv = 2; S.state = "play";
+    $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true; $("resumeBox").hidden = true;
+    last = performance.now();
+    toast("¡SEGUIMOS! " + fmt(sv.pts) + " PTS", "#FFE08A");
+    Music.play();
+    btnBreathe.focus({ preventScroll: true });
+  }
+  btnSave.addEventListener("click", saveGame);
+  $("btnContinue").addEventListener("click", continueGame);
+  $("btnDiscard").addEventListener("click", () => { try { localStorage.removeItem(SAVE_KEY); } catch {} showResume(); });
+  showResume();
+
   // ---------- Música estilo 8 bits (melodía original, se apaga con el botón o la tecla M) ----------
   const Music = (() => {
     let ac = null, master = null, timer = null, step = 0, nextT = 0;
@@ -1643,7 +1715,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   $("btnAgain").addEventListener("click", () => {
     S = freshState();
     $("ovOver").hidden = true; $("shareText").hidden = true; $("shareMsg").hidden = true;
-    $("ovStart").hidden = false; lastFaceKey = "";
+    $("ovStart").hidden = false; lastFaceKey = ""; showResume();
     const sel = document.querySelector('.char[aria-checked="true"]'); if (sel) sel.focus({ preventScroll: true });
   });
   aliasIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
