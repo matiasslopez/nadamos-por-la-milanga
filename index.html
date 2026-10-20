@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-apodo";
+  const VERSION = "2026-10-20-luchito";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -580,7 +580,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "hair", hairC: "#A9A9A9", hairC2: "#C8C8C8", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } },
     { id: "felix", name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
-      face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } }
+      face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
+    { id: "luchito", name: "LUCHITO", tag: "Pibe joven, sale como un rayo", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5,
+      cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.12, breath: 0.05, passMult: 1, slim: true,
+      face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } }
   ];
   let CH = CHARS[0];
   const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡LA PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
@@ -745,7 +748,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorSide: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
   }
   S = freshState();
@@ -942,6 +945,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = CH.cd; setFace("happy", 1);
       toast("¡LA YIYA! +" + b, "#B8F0A0"); say("¡TOMÁ, PROBÁ ESTE SABOR!", "#B8F0A0");
+    } else if (CH.id === "luchito") {
+      S.dash = 1.1; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
     } else if (CH.id === "felix") {
       S.permiso = 2.6; S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
       clearWay();
@@ -1011,7 +1016,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
       if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
     }
-    const speed = st.v * prog * slow * CH.speed * (S.drown > 0 ? 0.04 : 1) * (chatting ? 0.12 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
+    const speed = st.v * prog * slow * CH.speed * (S.drown > 0 ? 0.04 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.12 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
     if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
     if (S.pads > 0) { S.pads -= dt; if (S.pads <= 0) S.pads = 0; }
     if (S.jump > 0) S.jump = Math.max(0, S.jump - dt);
@@ -1019,6 +1024,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.dive > 0) S.dive = Math.max(0, S.dive - dt);
     if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
     if (S.boat > 0) S.boat = Math.max(0, S.boat - dt);
+    if (S.dash > 0) S.dash = Math.max(0, S.dash - dt);
+    if (S.groupBest > 0 && !S.beatGroup && S.pts > S.groupBest) { S.beatGroup = true; toast("¡ESTÁS ROMPIENDO EL RÉCORD DEL GRUPO!", "#FFE14D"); say("¡VAMOS QUE SE VIENE EL RÉCORD!", "#FFE14D"); celebrate(false, true); }
     if (S.permiso > 0) { S.permiso = Math.max(0, S.permiso - dt); clearWay(); }
     // Gastón: muy de vez en cuando le agarra un ahogo (aviso de 1,5 s y pierde una gorra)
     if (CH.drowns) {
@@ -1113,7 +1120,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < S.x ? -1 : 1) * 120; if (o.kind === "charla") o.hooked = true;
           const b = 100 * STY[S.style].mult; S.pts += b; toast("¡AL AGUA! +" + b, "#8FE3FF"); S.shake = reduceMotion ? 0 : 0.12; continue;
         }
-        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0) continue;
+        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0 || S.dash > 0) continue;
         if (S.lunge > 0 && EATABLE[o.kind] && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 5) {
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < LW / 2 ? -1 : 1) * 110; if (o.kind === "charla") o.hooked = true;
           const b = 150 * EATABLE[o.kind] * STY[S.style].mult; S.pts += b; toast("¡PIECITOS! +" + b, "#FFE08A"); continue;
@@ -1376,6 +1383,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       R(px - 7, PY + 2, 14, 4, "rgba(10,40,80,0.45)");
       if (S.jump < 0.15 || S.jump > 1.35) { R(px - 9, PY + 6, 2, 2, C.white); R(px + 7, PY + 6, 2, 2, C.white); R(px - 5, PY + 9, 1, 1, C.white); R(px + 4, PY + 9, 1, 1, C.white); }
     }
+    if (S.dash > 0) {
+      // rayito: estela amarilla en zigzag y líneas de velocidad
+      const zz = Math.floor(S.t * 30) % 2;
+      for (let k = 0; k < 7; k++) { const yy = PY + 10 + k * 4; R(px - 2 + ((k + zz) % 2 ? 3 : -3), yy, 3, 3, k % 2 ? "#FFE14D" : "#FFF7B0"); }
+      for (let k = 0; k < 8; k++) { const lx = px - 14 + ((k * 5 + Math.floor(S.t * 40)) % 29); R(lx, PY + 12 + (k % 4) * 6, 1, 7 + (k % 3) * 3, k % 2 ? "#FFE14D" : C.white); }
+      R(px - 1, PY - 20, 3, 2, "#FFE14D"); R(px + 1, PY - 18, 2, 2, "#FFE14D"); R(px, PY - 16, 2, 2, "#FFE14D");
+    }
     if (S.lunge > 0) {
       for (let i = 0; i < 6; i++) { const lx = px - 10 + ((i * 7 + Math.floor(S.t * 30)) % 21); R(lx, PY + 16 + (i % 3) * 5, 1, 6 + (i % 2) * 4, C.white); }
       R(px - 1, PY - 22, 2, 2, "#FFE08A");
@@ -1623,7 +1637,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     $("aliasErr").hidden = true; aliasIn.classList.remove("err");
     store.set("pileta.alias", getAlias());
-    S = freshState(); S.state = "play";
+    const top = rankDocs[0] && rankDocs[0].data ? rankDocs[0].data() : null;
+    const gBest = top ? Number(top.pts) || 0 : 0, gAlias = top ? String(top.alias || "") : "";
+    S = freshState(); S.state = "play"; S.groupBest = gBest; S.groupBestAlias = gAlias;
     $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true;
     $("shareText").hidden = true; $("shareMsg").hidden = true;
     last = performance.now();
@@ -1658,6 +1674,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const ch = CHARS.find((c) => c.id === sv.char); if (ch) selectChar(ch.id);
     if (sv.alias && sv.alias !== "Nadador anónimo") aliasIn.value = sv.alias;
     S = freshState();
+    { const top = rankDocs[0] && rankDocs[0].data ? rankDocs[0].data() : null; S.groupBest = top ? Number(top.pts) || 0 : 0; S.groupBestAlias = top ? String(top.alias || "") : ""; }
     const d = sv.dist, t = sv.t;
     Object.assign(S, { pts: sv.pts, dist: d, t, lives: Math.max(1, sv.lives), air: sv.air || 3, passed: sv.passed || 0, bestStreak: sv.bestStreak || 0,
       drowned: !!sv.drowned, drownPts: sv.drownPts || S.drownPts, turboOn: sv.pts > 30000, largo: Math.floor(d / 25) });
@@ -1716,9 +1733,35 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     btn.addEventListener("click", toggle);
     paint();
     document.addEventListener("visibilitychange", () => { if (!ac) return; if (document.hidden) ac.suspend(); else if (on) ac.resume(); });
-    return { play, toggle };
+    function fanfare(big) {
+      if (!on || !ensure()) return; if (ac.state === "suspended") ac.resume();
+      const t0 = ac.currentTime + 0.05, seq = big ? [72, 76, 79, 84, 0, 79, 84, 88] : [72, 76, 79, 84];
+      seq.forEach((m, k) => { if (m) { note("square", m, t0 + k * 0.12, 0.2, 0.12); note("triangle", m - 12, t0 + k * 0.12, 0.2, 0.15); } });
+    }
+    return { play, toggle, fanfare };
   })();
   $("btnStart").addEventListener("click", () => { if (S.state === "play") Music.play(); });
+
+  // ---------- Festejo: papelitos y fanfarria ----------
+  const fx = document.createElement("canvas");
+  fx.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:50";
+  document.body.appendChild(fx);
+  const fxc = fx.getContext("2d");
+  let confetti = [], fxRun = false;
+  function celebrate(big, quick) {
+    Music.fanfare(big);
+    if (reduceMotion) return;
+    fx.width = innerWidth; fx.height = innerHeight;
+    const n = big ? 220 : quick ? 50 : 90, cols = ["#FFB31A", "#FF5A4E", "#2E9ED8", "#5FCB4A", "#FFFFFF", "#FF7AD9", "#FFE14D"];
+    for (let i = 0; i < n; i++) confetti.push({ x: Math.random() * fx.width, y: -20 - Math.random() * fx.height * (big ? 0.8 : 0.4), vx: (Math.random() - 0.5) * 80, vy: 90 + Math.random() * 160, s: 5 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 8, c: cols[i % cols.length], life: big ? 5 : 3 });
+    if (!fxRun) { fxRun = true; let lt = performance.now(); const step = (now) => {
+      const dt = Math.min(0.05, (now - lt) / 1000); lt = now;
+      fxc.clearRect(0, 0, fx.width, fx.height);
+      confetti = confetti.filter((c) => (c.life -= dt) > 0 && c.y < fx.height + 30);
+      for (const c of confetti) { c.x += c.vx * dt; c.y += c.vy * dt; c.r += c.vr * dt; fxc.save(); fxc.translate(c.x, c.y); fxc.rotate(c.r); fxc.fillStyle = c.c; fxc.fillRect(-c.s / 2, -c.s / 4, c.s, c.s / 2); fxc.restore(); }
+      if (confetti.length) requestAnimationFrame(step); else { fxRun = false; fxc.clearRect(0, 0, fx.width, fx.height); }
+    }; requestAnimationFrame(step); }
+  }
   $("btnAgain").addEventListener("click", () => Music.play());
   window.addEventListener("keydown", (e) => { if ((e.key === "m" || e.key === "M") && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) Music.toggle(); });
   $("btnAgain").addEventListener("click", () => {
@@ -1780,6 +1823,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     $("overCause").textContent = cause;
     $("overExtra").textContent = "Mejor racha de respiración: " + S.bestStreak;
     $("ovOver").hidden = false;
+    const gb = S.groupBest || 0;
+    if (gb > 0 && p > gb) {
+      $("overTitle").textContent = "¡NUEVO RÉCORD DEL GRUPO!";
+      $("overExtra").textContent = "¡Felicitaciones, " + getAlias() + "! Superaste a " + (S.groupBestAlias || "el récord anterior") + " (" + fmt(gb) + " pts). Sos el número uno de la pileta.";
+      celebrate(true);
+    } else if (isRecord && p > 0) celebrate(false);
     lastResult = { p, m };
     saveScore(p, m);
   }
