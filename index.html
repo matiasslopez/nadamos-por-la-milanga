@@ -202,7 +202,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <div class="field">
         <label for="alias">TU APODO</label>
         <input type="text" id="alias" maxlength="18" autocomplete="nickname" placeholder="Ej: El Tiburón de San Justo" required aria-describedby="aliasErr">
-        <span class="alias-err" id="aliasErr" role="alert" hidden>Poné un apodo para el ranking (aunque sea un punto).</span>
+        <span class="alias-err" id="aliasErr" role="alert" hidden>Poné un apodo para el ranking.</span>
       </div>
       <div class="resume" id="resumeBox" hidden>
         <p class="note" id="resumeTxt"></p>
@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-apodo2";
+  const VERSION = "2026-10-20-apodo3";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
