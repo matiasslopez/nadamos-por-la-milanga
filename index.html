@@ -58,6 +58,8 @@ h1 span{color:var(--cap)}
 .pip{width:10px;height:10px;background:#27344A}
 .pip.air.on{background:var(--air)}
 .pip.life.on{background:#FF5A4E}
+.pip.pote{border-radius:2px 2px 3px 3px;box-shadow:inset 0 3px 0 #F4EBD6}
+.pip.pote.on{background:#8B4A1E}
 
 .stage{position:relative;border:4px solid #000;box-shadow:5px 5px 0 #000;background:#2f9fd6}
 canvas{display:block;width:100%;touch-action:none;image-rendering:pixelated}
@@ -112,6 +114,10 @@ input[type=text]:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
 section.panel{background:rgba(12,20,34,.95);border:3px solid #000;box-shadow:4px 4px 0 #000;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;margin:0;letter-spacing:.04em;color:var(--cap)}
+.hist-btn{font-size:.6rem;padding:10px 12px;align-self:flex-start}
+#histBox{max-height:340px;overflow-y:auto;border-top:2px solid #000;padding-top:8px}
+.rank.hist li{grid-template-columns:3.2ch 1fr auto auto}
+.rank .when{font-size:.75rem;color:var(--muted)}
 .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
 .rank li{display:grid;grid-template-columns:2.4ch 1fr auto;gap:10px;align-items:baseline;padding:6px 8px}
 .rank li:nth-child(odd){background:rgba(255,255,255,.04)}
@@ -176,7 +182,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     <div class="cell"><small>ESTILO</small><div class="style-name"><b id="hudS">CROL</b><i id="hudX">x2</i></div><div class="style-bar"><div id="hudSBar"></div></div></div>
     <div class="cell"><small>METROS</small><b id="hudM">0</b></div>
     <div class="cell"><small>AIRE</small><div class="pips" id="hudAir"></div></div>
-    <div class="cell"><small>GORRAS</small><div class="pips" id="hudLives"></div></div>
+    <div class="cell"><small id="hudLivesLbl">GORRAS</small><div class="pips" id="hudLives"></div></div>
   </div>
 
   <div class="stage" id="stage">
@@ -227,6 +233,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     <ol class="rank" id="rankList"></ol>
     <p class="note" id="rankNote">Cargando el ranking…</p>
     <p class="note" id="myBest"></p>
+    <button class="btn ghost hist-btn" id="btnHist" type="button" aria-expanded="false" aria-controls="histBox">VER RANKING HISTÓRICO</button>
+    <div id="histBox" hidden>
+      <p class="note" id="histNote">Cargando…</p>
+      <ol class="rank hist" id="histList"></ol>
+    </div>
   </section>
 
   <section class="panel" id="adminPanel" aria-labelledby="adminTitle" hidden>
@@ -289,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-19-ahogo";
+  const VERSION = "2026-10-20-jac";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -465,6 +476,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const by = top + hw.length + 3;
     R(cx - 2, top + hw.length, 1, 3, "#E9E9E9"); R(cx + 1, top + hw.length, 1, 3, "#E9E9E9");
     parts([[cx - 2, by, 4, 3, "#B71C1C"]]);
+  }
+  function potItem(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    parts([[x - 4, y - 3, 8, 7, "#8B4A1E"], [x - 5, y - 5, 10, 2, "#F4EBD6"]]);
+    R(x - 3, y - 1, 6, 3, "#F4EBD6"); R(x - 2, y, 4, 1, "#8B4A1E"); R(x - 3, y - 2, 1, 4, "#B06A32");
   }
   function capItem(x, y) {
     x = Math.round(x); y = Math.round(y);
@@ -674,6 +690,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (key !== lastFaceKey) { lastFaceKey = key; drawFace(e, t, CH); }
   }
 
+  // ---------- Sponsor ----------
+  const sponsorImg = new Image();
+  sponsorImg.src = "data:image/webp;base64,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";
+
   // ---------- Estado ----------
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -701,7 +721,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
-      streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0,
+      streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0
     };
   }
@@ -715,16 +735,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const fmt = (n) => Math.floor(n).toLocaleString("es-AR");
   function pips(el, n, on, cls) {
     if (el.childElementCount !== n) { el.innerHTML = ""; for (let i = 0; i < n; i++) { const d = document.createElement("span"); d.className = "pip " + cls; el.appendChild(d); } }
-    [...el.children].forEach((d, i) => d.classList.toggle("on", i < on));
+    [...el.children].forEach((d, i) => { d.className = "pip " + cls + (i < on ? " on" : ""); });
   }
   let lastHud = "";
   function updateHud() {
-    const key = Math.floor(S.pts) + "|" + Math.floor(S.dist) + "|" + S.air + "|" + S.lives + "|" + S.style;
+    const key = CH.id + "|" + Math.floor(S.pts) + "|" + Math.floor(S.dist) + "|" + S.air + "|" + S.lives + "|" + S.style;
     if (key !== lastHud) {
       lastHud = key;
       hudP.textContent = fmt(S.pts); hudM.textContent = Math.floor(S.dist);
       hudS.textContent = STY[S.style].name; hudX.textContent = "x" + STY[S.style].mult;
-      pips(hudAir, 3, S.air, "air"); pips(hudLives, 3, S.lives, "life");
+      pips(hudAir, 3, S.air, "air"); pips(hudLives, 3, S.lives, CH.id === "pablito" ? "life pote" : "life"); $("hudLivesLbl").textContent = CH.id === "pablito" ? "POTES" : "GORRAS";
     }
     hudSBar.style.width = S.styleT > 0 ? (100 * S.styleT / S.styleMax) + "%" : "0%";
     const open = S.state === "play" && S.bOpen;
@@ -814,13 +834,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!CH.slowStart) return;
     S.restart = 2.5; say("ARRANCANDO…", "#C9D4FF");
   }
+  const LIFE = () => CH.id === "pablito" ? "POTE" : "GORRA";
   function loseLife(kind) {
     slowRestart();
     setFace("hurt", 0.9);
     S.lives--; S.inv = 1.5; S.shake = reduceMotion ? 0 : 0.3;
     if (S.style === "mariposa") setStyle("crol");
     if (S.lives <= 0) { gameOver(CAUSES[kind] || ""); return; }
-    toast(kind === "aire" ? "SIN AIRE -1 GORRA" : "¡PUM! -1 GORRA", "#FFB4A8");
+    toast(kind === "aire" ? "SIN AIRE -1 " + LIFE() : "¡PUM! -1 " + LIFE(), "#FFB4A8");
   }
   function hitObstacle(o) {
     if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x2", "#FFE08A"); return; }
@@ -830,16 +851,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (o.kind === "milanga") {
       setFace("happy", 1);
-      if (S.lives < 3) { S.lives++; toast("¡MILANGA! +1 GORRA", "#FFE08A"); }
+      if (S.lives < 3) { S.lives++; toast("¡MILANGA! +1 " + LIFE(), "#FFE08A"); }
       else { S.pts += 200; toast("¡MILANGA! +200", "#FFE08A"); }
       return;
     }
     if (o.kind === "manoplas") { S.pads = 6; setFace("happy", 0.8); toast("¡MANOPLAS! MÁS TRACCIÓN", "#FFB070"); if (CH.complains) say("ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "#C9D4FF"); return; }
     if (o.kind === "aletas") { S.fins = 6; setFace("happy", 0.8); toast("¡PATAS DE RANA! TURBO", "#8CF08C"); return; }
-    if (o.kind === "gorra") { S.shield = true; toast("GORRA DE SILICONA", "#FFE08A"); return; }
+    if (o.kind === "gorra") { S.shield = true; toast(CH.id === "pablito" ? "POTE DE DULCE DE LECHE" : "GORRA DE SILICONA", "#FFE08A"); return; }
     if (o.kind === "curita") { toast("¡QUÉ ASCO! UNA CURITA", "#F7D7B8"); setFace("hurt", 0.6); loseAir(); return; }
     if (S.inv > 0) return;
-    if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast("LA GORRA TE SALVÓ", "#FFE08A"); return; }
+    if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast(CH.id === "pablito" ? "EL POTE TE SALVÓ" : "LA GORRA TE SALVÓ", "#FFE08A"); return; }
     loseLife(o.kind);
   }
   function loseAir() {
@@ -989,6 +1010,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.pts += speed * st.mult * dt * 10 * (S.kick > 0 ? 2 : 1);
     S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
     if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
+    if (CH.id === "pablito") { S.nextPablo = (S.nextPablo || rand(10, 16)) - dt; if (S.nextPablo <= 0) { S.nextPablo = rand(16, 26); say("¡HACÉ LO QUE QUIERAS VOS, PABLO!", "#FFE08A"); } }
     if (CH.complains) { S.nextComplain -= dt * Math.max(0.6, speed / (STY.crol.v * CH.speed)); if (S.nextComplain <= 0) { S.nextComplain = rand(5, 8); say(pick(COMPLAINTS), "#C9D4FF"); setFace("annoyed", 1); } }
     S.inv = Math.max(0, S.inv - dt);
     if (S.kick > 0) { S.kick -= dt; if (S.kick <= 0) { S.kick = 0; const b = 200 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡BIEN AHÍ! +" + b, "#FFE08A"); } }
@@ -1075,6 +1097,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
     }
     if (S.cheer > 0) S.cheer = Math.max(0, S.cheer - dt);
+    if (S.t >= S.nextSponsor) { S.nextSponsor = S.t + rand(30, 45); S.sponsorM = S.dist + 14; S.sponsorSide = Math.random() < 0.5 ? 0 : 1; }
     if (S.t >= S.nextCheer) {
       S.nextCheer = S.t + rand(25, 40);
       if (!S.profe && S.kick <= 0) { S.cheer = 3.6; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); S.says[S.says.length - 1].life = S.says[S.says.length - 1].max = 3.6; }
@@ -1241,7 +1264,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (o.kind === "aletas") fins(o.x, y + Math.round(Math.sin(tt * 4)));
     else if (o.kind === "manoplas") paddles(o.x, y + Math.round(Math.sin(tt * 4)));
     else if (o.kind === "milanga") milaItem(o.x, y + Math.round(Math.sin(tt * 3)), tt);
-    else if (o.kind === "gorra") capItem(o.x, y + Math.round(Math.sin(tt * 4)));
+    else if (o.kind === "gorra") (CH.id === "pablito" ? potItem : capItem)(o.x, y + Math.round(Math.sin(tt * 4)));
   }
 
   function draw() {
@@ -1261,7 +1284,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       }
       drawObs(o);
     }
-    if (S.profe > 0 || S.kick > 0 || S.cheer > 0) { g.save(); g.translate(9, Math.round(LH * 0.24)); g.scale(2, 2); profe(0, 0, S.t); g.restore(); }
+    if (S.profe > 0 || S.kick > 0) { g.save(); g.translate(9, Math.round(LH * 0.24)); g.scale(2, 2); profe(0, 0, S.t); g.restore(); }
+    else if (S.cheer > 0) { const pop = Math.min(1, (3.6 - S.cheer) / 0.25); g.save(); g.translate(9, Math.round(LH * 0.62 + (1 - pop) * 30)); g.scale(2, 2); profe(0, 0, S.t); g.restore(); }
     // aviso de contramano
     for (const o of S.obs) {
       if (o.kind !== "gordo" || o.hit) continue;
@@ -1360,8 +1384,19 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const sx = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     const sy = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     ctx.drawImage(low, sx, sy, W, H);
+    // sponsor: cartel redondo al costado de la pileta que pasa con el paisaje
+    if (sponsorImg.complete && sponsorImg.naturalWidth) {
+      const sy2 = yOf(S.sponsorM) * (W / LW);
+      const sz = Math.max(60, Math.min(104, Math.round(W * 0.22)));
+      if (sy2 > -sz && sy2 < H + sz) {
+        const x0 = W - sz - 4; // siempre a la derecha (la profe aparece a la izquierda)
+        ctx.save(); ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.beginPath(); ctx.arc(x0 + sz / 2 + 3, sy2 + 3, sz / 2, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        ctx.imageSmoothingEnabled = true; ctx.drawImage(sponsorImg, x0, sy2 - sz / 2, sz, sz); ctx.imageSmoothingEnabled = false;
+      }
+    }
     const sc = W / LW;
     const fs = Math.max(8, Math.round(W / 40));
+    const fm = Math.max(10, Math.round(fs * 1.25)); // mensajes un poco más grandes
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
     if (S.state === "play" && S.bOpen) {
       ctx.font = fs + "px 'Press Start 2P', monospace";
@@ -1371,14 +1406,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.toasts.forEach((t, i) => {
       const k = 1 - t.life / t.max;
       const a = Math.min(1, t.life / 0.25, k / 0.08 + 0.2);
-      const y = topY + i * (fs + 10) - Math.max(0, 0.12 - k) * 60;
-      ctx.globalAlpha = Math.max(0, a); ctx.font = fs + "px 'Press Start 2P', monospace";
+      const y = topY + i * (fm + 10) - Math.max(0, 0.12 - k) * 60;
+      ctx.globalAlpha = Math.max(0, a); ctx.font = fm + "px 'Press Start 2P', monospace";
       outlined(t.text, W / 2, y, t.color);
       ctx.globalAlpha = 1;
     });
     // mensajes de abajo: se parten en varias líneas si no entran en el ancho de la pileta
-    ctx.font = fs + "px 'Press Start 2P', monospace";
-    const maxW = W - 24, lineH = fs + 8;
+    ctx.font = fm + "px 'Press Start 2P', monospace";
+    const maxW = W - 24, lineH = fm + 8;
     const wrap = (text) => {
       const words = text.split(" "), lines = []; let cur = "";
       for (const w of words) { const tryL = cur ? cur + " " + w : w; if (ctx.measureText(tryL).width <= maxW - 18 || !cur) cur = tryL; else { lines.push(cur); cur = w; } }
@@ -1791,10 +1826,37 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     });
   }
 
+  // ---- Ranking histórico: hasta 100 partidas, se carga solo al abrirlo ----
+  let histLoaded = false;
+  $("btnHist").addEventListener("click", async () => {
+    const box = $("histBox"), btn = $("btnHist");
+    const open = box.hidden; box.hidden = !open; btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.textContent = open ? "OCULTAR RANKING HISTÓRICO" : "VER RANKING HISTÓRICO";
+    if (!open || histLoaded) return;
+    if (!db || !fs) { $("histNote").textContent = "No se pudo cargar ahora."; return; }
+    try {
+      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(100)));
+      const list = $("histList"); list.innerHTML = "";
+      snap.docs.forEach((d, i) => {
+        const x = d.data() || {}; const li = document.createElement("li");
+        if (uid && x.device === uid) li.className = "me";
+        const pos = document.createElement("span"); pos.className = "pos"; pos.textContent = i + 1;
+        const who = document.createElement("span"); who.className = "who"; who.textContent = String(x.alias || "Sin apodo");
+        const when = document.createElement("span"); when.className = "when";
+        when.textContent = x.at ? new Date(x.at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "";
+        const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(x.pts) || 0);
+        li.append(pos, who, when, mm); list.appendChild(li);
+      });
+      $("histNote").textContent = snap.size ? "Las " + snap.size + " mejores partidas de todos los tiempos." : "Todavía no hay partidas.";
+      histLoaded = true;
+    } catch { $("histNote").textContent = "No se pudo cargar ahora. Probá en un rato."; }
+  });
+
   async function saveScore(p, m) {
     if (!db || !uid || p <= 0) return;
     const shownMin = rankDocs.length >= 10 ? Number((rankDocs[rankDocs.length - 1].data() || {}).pts) || 0 : 0;
     try {
+      histLoaded = false; if (!$("histBox").hidden) { $("histBox").hidden = true; $("btnHist").click(); }
       await fs.addDoc(fs.collection(db, "runs"), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, at: new Date().toISOString() });
       if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 10!";
     } catch (e) { renderRank(); }
