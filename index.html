@@ -300,7 +300,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-pote";
+  const VERSION = "2026-10-20-pote2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -751,7 +751,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       lastHud = key;
       hudP.textContent = fmt(S.pts); hudM.textContent = Math.floor(S.dist);
       hudS.textContent = STY[S.style].name; hudX.textContent = "x" + STY[S.style].mult;
-      pips(hudAir, 3, S.air, "air"); pips(hudLives, 3, S.lives, CH.id === "pablito" ? "life pote" : "life"); $("hudLivesLbl").textContent = CH.id === "pablito" ? "POTES" : "GORRAS";
+      pips(hudAir, 3, S.air, "air"); pips(hudLives, 3, S.lives, "life");
     }
     hudSBar.style.width = S.styleT > 0 ? (100 * S.styleT / S.styleMax) + "%" : "0%";
     const open = S.state === "play" && S.bOpen;
@@ -841,7 +841,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!CH.slowStart) return;
     S.restart = 2.5; say("ARRANCANDO…", "#C9D4FF");
   }
-  const LIFE = () => CH.id === "pablito" ? "POTE" : "GORRA";
+  const LIFE = () => "GORRA";
   function loseLife(kind) {
     slowRestart();
     setFace("hurt", 0.9);
