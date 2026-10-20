@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-calambre";
+  const VERSION = "2026-10-20-luchito2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -581,7 +581,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "felix", name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
-    { id: "luchito", name: "LUCHITO", tag: "Pibe joven, sale como un rayo", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante. Punto débil: cada tanto le agarra un calambre y se queda quieto unos segundos.", special: "ACELERADA", cd: 5, cramps: true,
+    { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5, cramps: true,
       cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.12, breath: 0.05, passMult: 1, slim: true,
       face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } }
   ];
