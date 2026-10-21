@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-fer5";
+  const VERSION = "2026-10-21-ajustes2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -557,7 +557,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const fc = faceCv.getContext("2d");
     // ---------- Personajes ----------
   const CHARS = [
-    { id: "pablito", name: "PABLITO", tag: "Te levanta una losa y te nada 2000 metros en el mismo día", breathGap: 1, perk: "CAMINAR: se para y camina por el costado del carril, esquivando lo que viene. Además respira con más margen.", special: "CAMINAR", cd: 4,
+    { id: "pablito", name: "PABLITO", tag: "Te levanta una losa y te nada 2000 metros en el mismo día", breathGap: 1, perk: "CAMINAR: se para y camina por el costado del carril, esquivando lo que viene. Además respira con más margen.", special: "CAMINAR", cd: 2.5,
       cap: "#F0BE98", capHi: "#FFFFFF", suit: "#1F3F8F", speed: 1, breath: 0.35, passMult: 1,
       face: { skin: "#F0BE98", shade: "#D99A72", shade2: "#C4825E", top: "bald", beard: "candado", beardC: "#9C8E80", beardC2: "#7E7064", brow: "#5E4A3C", iris: "#4A6E96", goggles: true, mouth: "half" } },
     { id: "luis", name: "LUIS", tag: "Nadador rápido, pero te da vueltas para arrancar", breathGap: 1.5, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
@@ -569,16 +569,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
       face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
-    { id: "andre", name: "ANDRE", tag: "Una pitada y te hunde", breathGap: 1.15, perk: "LA YIYA: le tira una nube de humo al que va adelante, lo envenena y lo hunde.", special: "LA YIYA", cd: 5,
+    { id: "andre", name: "ANDRE", tag: "Una pitada y te hunde", breathGap: 1.15, perk: "LA YIYA: le tira una nube de humo al que va adelante, lo envenena y lo hunde.", special: "LA YIYA", cd: 3,
       cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 1.02, breath: 0.05, passMult: 1, tail: "#2A1C14",
       face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
     { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
       cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618", slim: true,
       face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } },
-    { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y pierde una gorra.", special: "NAVEGANTE", cd: 6, drowns: true,
+    { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y se queda pidiendo ayuda unos segundos.", special: "NAVEGANTE", cd: 6, drowns: true,
       cap: "#A9A9A9", capHi: "#D6D6D6", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1,
       face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "hair", hairC: "#A9A9A9", hairC2: "#C8C8C8", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } },
-    { id: "felix", name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
+    { id: "felix", hidden: true, name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
     { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5, cramps: true,
@@ -1068,10 +1068,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (CH.drowns) {
       if (S.drown > 0) {
         S.drown -= dt;
-        if (S.drown <= 0) { S.drown = 0; S.inv = 0; loseLife("ahogo"); if (S.state !== "play") return; }
+        if (S.drown <= 0) { S.drown = 0; S.inv = Math.max(S.inv, 1); toast("¡ZAFÓ! SIGUE NADANDO", "#B9F4FF"); }
       } else if ((S.drowned ? S.t >= S.nextDrown : S.pts >= S.drownPts) && S.boat <= 0) {
         S.drowned = true; S.nextDrown = S.t + rand(90, 130); S.drown = 1.5; setFace("gulp", 1.5); S.shake = reduceMotion ? 0 : 0.2;
-        toast("¡GLUB GLUB! ¡SE AHOGA!", "#FF9F6B"); say(pick(["¡AGUA, TRAGUÉ AGUA!", "¡ME AHOGO, ME AHOGO!", "¡SOCORRO, GUARDAVIDAS!"]), "#FFB4A8");
+        toast("¡GLUB GLUB! ¡SE AHOGA!", "#FF9F6B"); say(pick(["¡ME AHOGO, AYUDA, GUARDAVIDAS!", "¡ME AHOGO, ME AHOGO!", "¡SOCORRO, GUARDAVIDAS!"]), "#FFB4A8");
       }
     }
     if (S.puff > 0) S.puff = Math.max(0, S.puff - dt);
@@ -1689,9 +1689,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   // ---------- Selección de personaje ----------
   const picker = $("picker");
+  const PICKABLE = CHARS.filter((c) => !c.hidden); // personajes visibles en el selector
   let charId = store.get("pileta.char") || "pablito";
-  CH = CHARS.find((c) => c.id === charId) || CHARS[0];
-  const pickBtns = CHARS.map((ch) => {
+  CH = PICKABLE.find((c) => c.id === charId) || PICKABLE[0];
+  const pickBtns = PICKABLE.map((ch) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "char"; b.setAttribute("role", "radio"); b.id = "char-" + ch.id;
     const cvs = document.createElement("canvas"); cvs.width = 24; cvs.height = 24;
@@ -1703,7 +1704,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     return { b, ch, cvs };
   });
   function selectChar(id) {
-    CH = CHARS.find((c) => c.id === id) || CHARS[0];
+    CH = PICKABLE.find((c) => c.id === id) || PICKABLE[0];
     store.set("pileta.char", CH.id);
     for (const p of pickBtns) {
       const on = p.ch.id === CH.id;
@@ -1716,9 +1717,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     lastFaceKey = "";
   }
   picker.addEventListener("keydown", (e) => {
-    const i = CHARS.indexOf(CH);
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectChar(CHARS[(i + 1) % CHARS.length].id); pickBtns[(i + 1) % CHARS.length].b.focus(); }
-    if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); selectChar(CHARS[(i + CHARS.length - 1) % CHARS.length].id); pickBtns[(i + CHARS.length - 1) % CHARS.length].b.focus(); }
+    const i = PICKABLE.indexOf(CH), n = PICKABLE.length;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectChar(PICKABLE[(i + 1) % n].id); pickBtns[(i + 1) % n].b.focus(); }
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); selectChar(PICKABLE[(i + n - 1) % n].id); pickBtns[(i + n - 1) % n].b.focus(); }
   });
   selectChar(CH.id);
 
@@ -1765,7 +1766,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function continueGame() {
     const sv = readSave(); if (!sv) { showResume(); return; }
     try { localStorage.removeItem(SAVE_KEY); } catch {}
-    const ch = CHARS.find((c) => c.id === sv.char); if (ch) selectChar(ch.id);
+    const ch = CHARS.find((c) => c.id === sv.char); if (ch) { selectChar(ch.id); CH = ch; }
     if (sv.alias && sv.alias !== "Nadador anónimo") aliasIn.value = sv.alias;
     S = freshState();
     { const top = rankDocs[0] && rankDocs[0].data ? rankDocs[0].data() : null; S.groupBest = top ? Number(top.pts) || 0 : 0; S.groupBestAlias = top ? String(top.alias || "") : ""; }
