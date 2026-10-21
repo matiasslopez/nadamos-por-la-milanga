@@ -298,7 +298,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <li><b>El rápido:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>Guardar:</b> si te tenés que ir, tocá 💾 GUARDAR (arriba, al lado de la música) y después seguís con CONTINUAR PARTIDA. Se puede usar una vez y se recarga cada 10.000 puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
-      <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x9 y un gran bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
+      <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x5 y un buen bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
     </ul>
   </section>
 
@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-puntos3";
+  const VERSION = "2026-10-21-puntos4";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -886,7 +886,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     toast(kind === "aire" ? "SIN AIRE -1 " + LIFE() : "¡PUM! -1 " + LIFE(), "#FFB4A8");
   }
   function hitObstacle(o) {
-    if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x9", "#FFE08A"); return; }
+    if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x5", "#FFE08A"); return; }
     if (o.kind === "mariposa") { setStyle("mariposa", 7); setFace("happy", 1); toast("¡MARIPOSA! x3", "#FF9FE4"); return; }
     if (o.kind === "rana") {
       setStyle("pecho", 5); toast("TE CONTAGIASTE EL PECHO", "#8CF08C"); return;
@@ -1086,13 +1086,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.cd > 0) S.cd = Math.max(0, S.cd - dt);
     S.dist += speed * dt;
-    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 9 : 1);
+    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 5 : 1);
     S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
     if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
     if (CH.id === "pablito") { S.nextPablo = (S.nextPablo || rand(10, 16)) - dt; if (S.nextPablo <= 0) { S.nextPablo = rand(16, 26); say("¡HACÉ LO QUE QUIERAS VOS, PABLO!", "#FFE08A"); } }
     if (CH.complains) { S.nextComplain -= dt * Math.max(0.6, speed / (STY.crol.v * CH.speed)); if (S.nextComplain <= 0) { S.nextComplain = rand(5, 8); say(pick(COMPLAINTS), "#C9D4FF"); setFace("annoyed", 1); } }
     S.inv = Math.max(0, S.inv - dt);
-    if (S.kick > 0) { S.kick -= dt; if (S.kick <= 0) { S.kick = 0; const b = 1200 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡BIEN AHÍ! +" + b, "#FFE08A"); } }
+    if (S.kick > 0) { S.kick -= dt; if (S.kick <= 0) { S.kick = 0; const b = 500 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡BIEN AHÍ! +" + b, "#FFE08A"); } }
     S.shake = Math.max(0, S.shake - dt); S.face = Math.max(0, S.face - dt);
     if (S.styleT > 0) { S.styleT -= dt; if (S.styleT <= 0) { S.styleT = 0; S.style = "crol"; toast("DE VUELTA A CROL", "#FFE08A"); } }
     S.x += (laneC(S.lane) + (S.walk > 0 ? S.walkSide * 15 : 0) - S.x) * Math.min(1, dt * (CH.laneK || 14));
@@ -1603,7 +1603,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (S.kick > 0) {
       ctx.fillStyle = "rgba(10,14,26,.85)"; ctx.fillRect(0, 8, W, fs * 2 + 14);
       ctx.font = fs + "px 'Press Start 2P', monospace";
-      outlined("PATADA x9 · " + Math.ceil(S.kick) + "s", W / 2, 14 + fs * 1.5, "#FFE08A");
+      outlined("PATADA x5 · " + Math.ceil(S.kick) + "s", W / 2, 14 + fs * 1.5, "#FFE08A");
     }
   }
   function quipBubbles(sc, fs) {
