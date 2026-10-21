@@ -297,6 +297,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
       <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés una gorra.</span>
       <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El nadador posta:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
+      <canvas width="30" height="30" data-icon="charlita"></canvas><span><b>La charlita entre piletas:</b> cada tanto se te arrima un compañero a arreglar el país entre largo y largo. Si te engancha, te frena unos segundos y perdés 500 puntos.</span>
     </div>
     <ul class="how">
       <li><b>Esquivá:</b> si chocás perdés una gorra. Con tres afuera, se termina.</li>
@@ -324,7 +325,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-nombres";
+  const VERSION = "2026-10-21-charlita";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -556,10 +557,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
 
   // El Pela: flota de costado, bigote canoso, siempre listo para la charla
-  function charlatan(cx, cy, t, talking) {
-    swimmer(cx, cy, "flota", Math.floor(t * 2) % 2, { cap: "#E9B48C", capHi: "#FFFFFF", suit: "#E07B1F" });
+  function charlatan(cx, cy, t, talking, av) {
+    // av: personaje del grupo que se arrima a charlar (la charlita entre piletas)
+    swimmer(cx, cy, "flota", Math.floor(t * 2) % 2, av ? { cap: av.cap, capHi: av.capHi, suit: av.suit, part: av.part, tail: av.tail, slim: av.slim, athletic: av.athletic } : { cap: "#E9B48C", capHi: "#FFFFFF", suit: "#E07B1F" });
     cx = Math.round(cx); cy = Math.round(cy);
-    R(cx - 3, cy - 2, 6, 1, "#CFCFCF");
+    if (!av) R(cx - 3, cy - 2, 6, 1, "#CFCFCF");
     if (!talking && Math.floor(t * 1.5) % 2) { R(cx + 6, cy - 14, 6, 4, C.white); R(cx + 7, cy - 13, 1, 1, C.out); R(cx + 9, cy - 13, 1, 1, C.out); R(cx + 6, cy - 10, 1, 1, C.white); }
   }
 
@@ -744,6 +746,15 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     mariposa: { v: 3.4, mult: 4, anim: 2.6, name: "MARIPOSA" }
   };
   const SHOW_CHARLA = false; // oculto por ahora; poner true para volver a mostrarlo
+  // La charlita entre piletas: un compañero se arrima y arranca con su tema (un poco para cada lado)
+  const CHARLAS_POL = [
+    "Hay que bajar los impuestos, eh", "El mercado lo acomoda solo", "Yo me hice solo, nadie me regaló nada",
+    "Menos Estado y la pileta anda mejor", "Hay que privatizar el carril rápido", "El que quiere laburar, labura",
+    "Yo tengo todo en dólares, eh", "La cuota tendría que ser libre mercado",
+    "La pileta debería ser pública y gratuita", "Acá falta una asamblea de nadadores", "Los andariveles son de quien los nada",
+    "Hay que repartir mejor el carril rápido", "¿Firmaste el petitorio por el agua caliente?", "Habría que sindicalizar a los guardavidas",
+    "Esto lo tendría que regular el Estado", "Los de la pileta de arriba tienen todo"
+  ];
   const CHARLAS = ["Esto en otros países no pasa", "¿Cómo cambiaste, eh?", "¡Qué sucio que está el baño!", "Faltan chicas en natación", "¿Viste cómo salió Boca el domingo?", "¿Cuándo corre Colapinto?", "¡Qué partidazo de tenis anoche!", "El vestuario está una miseria", "Cada vez más cara la cuota", "El club cada vez está peor", "El agua está fría, eh", "¡Qué milagro que tu mujer te dejó venir!", "Así no se puede más", "¿Viste el partido?", "¿Viste lo del dólar?", "Son todos iguales, eh", "¿A quién vas a votar?", "Esto con el otro no pasaba", "Le falta cloro a esto", "¿Viste los pelos en el agua?", "Está turbia hoy, ¿no?", "Nadie se ducha antes, eh", "Hoy está fresca, ¿no?"];
   const QUIPS = ["¡A contramano!", "¡Por la derecha!", "¡Me mojaste todo!", "¿Quién lo dejó entrar?", "¡Fijate por dónde vas!", "¡Ojo con el snorkel!"];
   const CHATS = ["¿Está fría, no?", "…y mi nuera…", "¿Mañana hay?", "Vengo x la cervical", "¡Me salpicaste!"];
@@ -763,7 +774,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
   }
   S = freshState();
@@ -836,6 +847,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       o.m = clash.m + 2.7;
     }
     S.obs.push(o);
+    return o;
   }
   function spawn(m) {
     const d = S.dist, r = Math.random();
@@ -1048,8 +1060,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.dash > 0) S.dash = Math.max(0, S.dash - dt);
     if (S.slowmo > 0) S.slowmo = Math.max(0, S.slowmo - dt);
     // Modo lluvia: muy de vez en cuando hay que salir de la pileta unos segundos
-    if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0) {
-      S.rainT = 6.5; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2;
+    if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0 && S.cheer <= 0) {
+      S.rainT = 6.5; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2; S.cheer = 0;
       toast("¡SE LARGÓ A LLOVER!", "#B9F4FF"); say("¡HAY QUE SALIR, HAY QUE SALIR!", "#FFE08A");
     }
     if (S.rainT > 0) {
@@ -1063,6 +1075,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       }
     }
     if (S.flash > 0) S.flash = Math.max(0, S.flash - dt);
+    if (S.pts >= (S.nextCharlitaPts || 6000) && S.chat <= 0 && S.rainT <= 0 && !S.obs.some((o) => o.kind === "charla" && !o.hit)) {
+      S.nextCharlitaPts = S.pts + rand(7000, 9000);
+      const others = PICKABLE.filter((c) => c.id !== CH.id);
+      const o = addObs("charla", Math.floor(Math.random() * 3), S.dist + 14);
+      o.av = pick(others); o.line = pick(CHARLAS_POL);
+    }
     if (SHOW_CHARLA && S.pts >= S.nextCharlaPts && S.chat <= 0 && !S.obs.some((o) => o.kind === "charla" && !o.hit)) {
       S.nextCharlaPts = S.pts + rand(7000, 8000);
       addObs("charla", Math.floor(Math.random() * 3), S.dist + 14);
@@ -1193,9 +1211,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.t >= S.nextSponsor) { S.nextSponsor = S.t + rand(22, 34); S.sponsorM = S.dist + 16; { const r = (((S.sponsorM - 34) % 60) + 60) % 60; if (r < 8 || r > 52) S.sponsorM += 15; } S.sponsorSide = Math.random() < 0.5 ? 0 : 1; S.sponsorIdx = (S.sponsorIdx || 0) + 1; }
     if (S.t >= S.nextCheer) {
       S.nextCheer = S.t + rand(25, 40);
-      if (!S.profe && S.kick <= 0) { S.cheer = 3.6; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); S.says[S.says.length - 1].life = S.says[S.says.length - 1].max = 3.6; }
+      if (!S.profe && S.kick <= 0 && S.rainT <= 0) { S.cheer = 3.6; say(pick(["¡VAMOS, VAMOS, QUE MI ABUELITA NADA MÁS RÁPIDO!", "¡VAMOS, VAMOS! ¡MI ABUELITA NADA MÁS RÁPIDO!"]), "#DFFF1F"); S.says[S.says.length - 1].life = S.says[S.says.length - 1].max = 3.6; }
     }
-    if (S.dist >= S.nextProfe && S.kick <= 0 && !S.profe) {
+    if (S.dist >= S.nextProfe && S.kick <= 0 && !S.profe && S.rainT <= 0) {
       S.profe = 1; S.nextProfe = S.dist + rand(200, 280);
       addObs("tablaProfe", Math.floor(Math.random() * 3), S.dist + 12);
       setFace("hurt", 0.5);
@@ -1360,7 +1378,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     else if (o.kind === "curita") bandaid(o.x, y);
     else if (o.kind === "gordo") { g.save(); g.setTransform(1, 0, 0, -1, 0, 2 * y); gordo(o.x, y, tt); g.restore(); }
-    else if (o.kind === "charla") charlatan(o.x, y, tt, o.hooked && S.chat > 0);
+    else if (o.kind === "charla") charlatan(o.x, y, tt, o.hooked && S.chat > 0, o.av);
     else if (o.kind === "rapido") {
       const fr = Math.floor(S.t * 9) % 2;
       for (let i = 0; i < 5; i++) R(Math.round(o.x) - 8 + i * 4, Math.round(y) + 11 + ((i + fr) % 2) * 3, 1, 4 + (i % 2) * 4, C.white);
@@ -1619,13 +1637,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!o || S.chat <= 0) return;
     const sc = W / LW, fs = Math.max(8, Math.round(W / 42));
     ctx.font = fs + "px 'Press Start 2P', monospace";
-    const txt = S.chatLine, tw = ctx.measureText(txt).width + 16;
-    const bx = Math.max(6, Math.min(W - tw - 6, o.x * sc - tw / 2)), by = (PY - 38) * sc;
-    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(bx, by, tw, fs + 14);
-    ctx.strokeStyle = "#0A0E1A"; ctx.lineWidth = 3; ctx.strokeRect(bx, by, tw, fs + 14);
-    ctx.fillStyle = "#14141f"; ctx.textAlign = "left"; ctx.fillText(txt, bx + 8, by + fs + 6);
-    const w = Math.round((S.chat / 3) * (tw - 6));
-    ctx.fillStyle = "#FFB31A"; ctx.fillRect(bx + 3, by + fs + 10, w, 2);
+    // si no entra en una línea, se parte en dos
+    const maxW = W - 28, words = String(S.chatLine).split(" "), lines = [""];
+    for (const wd of words) { const tst = lines[lines.length - 1] ? lines[lines.length - 1] + " " + wd : wd; if (ctx.measureText(tst).width > maxW && lines[lines.length - 1]) lines.push(wd); else lines[lines.length - 1] = tst; }
+    const lh = fs + 6, tw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 16, bh = lines.length * lh + 8;
+    const bx = Math.max(6, Math.min(W - tw - 6, o.x * sc - tw / 2)), by = (PY - 38) * sc - (lines.length - 1) * lh;
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(bx, by, tw, bh);
+    ctx.strokeStyle = "#0A0E1A"; ctx.lineWidth = 3; ctx.strokeRect(bx, by, tw, bh);
+    ctx.fillStyle = "#14141f"; ctx.textAlign = "left"; lines.forEach((l, i) => ctx.fillText(l, bx + 8, by + fs + 6 + i * lh));
+    const w = Math.round(Math.min(1, S.chat / 5) * (tw - 6));
+    ctx.fillStyle = "#FFB31A"; ctx.fillRect(bx + 3, by + bh - 4, w, 2);
     ctx.textAlign = "center";
   }
   function outlined(text, x, y, color) {
@@ -2177,6 +2198,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (kind === "gordo") gordo(c, 20, 0.5);
     else if (kind === "rapido") swimmer(c, c + 3, "crol", 0, { cap: "#17171C", capHi: "#4A4A58", suit: "#111111" });
     else if (kind === "charla") charlatan(c, 9, 0.1, true);
+    else if (kind === "charlita") charlatan(c, 12, 0.1, false, CHARS.find((x) => x.id === "luis"));
     else if (kind === "aletas") fins(c, c + 1);
     else if (kind === "manoplas") paddles(c, c + 1);
     else if (kind === "milanga") milaItem(c - 1, c + 2, 0);
