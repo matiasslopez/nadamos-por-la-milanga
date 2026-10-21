@@ -144,6 +144,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 .fb-list li{background:rgba(255,255,255,.04);padding:8px 10px;display:flex;flex-direction:column;gap:3px}
 .fb-list .st{color:var(--cap);letter-spacing:2px}
 .fb-list .meta{font-size:.78rem;color:var(--muted)}
+.mod-title{font-family:var(--font-pixel);font-weight:400;font-size:.62rem;margin:10px 0 0;color:var(--cap)}
+.fb-list li.sus{background:rgba(255,90,78,.18);outline:2px solid #FF5A4E}
+.mod-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.mod-del{font-family:var(--font-pixel);font-size:.45rem;padding:6px 8px;border:2px solid #000;background:#F1F5FA;color:#101a2b;cursor:pointer}
+.mod-del.confirm{background:#FF5A4E;color:#fff}
 .fb-list .txt{white-space:pre-wrap;overflow-wrap:anywhere}
 .styles{display:grid;grid-template-columns:auto 1fr auto;gap:8px 12px;align-items:center;font-size:.92rem}
 .styles .k{font-family:var(--font-pixel);font-size:.55rem}
@@ -266,6 +271,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <p class="note" id="visitsTxt">Contando…</p>
       <p class="note" id="fbSummary"></p>
       <ul class="fb-list" id="fbList"></ul>
+      <h3 class="mod-title">PARTIDAS · MODERACIÓN</h3>
+      <p class="note" id="modNote">Las 60 mejores. Las marcadas en rojo tienen números raros: revisalas.</p>
+      <ul class="fb-list" id="modList"></ul>
     </div>
   </section>
 
@@ -316,7 +324,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-puntos4";
+  const VERSION = "2026-10-21-antitrampa";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -2057,6 +2065,32 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         let total = 0; snap.docs.forEach((d) => { total += Number((d.data() || {}).count) || 0; });
         $("visitsTxt").textContent = "Visitas: " + snap.size + (snap.size === 1 ? " persona" : " personas distintas") + " · " + total + (total === 1 ? " entrada" : " entradas") + " en total (un registro por dispositivo).";
       }, denied));
+      unsub.push(fs.onSnapshot(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(60)), (snap) => {
+        const list = $("modList"); list.innerHTML = "";
+        const docs = snap.docs, second = docs[1] ? Number(docs[1].data().pts) || 0 : 0;
+        docs.forEach((d, i) => {
+          const r = d.data() || {}, pts = Number(r.pts) || 0, m = Number(r.metros) || 0, dur = Number(r.dur) || 0;
+          const reasons = [];
+          if (m > 0 && pts / m > 110) reasons.push("muchos puntos por metro (" + Math.round(pts / m) + ")");
+          if (dur > 0 && pts / dur > 450) reasons.push("muchos puntos por segundo (" + Math.round(pts / dur) + ")");
+          if (dur > 0 && m / dur > 20) reasons.push("demasiado rápido (" + (m / dur).toFixed(1) + " m/s)");
+          if (i === 0 && second > 0 && pts > second * 1.6) reasons.push("muy por encima del segundo");
+          const li = document.createElement("li"); if (reasons.length) li.className = "sus";
+          const row = document.createElement("div"); row.className = "mod-row";
+          const t = document.createElement("span"); t.className = "st";
+          t.textContent = (i + 1) + ". " + String(r.alias || "Sin apodo") + " · " + fmt(pts) + " pts · " + m + " m" + (dur ? " · " + Math.floor(dur / 60) + ":" + String(dur % 60).padStart(2, "0") : "");
+          const del = document.createElement("button"); del.type = "button"; del.className = "mod-del"; del.textContent = "BORRAR";
+          del.addEventListener("click", async () => {
+            if (!del.classList.contains("confirm")) { del.classList.add("confirm"); del.textContent = "¿SEGURO?"; setTimeout(() => { del.classList.remove("confirm"); del.textContent = "BORRAR"; }, 3000); return; }
+            del.disabled = true; del.textContent = "…";
+            try { await fs.deleteDoc(fs.doc(db, "runs", d.id)); } catch { del.textContent = "ERROR"; }
+          });
+          row.append(t, del); li.append(row);
+          const meta = document.createElement("span"); meta.className = "meta";
+          meta.textContent = (r.char ? r.char.toUpperCase() + " · " : "") + (r.at ? new Date(r.at).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "") + (reasons.length ? " · ⚠ " + reasons.join(", ") : "");
+          li.append(meta); list.appendChild(li);
+        });
+      }, denied));
       unsub.push(fs.onSnapshot(fs.query(fs.collection(db, "feedback"), fs.orderBy("at", "desc"), fs.limit(200)), (snap) => {
         const list = $("fbList"); list.innerHTML = "";
         let sum = 0;
@@ -2107,7 +2141,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const shownMin = rankDocs.length >= 10 ? Number((rankDocs[rankDocs.length - 1].data() || {}).pts) || 0 : 0;
     try {
       histLoaded = false; if (!$("histBox").hidden) { $("histBox").hidden = true; $("btnHist").click(); }
-      await fs.addDoc(fs.collection(db, "runs"), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, at: new Date().toISOString() });
+      await fs.addDoc(fs.collection(db, "runs"), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, dur: Math.round(S.t), at: new Date().toISOString() });
       if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 10!";
     } catch (e) { renderRank(); }
   }
