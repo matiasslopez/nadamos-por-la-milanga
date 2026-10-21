@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-ajustes2";
+  const VERSION = "2026-10-21-ajustes3";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -564,7 +564,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.13, breath: -0.1, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
     { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
-      cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1, breath: 0, passMult: 1, lunges: true,
+      cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1.06, breath: 0, passMult: 1, lunges: true,
       face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#1A1A1E", capC2: "#0A0A0C", capHi: "#4A4D58", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
@@ -934,7 +934,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (CH.id === "mati") {
       S.dive = 1.6; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
     } else if (CH.id === "luis") {
-      S.jump = 1.5; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
+      S.jump = 2.1; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
     } else if (CH.id === "andre") {
       let target = null;
       for (const o of S.obs) {
@@ -1439,10 +1439,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.style === "mariposa") { R(px - 1, PY + 18, 2, 2, C.white); R(px - 4, PY + 22, 1, 1, C.white); R(px + 3, PY + 21, 1, 1, C.white); }
     let pyy = PY;
     if (S.jump > 0) {
-      const arc = Math.sin(Math.PI * (1 - S.jump / 1.5));
+      const arc = Math.sin(Math.PI * (1 - S.jump / 2.1));
       pyy = PY - Math.round(arc * 18);
       R(px - 7, PY + 2, 14, 4, "rgba(10,40,80,0.45)");
-      if (S.jump < 0.15 || S.jump > 1.35) { R(px - 9, PY + 6, 2, 2, C.white); R(px + 7, PY + 6, 2, 2, C.white); R(px - 5, PY + 9, 1, 1, C.white); R(px + 4, PY + 9, 1, 1, C.white); }
+      if (S.jump < 0.15 || S.jump > 1.95) { R(px - 9, PY + 6, 2, 2, C.white); R(px + 7, PY + 6, 2, 2, C.white); R(px - 5, PY + 9, 1, 1, C.white); R(px + 4, PY + 9, 1, 1, C.white); }
     }
     if (S.slowmo > 0) { // relojito arriba de Fer
       R(px - 3, PY - 24, 7, 7, C.out); R(px - 2, PY - 23, 5, 5, C.white); R(px, PY - 22, 1, 2, C.out); R(px, PY - 21, 2, 1, C.out);
