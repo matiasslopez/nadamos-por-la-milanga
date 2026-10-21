@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-pela";
+  const VERSION = "2026-10-20-lluvia";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -748,7 +748,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, nextCharlaPts: rand(7000, 8000), cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, nextCharlaPts: rand(7000, 8000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
   }
   S = freshState();
@@ -1016,7 +1016,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
       if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
     }
-    const speed = st.v * prog * slow * CH.speed * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
+    const speed = st.v * prog * slow * CH.speed * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.rainT > 0 && S.rainT <= 4.5 ? 0 : S.rainT > 0 ? 0.6 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
     if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
     if (S.pads > 0) { S.pads -= dt; if (S.pads <= 0) S.pads = 0; }
     if (S.jump > 0) S.jump = Math.max(0, S.jump - dt);
@@ -1025,6 +1025,22 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
     if (S.boat > 0) S.boat = Math.max(0, S.boat - dt);
     if (S.dash > 0) S.dash = Math.max(0, S.dash - dt);
+    // Modo lluvia: muy de vez en cuando hay que salir de la pileta unos segundos
+    if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0) {
+      S.rainT = 6.5; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2;
+      toast("¡SE LARGÓ A LLOVER!", "#B9F4FF"); say("¡HAY QUE SALIR, HAY QUE SALIR!", "#FFE08A");
+    }
+    if (S.rainT > 0) {
+      const wasOut = S.rainT <= 4.5;
+      S.rainT = Math.max(0, S.rainT - dt);
+      S.nextFlash -= dt; if (S.nextFlash <= 0) { S.flash = 0.12; S.nextFlash = rand(0.9, 1.8); }
+      if (!wasOut && S.rainT <= 4.5 && S.rainT > 0) { toast("¡TODOS AFUERA!", "#FFE08A"); say(pick(["¡AFUERA, QUE HAY RAYOS!", "¡SALGAN DEL AGUA!", "¡HAY QUE SALIR, HAY QUE SALIR!"]), "#FFE08A"); }
+      if (S.rainT === 0) {
+        S.obs = S.obs.filter((o) => o.pick || Math.abs(o.m - S.dist) > 5); S.inv = Math.max(S.inv, 1.5);
+        toast("¡SALIÓ EL SOL! A NADAR", "#FFE08A");
+      }
+    }
+    if (S.flash > 0) S.flash = Math.max(0, S.flash - dt);
     if (S.pts >= S.nextCharlaPts && S.chat <= 0 && !S.obs.some((o) => o.kind === "charla" && !o.hit)) {
       S.nextCharlaPts = S.pts + rand(7000, 8000);
       addObs("charla", Math.floor(Math.random() * 3), S.dist + 14);
@@ -1125,7 +1141,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
 
     for (const o of S.obs) {
-      if (o.hit || o.kind === "charla") continue;
+      if (o.hit || o.kind === "charla" || (S.rainT > 0 && S.rainT <= 4.5)) continue;
       if (!o.pick) {
         if (S.jump > 0) continue;
         if (S.boat > 0 && Math.abs(o.m - S.dist) < o.hl + 1.2 && Math.abs(S.x - o.x) < o.hw + 8) {
@@ -1143,7 +1159,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (hit) { o.hit = true; hitObstacle(o); if (S.state !== "play") return; }
     }
 
-    if (!S.bOpen) {
+    if (S.rainT > 0 && S.rainT <= 4.5) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
+    else if (!S.bOpen) {
       S.nextBreath -= dt;
       if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath); S.bT = S.bLen; }
     } else {
@@ -1407,7 +1424,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     // jugador
     const blink = S.inv > 0 && Math.floor(S.inv * 12) % 2 === 0;
     const frame = Math.floor(S.stroke) % 2;
-    const px = Math.round(S.x);
+    const outside = S.rainT > 0 && S.rainT <= 4.5;
+    const px = outside ? 6 : Math.round(S.x);
     if (S.style === "mariposa") { R(px - 1, PY + 18, 2, 2, C.white); R(px - 4, PY + 22, 1, 1, C.white); R(px + 3, PY + 21, 1, 1, C.white); }
     let pyy = PY;
     if (S.jump > 0) {
@@ -1497,6 +1515,23 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const sx = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     const sy = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     ctx.drawImage(low, sx, sy, W, H);
+    if (S.rainT > 0) {
+      const k = Math.min(1, (6.5 - S.rainT) / 0.6, S.rainT / 0.6);
+      ctx.fillStyle = "rgba(14,22,44," + (0.35 * k) + ")"; ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "rgba(200,225,255," + (0.55 * k) + ")"; ctx.lineWidth = Math.max(1, W / 300);
+      ctx.beginPath();
+      for (let i = 0; i < 90; i++) {
+        const rx = ((i * 97.3 + S.t * 140) % (W + 60)) - 30, ry = ((i * 53.7 + S.t * 900 + i * i) % (H + 40)) - 20;
+        ctx.moveTo(rx, ry); ctx.lineTo(rx - W * 0.015, ry + H * 0.03);
+      }
+      ctx.stroke();
+      if (S.flash > 0) { ctx.fillStyle = "rgba(255,255,240," + (S.flash / 0.12 * 0.7) + ")"; ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = "#FFF7C0"; ctx.lineWidth = Math.max(2, W / 140); ctx.beginPath(); const bx = W * (0.3 + (Math.floor(S.t * 7) % 5) * 0.1); ctx.moveTo(bx, 0); ctx.lineTo(bx - W * 0.05, H * 0.15); ctx.lineTo(bx + W * 0.02, H * 0.17); ctx.lineTo(bx - W * 0.06, H * 0.35); ctx.stroke(); }
+      if (S.rainT <= 4.5) {
+        const fsz = Math.max(10, Math.round(W / 32)); ctx.font = fsz + "px 'Press Start 2P', monospace"; ctx.textAlign = "center";
+        outlined("VOLVÉS AL AGUA EN " + Math.ceil(S.rainT), W / 2, H * 0.45, "#FFE08A");
+      }
+    }
 
     const sc = W / LW;
     const fs = Math.max(8, Math.round(W / 40));
