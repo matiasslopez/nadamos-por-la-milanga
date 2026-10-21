@@ -296,14 +296,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 400 puntos.</span>
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
       <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés una gorra.</span>
-      <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El pro:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
+      <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El nadador posta:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
     </div>
     <ul class="how">
       <li><b>Esquivá:</b> si chocás perdés una gorra. Con tres afuera, se termina.</li>
       <li><b>Pasá a los lentos:</b> cada nadador de pecho que pasás sin tocarlo suma puntos extra.</li>
       <li><b>Respirá:</b> cuando se ilumina el botón, tocá RESPIRAR. Si te lo perdés o respirás a destiempo, tragás agua. Sin aire, perdés una gorra.</li>
       <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés una gorra; si lo esquivás, sumás.</li>
-      <li><b>El pro:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
+      <li><b>El nadador posta:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>Guardar:</b> si te tenés que ir, tocá 💾 GUARDAR (arriba, al lado de la música) y después seguís con CONTINUAR PARTIDA. Se puede usar una vez y se recarga cada 10.000 puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
       <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x5 y un buen bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
@@ -324,7 +324,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-elpro";
+  const VERSION = "2026-10-21-posta";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -752,7 +752,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     senora: "Chocaste a la señora de la gorra de flores. No paró de hablar.",
     tabla: "Una tabla de patada te dio en la frente.",
     corchera: "Te enredaste en la corchera.",
-    rapido: "Te pasó por arriba el pro. ¡Mirá para atrás!",
+    rapido: "Te alcanzó el nadador posta. ¡Mirá para atrás!",
     ahogo: "Le agarró el ahogo. ¡Guardavidaaas!",
     gordo: "Te chocaste al que nada por la suya, a contramano.",
     aire: "Te quedaste sin aire. Respirá, campeón."
@@ -979,7 +979,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         if (ahead > -0.5 && ahead < 14 && inLane && (!target || o.m < target.m)) target = o;
       }
       S.warpFrom = S.dist;
-      for (const r of S.obs) if (r.kind === "rapido" && !r.hit && Math.abs(r.x - S.x) < 16 && S.dist - r.m < 12) { r.hit = true; r.lost = true; toast("¡EL PRO TE PERDIÓ EL RASTRO!", "#E0B0FF"); }
+      for (const r of S.obs) if (r.kind === "rapido" && !r.hit && Math.abs(r.x - S.x) < 16 && S.dist - r.m < 12) { r.hit = true; r.lost = true; toast("¡TE PERDIÓ EL RASTRO!", "#E0B0FF"); }
       S.dist = target ? target.m + (target.hl || 1) + 2.2 : S.dist + 8;
       S.warp = 0.9; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.12;
       if (target && target.kind !== "corchera") { const b = 120 * STY[S.style].mult; S.pts += b; toast("¡AGUJERO DE GUSANO! +" + b, "#E0B0FF"); }
@@ -1145,7 +1145,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         o.hit = true; S.profe = 0; S.pts = Math.max(0, S.pts - 300); setFace("hurt", 1); toast("¡LA PROFE TE VIO! -300", "#FF9F6B");
       }
       if (o.kind === "rapido" && !o.hit && !o.passed && o.m > S.dist + 1.6) {
-        o.passed = true; const b = 150 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡ZAFASTE DEL PRO! +" + b, "#FFE08A");
+        o.passed = true; const b = 150 * st.mult; S.pts += b; setFace("happy", 0.8); toast("¡BUENA ESQUIVADA! +" + b, "#FFE08A");
       }
       if (o.kind === "rapido" && o.m > S.dist + 20) o.gone = true;
       if (o.kind === "gordo" && !o.warned && o.m - S.dist < 16) { o.warned = true; toast("¡CONTRAMANO!", "#FF9F6B"); }
@@ -1159,7 +1159,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.dist >= S.nextFed && !S.obs.some((o) => o.kind === "rapido")) {
       S.obs.push({ kind: "rapido", lane: S.lane, m: S.dist - 15, x: laneC(S.lane), hit: false, hw: 10, hl: 1.0, v: 0 });
       S.nextFed = S.dist + rand(110, 170);
-      toast("¡ATRÁS! VIENE EL PRO", "#FF9F6B"); say("¡PERMISO, PERMISO!", "#FFB4A8");
+      toast("¡GUARDA QUE TE PASAN!", "#FF9F6B"); say("¡PERMISO, PERMISO!", "#FFB4A8");
     }
 
     for (const o of S.obs) {
