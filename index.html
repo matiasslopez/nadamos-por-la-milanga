@@ -272,16 +272,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   <section class="panel" aria-labelledby="stTitle">
     <h3 id="stTitle">ESTILOS</h3>
     <div class="styles">
-      <span class="k">PECHO</span><span>El más lento. Te lo contagia la rana.</span><span class="x">x2</span>
+      <span class="k">PECHO</span><span>El más lento. Te lo contagia la rana.</span><span class="x">x3</span>
       <span class="k">CROL</span><span>Tu estilo normal.</span><span class="x">x2</span>
-      <span class="k">MARIPOSA</span><span>Turbo por unos segundos. Si chocás, lo perdés.</span><span class="x">x3</span>
+      <span class="k">MARIPOSA</span><span>Turbo por unos segundos. Si chocás, lo perdés.</span><span class="x">x4</span>
     </div>
   </section>
 
   <section class="panel" aria-labelledby="howTitle">
     <h3 id="howTitle">CÓMO SE JUEGA</h3>
     <div class="legend">
-      <canvas width="20" height="20" data-icon="mariposa"></canvas><span><b>Mariposa:</b> agarrala para ir rápido y sumar x3.</span>
+      <canvas width="20" height="20" data-icon="mariposa"></canvas><span><b>Mariposa:</b> agarrala para ir rápido y sumar x4.</span>
       <canvas width="20" height="20" data-icon="rana"></canvas><span><b>Rana:</b> evitala, te deja nadando pecho.</span>
       <canvas width="20" height="20" data-icon="gorra"></canvas><span><b>Gorra:</b> te salva de un choque.</span>
       <canvas width="20" height="20" data-icon="aletas"></canvas><span><b>Patas de rana:</b> unos segundos de velocidad extra.</span>
@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-puntos";
+  const VERSION = "2026-10-20-puntos2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -724,9 +724,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const STY = {
-    pecho: { v: 1.5, mult: 2, anim: 2.2, name: "PECHO" },
+    pecho: { v: 1.5, mult: 3, anim: 2.2, name: "PECHO" },
     crol: { v: 2.3, mult: 2, anim: 3.2, name: "CROL" },
-    mariposa: { v: 3.4, mult: 3, anim: 2.6, name: "MARIPOSA" }
+    mariposa: { v: 3.4, mult: 4, anim: 2.6, name: "MARIPOSA" }
   };
   const SHOW_CHARLA = false; // oculto por ahora; poner true para volver a mostrarlo
   const CHARLAS = ["Esto en otros países no pasa", "¿Cómo cambiaste, eh?", "¡Qué sucio que está el baño!", "Faltan chicas en natación", "¿Viste cómo salió Boca el domingo?", "¿Cuándo corre Colapinto?", "¡Qué partidazo de tenis anoche!", "El vestuario está una miseria", "Cada vez más cara la cuota", "El club cada vez está peor", "El agua está fría, eh", "¡Qué milagro que tu mujer te dejó venir!", "Así no se puede más", "¿Viste el partido?", "¿Viste lo del dólar?", "Son todos iguales, eh", "¿A quién vas a votar?", "Esto con el otro no pasaba", "Le falta cloro a esto", "¿Viste los pelos en el agua?", "Está turbia hoy, ¿no?", "Nadie se ducha antes, eh", "Hoy está fresca, ¿no?"];
