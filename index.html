@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-puntos2";
+  const VERSION = "2026-10-20-fer";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -583,7 +583,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
     { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5, cramps: true,
       cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.12, breath: 0.05, passMult: 1, slim: true,
-      face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } }
+      face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } },
+    { id: "fer", name: "FER", tag: "Nadador con experiencia: lee la pileta como nadie", breathGap: 1.25, perk: "A MI RITMO: por unos segundos la pileta va en cámara lenta. Además, con él la pileta acelera más despacio.", special: "A MI RITMO", cd: 8, calm: true,
+      cap: "#E6B48C", capHi: "#FFF1E0", suit: "#2B4C7E", speed: 0.9, breath: 0.3, passMult: 1,
+      face: { skin: "#E6B48C", shade: "#CC9A72", shade2: "#B5825C", top: "bald", beard: "none", beardC: "#000", beardC2: "#000", brow: "#8A7A6C", iris: "#4A6E96", goggles: true, mouth: "half", wrinkles: true } }
   ];
   let CH = CHARS[0];
   const COMPLAINTS = ["¡ESTÁ HELADA!", "¿QUIÉN ARMÓ ESTA SERIE?", "ME DUELE EL HOMBRO", "¡LA PROFE ME ODIA!", "HAY MUCHA GENTE HOY", "ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "HAY OLOR A CLOACA", "NOS CAGARON EL CAMPEONATO", "NUNCA NOS JUNTAMOS A COMER", "¿SALE MILANGA HOY?"];
@@ -677,6 +680,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       F(8 + look, 11, 1, 1, P.iris); F(15 + look, 11, 1, 1, P.iris);
       F(7, 12, 3, 1, P.shade); F(14, 12, 3, 1, P.shade);
     }
+    if (P.wrinkles) { F(8, 4, 6, 1, P.shade); F(9, 5, 4, 1, P.shade); F(5, 11, 1, 1, P.shade2); F(18, 11, 1, 1, P.shade2); F(5, 13, 1, 1, P.shade2); F(18, 13, 1, 1, P.shade2); F(8, 15, 1, 1, P.shade2); F(15, 15, 1, 1, P.shade2); }
     if (P.blush) { F(6, 14, 2, 1, "#F0A08A"); F(16, 14, 2, 1, "#F0A08A"); }
     if (P.lashes && expr !== "dead") { F(6, 10, 1, 2, BASE.out); F(10, 10, 1, 1, BASE.out); F(13, 10, 1, 1, BASE.out); F(17, 10, 1, 2, BASE.out); F(5, 10, 1, 1, BASE.out); F(18, 10, 1, 1, BASE.out); }
     if (P.locks) { F(4, 9, 1, 5, P.locks); F(5, 9, 1, 2, P.locks); F(19, 9, 1, 5, P.locks); F(18, 9, 1, 2, P.locks); }
@@ -748,7 +752,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, nextCharlaPts: rand(7000, 8000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
   }
   S = freshState();
@@ -945,6 +949,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = CH.cd; setFace("happy", 1);
       toast("¡LA YIYA! +" + b, "#B8F0A0"); say("¡TOMÁ, PROBÁ ESTE SABOR!", "#B8F0A0");
+    } else if (CH.id === "fer") {
+      S.slowmo = 4; S.cd = CH.cd; toast("A MI RITMO", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
     } else if (CH.id === "luchito") {
       S.dash = 1.1; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
     } else if (CH.id === "felix") {
@@ -1005,7 +1011,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const st = STY[S.style];
     // se acelera con el tiempo: a los 90–120 s ya va bastante rápido
     const turbo = Math.max(0, S.pts - 30000) / 10000; // cada 10.000 puntos extra, bastante más rápido
-    const prog = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012) * (1 + Math.min(1.6, turbo * 0.45));
+    const progRaw = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012) * (1 + Math.min(1.6, turbo * 0.45));
+    const prog = CH.calm ? 1 + (progRaw - 1) * 0.5 : progRaw;
     if (turbo > 0 && !S.turboOn) { S.turboOn = true; toast("¡+30.000! ¡AHORA SE PONE PICANTE!", "#FF9F6B"); say("¡A FONDO!", "#FF9F6B"); S.shake = reduceMotion ? 0 : 0.25; }
     const slow = S.kick > 0 ? 0.6 : 1;
     const chatting = S.chat > 0;
@@ -1016,7 +1023,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
       if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
     }
-    const speed = st.v * prog * slow * CH.speed * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.rainT > 0 && S.rainT <= 4.5 ? 0 : S.rainT > 0 ? 0.6 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
+    const speed = st.v * prog * slow * CH.speed * (S.slowmo > 0 ? 0.5 : 1) * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.rainT > 0 && S.rainT <= 4.5 ? 0 : S.rainT > 0 ? 0.6 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
     if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
     if (S.pads > 0) { S.pads -= dt; if (S.pads <= 0) S.pads = 0; }
     if (S.jump > 0) S.jump = Math.max(0, S.jump - dt);
@@ -1025,6 +1032,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
     if (S.boat > 0) S.boat = Math.max(0, S.boat - dt);
     if (S.dash > 0) S.dash = Math.max(0, S.dash - dt);
+    if (S.slowmo > 0) S.slowmo = Math.max(0, S.slowmo - dt);
     // Modo lluvia: muy de vez en cuando hay que salir de la pileta unos segundos
     if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0) {
       S.rainT = 6.5; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2;
@@ -1076,7 +1084,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.cd > 0) S.cd = Math.max(0, S.cd - dt);
     S.dist += speed * dt;
-    S.pts += speed * st.mult * dt * 10 * (S.kick > 0 ? 3 : 1);
+    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 3 : 1);
     S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
     if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
     if (CH.id === "pablito") { S.nextPablo = (S.nextPablo || rand(10, 16)) - dt; if (S.nextPablo <= 0) { S.nextPablo = rand(16, 26); say("¡HACÉ LO QUE QUIERAS VOS, PABLO!", "#FFE08A"); } }
@@ -1105,14 +1113,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (o.sink) { o.sink -= dt; if (o.kind !== "rapido") o.m = Math.max(o.m, S.dist + 2.5); else o.m += speed * dt; if (o.sink <= 0) o.gone = true; continue; }
       if (o.kind === "rapido") o.v = o.lost ? speed * 0.4 : speed + 4.5;
       if (o.kind === "charla" && o.hooked && chatting) o.m = S.dist + 0.3;
-      else if (o.v) o.m += o.v * slow * dt;
+      else if (o.v) o.m += o.v * slow * (S.slowmo > 0 ? 0.5 : 1) * dt;
       if (o.kind === "charla" && !o.hooked && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
         o.hooked = true; S.chat = 5; S.chatLine = o.line; setFace("talk", 5);
         const loss = Math.min(Math.floor(S.pts), 500); S.pts -= loss;
         toast("TE ENGANCHASTE A HABLAR -" + loss, "#FFB4A8");
       }
       if (o.kind === "tabla") {
-        o.x += o.vx * dt;
+        o.x += o.vx * (S.slowmo > 0 ? 0.5 : 1) * dt;
         if (o.x < POOL_L + 7 || o.x > POOL_R - 7) { o.vx *= -1; o.x = Math.min(POOL_R - 7, Math.max(POOL_L + 7, o.x)); }
       }
       if (o.kind === "lento" && !o.hit && !o.passed && o.m < S.dist - 1.1) {
@@ -1434,6 +1442,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       R(px - 7, PY + 2, 14, 4, "rgba(10,40,80,0.45)");
       if (S.jump < 0.15 || S.jump > 1.35) { R(px - 9, PY + 6, 2, 2, C.white); R(px + 7, PY + 6, 2, 2, C.white); R(px - 5, PY + 9, 1, 1, C.white); R(px + 4, PY + 9, 1, 1, C.white); }
     }
+    if (S.slowmo > 0) { // relojito arriba de Fer
+      R(px - 3, PY - 24, 7, 7, C.out); R(px - 2, PY - 23, 5, 5, C.white); R(px, PY - 22, 1, 2, C.out); R(px, PY - 21, 2, 1, C.out);
+    }
     if (S.dash > 0) {
       // rayito: estela amarilla en zigzag y líneas de velocidad
       const zz = Math.floor(S.t * 30) % 2;
@@ -1515,6 +1526,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const sx = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     const sy = S.shake > 0 ? Math.round((Math.random() - 0.5) * 6) : 0;
     ctx.drawImage(low, sx, sy, W, H);
+    if (S.slowmo > 0) {
+      const a = Math.min(1, S.slowmo / 0.4, (4 - S.slowmo) / 0.3);
+      ctx.fillStyle = "rgba(140,190,255," + (0.16 * a) + ")"; ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "rgba(255,255,255," + (0.5 * a) + ")"; ctx.lineWidth = 3; ctx.strokeRect(6, 6, W - 12, H - 12);
+    }
     if (S.rainT > 0) {
       const k = Math.min(1, (6.5 - S.rainT) / 0.6, S.rainT / 0.6);
       ctx.fillStyle = "rgba(14,22,44," + (0.35 * k) + ")"; ctx.fillRect(0, 0, W, H);
