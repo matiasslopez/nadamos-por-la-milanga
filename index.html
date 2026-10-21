@@ -324,7 +324,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-flaco";
+  const VERSION = "2026-10-21-nombres";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -580,10 +580,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
       face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
-    { id: "andre", name: "ANDRE", tag: "Siempre tiene una masita a mano", breathGap: 1.15, perk: "UNA MASITA: le convida una masita al que va adelante, que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 3,
+    { id: "andre", name: "ANA", tag: "Siempre tiene una masita a mano", breathGap: 1.15, perk: "UNA MASITA: le convida una masita al que va adelante, que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 3,
       cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 1.02, breath: 0.05, passMult: 1, tail: "#2A1C14",
       face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
-    { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
+    { id: "mika", name: "MACA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
       cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618", slim: true,
       face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } },
     { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y se queda pidiendo ayuda unos segundos.", special: "NAVEGANTE", cd: 6, drowns: true,
