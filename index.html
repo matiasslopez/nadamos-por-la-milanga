@@ -324,7 +324,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-21-posta";
+  const VERSION = "2026-10-21-flaco";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -541,16 +541,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     parts([
       [cx - 7, cy + 11, 5, 6 + f, "#2FBF71"], [cx + 2, cy + 11, 5, 7 - f, "#2FBF71"],          // patas de rana
       [cx - 5, cy + 8, 3, 4, sk], [cx + 2, cy + 8, 3, 4, sk],                                  // piernas
-      [cx - 14, cy + (f ? -1 : 1), 5, 3, sk], [cx + 9, cy + (f ? 1 : -1), 5, 3, sk],            // bracitos
-      [cx - 10, cy - 3, 20, 13, sk], [cx - 9, cy - 4, 18, 1, sk],                               // panza
-      [cx - 9, cy + 6, 18, 4, C.red],                                                            // malla
+      [cx - 12, cy + (f ? -1 : 1), 5, 3, sk], [cx + 7, cy + (f ? 1 : -1), 5, 3, sk],            // bracitos
+      [cx - 8, cy - 3, 16, 13, sk], [cx - 7, cy - 4, 14, 1, sk],                               // panza
+      [cx - 7, cy + 6, 14, 4, C.red],                                                            // malla
       [cx - 5, cy - 12, 10, 9, "#4A3426"],                                                       // cabeza con pelo
       [cx + 5, cy - 18, 2, 9, "#FF8A1F"], [cx + 4, cy - 19, 4, 2, "#FF8A1F"]                    // snorkel
     ]);
     R(cx - 5, cy - 7, 10, 1, C.out);             // tira de la máscara
-    R(cx - 8, cy, 3, 2, C.skinD); R(cx + 5, cy, 3, 2, C.skinD); // rollitos
+    R(cx - 6, cy, 2, 2, C.skinD); R(cx + 4, cy, 2, 2, C.skinD); // rollitos
     R(cx - 1, cy + 3, 2, 1, C.skinD);            // ombligo
-    R(cx - 7, cy + 7, 1, 1, C.white); R(cx - 3, cy + 8, 1, 1, C.white); R(cx + 2, cy + 7, 1, 1, C.white); R(cx + 6, cy + 8, 1, 1, C.white);
+    R(cx - 5, cy + 7, 1, 1, C.white); R(cx - 2, cy + 8, 1, 1, C.white); R(cx + 1, cy + 7, 1, 1, C.white); R(cx + 4, cy + 8, 1, 1, C.white);
     R(cx - 3, cy - 11, 2, 1, "#6B4E3A");
     if (Math.floor(t * 1.3) % 3 === 0) { R(cx + 5, cy - 23, 1, 2, C.white); R(cx + 3, cy - 25, 1, 1, C.white); R(cx + 8, cy - 24, 1, 1, C.white); }
   }
@@ -825,7 +825,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (kind === "senora") { o.hw = 9; o.hl = 0.8; o.v = 0; o.chat = pick(CHATS); }
     else if (kind === "tabla") { o.hw = 6; o.hl = 0.4; o.vx = (Math.random() < 0.5 ? -1 : 1) * rand(8, 14); }
     else if (kind === "curita") { o.hw = 5; o.hl = 0.2; }
-    else if (kind === "gordo") { o.hw = 13; o.hl = 1.2; o.v = -1.3; }
+    else if (kind === "gordo") { o.hw = 11; o.hl = 1.2; o.v = -1.3; }
     else if (kind === "charla") { o.hw = 9; o.hl = 0.8; o.v = 0.25; o.line = pick(CHARLAS); }
     else if (kind === "tablaProfe") { o.hw = 8; o.hl = 0.7; o.pick = true; }
     else { o.hw = 6; o.hl = 0.4; o.pick = true; } // mariposa, rana, gorra
