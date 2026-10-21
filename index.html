@@ -316,7 +316,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-20-fer";
+  const VERSION = "2026-10-20-fer2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1114,7 +1114,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (o.kind === "rapido") o.v = o.lost ? speed * 0.4 : speed + 4.5;
       if (o.kind === "charla" && o.hooked && chatting) o.m = S.dist + 0.3;
       else if (o.v) o.m += o.v * slow * (S.slowmo > 0 ? 0.5 : 1) * dt;
-      if (o.kind === "charla" && !o.hooked && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
+      if (o.kind === "charla" && !o.hooked && !(S.slowmo > 0) && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
         o.hooked = true; S.chat = 5; S.chatLine = o.line; setFace("talk", 5);
         const loss = Math.min(Math.floor(S.pts), 500); S.pts -= loss;
         toast("TE ENGANCHASTE A HABLAR -" + loss, "#FFB4A8");
@@ -1156,7 +1156,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < S.x ? -1 : 1) * 120; if (o.kind === "charla") o.hooked = true;
           const b = 100 * STY[S.style].mult; S.pts += b; toast("¡AL AGUA! +" + b, "#8FE3FF"); S.shake = reduceMotion ? 0 : 0.12; continue;
         }
-        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0 || S.dash > 0) continue;
+        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0 || S.dash > 0 || S.slowmo > 0) continue;
         if (S.lunge > 0 && EATABLE[o.kind] && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 5) {
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < LW / 2 ? -1 : 1) * 110; if (o.kind === "charla") o.hooked = true;
           const b = 150 * EATABLE[o.kind] * STY[S.style].mult; S.pts += b; toast("¡PIECITOS! +" + b, "#FFE08A"); continue;
