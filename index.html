@@ -329,7 +329,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-objetos4";
+  const VERSION = "2026-10-22-snorkel";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -803,7 +803,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function freshState() {
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
-      nextSpawn: 9, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(140, 220), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      nextSpawn: 9, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
@@ -897,7 +897,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     // objetos que aparecen poco: paracaídas (mejor cuando ya vas rápido) y snorkel
     if (m >= S.nextChute) { S.nextChute = m + rand(320, 460); addObs("paracaidas", Math.floor(Math.random() * 3), m); return rand(2.4, 3.4); }
-    if (m >= S.nextSnork) { S.nextSnork = m + rand(280, 400); addObs("snorkel", Math.floor(Math.random() * 3), m); return rand(2.4, 3.4); }
+    if (m >= S.nextSnork) { S.nextSnork = m + rand(215, 308); addObs("snorkel", Math.floor(Math.random() * 3), m); return rand(2.4, 3.4); }
     if (m >= S.nextGordo && S.t < S.warmT) S.nextGordo = m + rand(15, 25); // el de contramano espera a que termine el arranque
     if (m >= S.nextGordo) {
       addObs("gordo", Math.floor(Math.random() * 3), m);
