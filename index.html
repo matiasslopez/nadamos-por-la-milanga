@@ -297,7 +297,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <canvas width="20" height="20" data-icon="aletas"></canvas><span><b>Patas de rana:</b> unos segundos de velocidad extra.</span>
       <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 400 puntos.</span>
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
-      <canvas width="20" height="20" data-icon="paracaidas"></canvas><span><b>Paracaídas:</b> te frena unos segundos sin bajarte los puntos: ideal cuando la pileta va a mil.</span>
+      <canvas width="20" height="20" data-icon="paracaidas"></canvas><span><b>Paracaídas:</b> te frena unos segundos sin bajarte los puntos.</span>
       <canvas width="20" height="20" data-icon="snorkel"></canvas><span><b>Snorkel:</b> te ahorra las próximas dos respiradas.</span>
       <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés una gorra.</span>
       <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El nadador pro:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
@@ -329,7 +329,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-objetos3";
+  const VERSION = "2026-10-22-objetos4";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
