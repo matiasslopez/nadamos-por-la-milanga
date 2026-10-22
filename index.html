@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-podio2";
+  const VERSION = "2026-10-22-arranque";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -856,8 +856,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.obs.push(o);
     return o;
   }
+  const WARM_T = 15; // segundos de arranque suave
   function spawn(m) {
     const d = S.dist, r = Math.random();
+    // durante el arranque suave hay menos gente en la pileta (más espacio entre uno y otro)
+    const gapK = S.t < WARM_T ? 1.6 - 0.6 * (S.t / WARM_T) : 1;
     if (m >= S.nextMila) {
       S.nextMila = m + (S.lives < 3 ? rand(40, 65) : rand(80, 120));
       addObs("milanga", Math.floor(Math.random() * 3), m);
@@ -868,6 +871,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.nextCharla = m + rand(70, 120);
       return 4;
     }
+    if (m >= S.nextGordo && S.t < WARM_T) S.nextGordo = m + rand(15, 25); // el de contramano espera a que termine el arranque
     if (m >= S.nextGordo) {
       addObs("gordo", Math.floor(Math.random() * 3), m);
       S.nextGordo = m + rand(110, 170);
@@ -895,7 +899,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const l2 = (l1 + 1 + Math.floor(Math.random() * 2)) % 3;
       addObs(pick(["senora", "lento", "curita"]), l2, m + rand(0, 0.6));
     }
-    return Math.max(2.6, 5.6 - d / 140) + rand(0, 1.6);
+    return (Math.max(2.6, 5.6 - d / 140) + rand(0, 1.6)) * gapK;
   }
 
   // ---------- Reglas ----------
@@ -1045,7 +1049,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const progRaw = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012) * (1 + Math.min(1.6, turbo * 0.45));
     // ventaja de Fer: va bajando y desde los 6 minutos desaparece (de 5 a 6 min se empareja de a poco)
     const calmK = S.t >= 360 ? 1 : S.t > 300 ? 0.85 + (S.t - 300) / 60 * 0.15 : Math.min(0.85, 0.55 + S.t / 1000);
-    const prog = CH.calm ? 1 + (progRaw - 1) * calmK : progRaw;
+    // arranque suave: los primeros 15 s va un poco más lento y se normaliza de a poco
+    const warm = S.t < WARM_T ? 0.78 + 0.22 * (S.t / WARM_T) * (S.t / WARM_T) * (3 - 2 * S.t / WARM_T) : 1;
+    const prog = (CH.calm ? 1 + (progRaw - 1) * calmK : progRaw) * warm;
     if (turbo > 0 && !S.turboOn) { S.turboOn = true; toast("¡+30.000! ¡AHORA SE PONE PICANTE!", "#FF9F6B"); say("¡A FONDO!", "#FF9F6B"); S.shake = reduceMotion ? 0 : 0.25; }
     const slow = S.kick > 0 ? 0.6 : 1;
     const chatting = S.chat > 0;
@@ -1181,7 +1187,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     S.obs = S.obs.filter((o) => (o.m > S.dist - 4 || o.kind === "rapido") && !(o.pick && o.hit) && !o.gone);
     while (S.dist + 13 > S.nextSpawn) S.nextSpawn += spawn(S.nextSpawn);
-    if (S.dist >= S.nextFed && !S.obs.some((o) => o.kind === "rapido")) {
+    if (S.dist >= S.nextFed && S.t >= WARM_T + 3 && !S.obs.some((o) => o.kind === "rapido")) {
       S.obs.push({ kind: "rapido", lane: S.lane, m: S.dist - 15, x: laneC(S.lane), hit: false, hw: 10, hl: 1.0, v: 0 });
       S.nextFed = S.dist + rand(110, 170);
       toast("¡GUARDA QUE TE PASAN!", "#FF9F6B"); say("¡PERMISO, PERMISO!", "#FFB4A8");
@@ -1209,7 +1215,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.rainT > 0 && S.rainT <= 4.5) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
     else if (!S.bOpen) {
       S.nextBreath -= dt;
-      if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath); S.bT = S.bLen; }
+      if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath) + (S.t < WARM_T ? 0.4 : 0); S.bT = S.bLen; }
     } else {
       S.bT -= dt;
       if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
