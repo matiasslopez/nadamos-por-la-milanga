@@ -329,7 +329,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-objetos";
+  const VERSION = "2026-10-22-objetos2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -959,7 +959,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       return;
     }
     if (o.kind === "manoplas") { S.pads = 6; setFace("happy", 0.8); toast("¡MANOPLAS! MÁS TRACCIÓN", "#FFB070"); if (CH.complains) say("ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "#C9D4FF"); return; }
-    if (o.kind === "paracaidas") { S.chute = 5; S.fins = 0; setFace("happy", 0.8); toast("¡PARACAÍDAS! UN RESPIRO", "#FFB4A8"); say(pick(["AHORA SÍ, A MI RITMO", "FRENANDO UN POCO…", "¡QUÉ ALIVIO!"]), "#FFD9D0"); return; }
+    if (o.kind === "paracaidas") { S.chute = 5; S.fins = 0; setFace("happy", 0.8); toast("¡TOCA PARACAÍDAS! PARA MÁS ESFUERZO", "#FFB4A8"); say(pick(["YA NO ME DAN LAS PIERNAS", "¡CÓMO TIRA ESTO!", "ME ARDEN HASTA LAS OREJAS"]), "#FFD9D0"); return; }
     if (o.kind === "snorkel") { S.snork = 2; setFace("happy", 0.8); toast("¡SNORKEL! NO HACE FALTA RESPIRAR", "#8FE3FF"); if (S.bOpen) { S.bOpen = false; S.snork = 1; S.nextBreath = rand(4.5, 6.5) * CH.breathGap; } return; }
     if (o.kind === "aletas") { S.fins = 6; setFace("happy", 0.8); toast("¡PATAS DE RANA! TURBO", "#8CF08C"); return; }
     if (o.kind === "gorra") { S.shield = true; toast(CH.id === "pablito" ? "POTE DE DULCE DE LECHE" : "GORRA DE SILICONA", "#FFE08A"); return; }
@@ -1252,7 +1252,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (!S.bOpen) {
       S.nextBreath -= dt;
       if (S.nextBreath <= 0 && S.tips && !S.breathTipped) { S.breathTipped = true; toast("¡SE ILUMINÓ! TOCÁ RESPIRAR", "#8FE3FF"); }
-      if (S.nextBreath <= 0 && S.snork > 0) { S.snork--; S.nextBreath = rand(4.5, 6.5) * CH.breathGap; toast(S.snork ? "RESPIRÁS POR EL SNORKEL" : "ÚLTIMA CON SNORKEL", "#8FE3FF"); }
+      if (S.nextBreath <= 0 && S.snork > 0) { S.snork--; S.nextBreath = rand(4.5, 6.5) * CH.breathGap; toast(S.snork ? "RESPIRÁS POR EL SNORKEL" : "FALTAN LOS PECECITOS", "#8FE3FF"); }
       if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath) + (S.t < S.warmT ? 0.4 : 0); S.bT = S.bLen; }
     } else {
       S.bT -= dt;
