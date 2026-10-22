@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-histadmin";
+  const VERSION = "2026-10-22-presentacion";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -575,7 +575,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "pablito", name: "PABLITO", tag: "Te levanta una losa y te nada 2000 metros en el mismo día", breathGap: 1, perk: "CAMINAR: se para y camina por el costado del carril, esquivando lo que viene. Además respira con más margen.", special: "CAMINAR", cd: 2.5,
       cap: "#F0BE98", capHi: "#FFFFFF", suit: "#1F3F8F", speed: 1, breath: 0.35, passMult: 1,
       face: { skin: "#F0BE98", shade: "#D99A72", shade2: "#C4825E", top: "bald", beard: "candado", beardC: "#9C8E80", beardC2: "#7E7064", brow: "#5E4A3C", iris: "#4A6E96", goggles: true, mouth: "half" } },
-    { id: "luis", name: "LUIS", tag: "Nadador rápido, pero te da vueltas para arrancar", breathGap: 1.5, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
+    { id: "luis", name: "LUIS", tag: "Nadador rápido, pero necesita quejarse para ir más rápido", breathGap: 1.5, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
       cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.13, breath: -0.1, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
     { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
@@ -584,7 +584,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
       face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
-    { id: "andre", name: "ANDRE", tag: "Siempre tiene una masita a mano", breathGap: 1.15, perk: "UNA MASITA: le convida una masita al que va adelante, que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 3,
+    { id: "andre", name: "ANDRE", tag: "La maestra repostera", breathGap: 1.15, perk: "UNA MASITA: le convida una masita al que va adelante (o al que viene de atrás), que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 2.4,
       cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 1.02, breath: 0.05, passMult: 1, tail: "#2A1C14",
       face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
     { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
