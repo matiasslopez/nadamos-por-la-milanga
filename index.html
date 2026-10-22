@@ -255,11 +255,6 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     <ol class="rank" id="rankList"></ol>
     <p class="note" id="rankNote">Cargando el ranking…</p>
     <p class="note" id="myBest"></p>
-    <button class="btn ghost hist-btn" id="btnHist" type="button" aria-expanded="false" aria-controls="histBox">VER RANKING HISTÓRICO</button>
-    <div id="histBox" hidden>
-      <p class="note" id="histNote">Cargando…</p>
-      <ol class="rank hist" id="histList"></ol>
-    </div>
   </section>
 
   <section class="panel" id="adminPanel" aria-labelledby="adminTitle" hidden>
@@ -271,6 +266,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     </div>
     <div id="adminData" hidden>
       <p class="note" id="visitsTxt">Contando…</p>
+      <button class="btn ghost hist-btn" id="btnHist" type="button" aria-expanded="false" aria-controls="histBox">VER RANKING HISTÓRICO</button>
+      <div id="histBox" hidden>
+        <p class="note" id="histNote">Cargando…</p>
+        <ol class="rank hist" id="histList"></ol>
+      </div>
       <p class="note" id="fbSummary"></p>
       <ul class="fb-list" id="fbList"></ul>
       <h3 class="mod-title">PARTIDAS · MODERACIÓN</h3>
@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-futbol";
+  const VERSION = "2026-10-22-histadmin";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
