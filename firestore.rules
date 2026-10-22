@@ -19,7 +19,8 @@ service cloud.firestore {
     match /runs/{id} {
       allow read: if true;
       // la partida tiene que ser creíble: duración, metros y puntos coherentes entre sí
-      allow create: if request.resource.data.keys().hasOnly(['alias', 'pts', 'metros', 'char', 'device', 'dur', 'cause', 'at'])
+      allow create: if request.resource.data.keys().hasOnly(['alias', 'pts', 'metros', 'char', 'device', 'dur', 'cause', 'items', 'at'])
+        && (!('items' in request.resource.data) || (request.resource.data.items is map && request.resource.data.items.size() <= 15))
         && (!('cause' in request.resource.data) || (request.resource.data.cause is string && request.resource.data.cause.size() <= 20))
         && request.resource.data.alias is string && request.resource.data.alias.size() <= 18
         && request.resource.data.pts is number && request.resource.data.pts > 0 && request.resource.data.pts < 5000000

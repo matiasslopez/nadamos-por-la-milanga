@@ -329,7 +329,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-snorkel";
+  const VERSION = "2026-10-22-items";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -803,7 +803,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function freshState() {
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
-      nextSpawn: 9, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      nextSpawn: 9, items: {}, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
@@ -946,7 +946,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.lives <= 0) { S.causeKind = kind; gameOver(CAUSES[kind] || ""); return; }
     toast(kind === "aire" ? "SIN AIRE -1 " + LIFE() : "¡PUM! -1 " + LIFE(), "#FFB4A8");
   }
+  // uso de objetos, especiales y choques por partida (para las métricas)
+  const ITEM_KEY = { tablaProfe: "tabla_profe", mariposa: "mariposa", rana: "rana", milanga: "milanga", manoplas: "manoplas", aletas: "aletas", gorra: "gorra", curita: "curita", paracaidas: "paracaidas", snorkel: "snorkel" };
+  function countItem(k) { if (!S.items) S.items = {}; S.items[k] = (S.items[k] || 0) + 1; }
   function hitObstacle(o) {
+    if (ITEM_KEY[o.kind]) countItem(ITEM_KEY[o.kind]);
     if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x5", "#FFE08A"); return; }
     if (o.kind === "mariposa") { setStyle("mariposa", 7); setFace("happy", 1); toast("¡MARIPOSA! x3", "#FF9FE4"); return; }
     if (o.kind === "rana") {
@@ -965,6 +969,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (o.kind === "gorra") { S.shield = true; toast(CH.id === "pablito" ? "POTE DE DULCE DE LECHE" : "GORRA DE SILICONA", "#FFE08A"); return; }
     if (o.kind === "curita") { toast("¡QUÉ ASCO! UNA CURITA", "#F7D7B8"); setFace("hurt", 0.6); loseAir(); return; }
     if (S.inv > 0) return;
+    countItem("choques");
     if (S.shield) { slowRestart(); S.shield = false; S.inv = 1; toast(CH.id === "pablito" ? "¡POR EL PODER DEL DULCE DE LECHE!" : "LA GORRA TE SALVÓ", "#FFE08A"); return; }
     loseLife(o.kind);
   }
@@ -991,6 +996,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const closer = (o, t) => !t || (o.kind === "rapido" && t.kind !== "rapido") || (t.kind !== "rapido" && o.m < t.m);
   function special() {
     if (S.state !== "play" || S.cd > 0) return;
+    countItem("especial");
     if (CH.id === "pablito") {
       S.walk = 2.2; S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
       S.cd = CH.cd; toast("CAMINANDO POR EL COSTADO", "#FFE08A");
@@ -2284,7 +2290,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       // la partida se guarda junto con una marca de tiempo por dispositivo (las reglas limitan la frecuencia)
       const b = fs.writeBatch(db);
       b.set(fs.doc(db, "lim", uid), { t: fs.serverTimestamp() });
-      b.set(fs.doc(fs.collection(db, "runs")), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, dur: Math.round(S.t), cause: String(S.causeKind || "otro").slice(0, 20), at: new Date().toISOString() });
+      b.set(fs.doc(fs.collection(db, "runs")), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, dur: Math.round(S.t), cause: String(S.causeKind || "otro").slice(0, 20), items: Object.assign({}, S.items || {}), at: new Date().toISOString() });
       await b.commit();
       if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 10!";
     } catch (e) { renderRank(); }
