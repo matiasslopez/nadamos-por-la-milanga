@@ -133,6 +133,7 @@ section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;
 .rank .who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .rank .m{font-family:var(--font-pixel);font-size:.62rem;color:var(--cap)}
 .note{font-size:.85rem;color:var(--muted);margin:0}
+.cheer-msg{font-family:var(--font-pixel);font-size:.6rem;line-height:1.7;color:#DFFF1F;margin:0;max-width:34ch}
 .stars{display:flex;gap:6px}
 .star{font-size:1.9rem;line-height:1;background:none;border:0;padding:2px 3px;cursor:pointer;color:#3A4A66;text-shadow:2px 2px 0 #000}
 .star[aria-checked=true],.star.on{color:var(--cap)}
@@ -226,6 +227,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <div class="sub" id="overSub"></div>
       <p id="overCause"></p>
       <p id="overExtra" class="note"></p>
+      <p id="overCheer" class="cheer-msg" hidden></p>
       <div class="row">
         <button class="btn" id="btnAgain">VOLVER A JUGAR</button>
         <button class="btn ghost" id="btnShare">COPIAR MARCA</button>
@@ -325,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-sponsors";
+  const VERSION = "2026-10-22-podio";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1914,6 +1916,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     for (const [r, a, b] of plate) F(a - 1, r - 1, b - a + 3, 3, "#14141f");
     for (const [r, a, b] of plate) F(a, r, b - a + 1, 1, "#F3F3F3");
     F(4, 26, 30, 1, "#C9D4E0"); F(9, 27, 20, 1, "#C9D4E0"); F(6, 22, 2, 1, "#FFFFFF");
+    if (withFries === "solo") {
+      // solo fritas: una montañita de papas en el plato
+      for (const [x, y, h] of [[12, 12, 10], [14, 9, 13], [16, 11, 11], [18, 8, 14], [20, 10, 12], [22, 7, 15], [24, 10, 12], [26, 9, 13], [28, 12, 10], [30, 11, 11], [17, 15, 8], [23, 14, 9], [27, 16, 7]]) { F(x - 1, y - 1, 3, h + 2, "#14141f"); F(x, y, 1, h, (x + y) % 3 ? "#F7C948" : "#E8A93A"); }
+      F(19, 6, 1, 2, "#FFFFFF"); F(25, 4, 1, 2, "#FFFFFF");
+      return;
+    }
     // milanesa (pan rallado dorado)
     const mila = [[7, 9, 26], [8, 7, 28], [9, 6, 29], [10, 5, 30], [11, 5, 31], [12, 4, 31], [13, 4, 31], [14, 4, 31], [15, 4, 31], [16, 5, 30], [17, 5, 30], [18, 6, 29], [19, 7, 27], [20, 9, 25], [21, 11, 22]];
     for (const [r, a, b] of mila) F(a - 1, r, b - a + 3, 1, "#14141f");
@@ -1945,6 +1953,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.state = "over"; S.bOpen = false;
     const p = Math.floor(S.pts), m = Math.floor(S.dist);
     const isRecord = p > localBest;
+    // partida anterior en este dispositivo y cada cuánto se muestra el reto
+    const prevPts = parseInt(store.get("pileta.lastPts") || "0", 10) || 0;
+    let sinceNag = parseInt(store.get("pileta.sinceNag") || "10", 10); if (isNaN(sinceNag)) sinceNag = 10;
+    store.set("pileta.lastPts", String(p));
+    // puesto en el ranking general (antes de guardar esta partida)
+    const above = rankDocs.filter((d) => (Number((d.data() || {}).pts) || 0) >= p).length;
+    const podium = db && rankDocs.length && p > 0 && above < 3 ? above + 1 : 0;
     if (isRecord) { localBest = p; store.set("pileta.bestPts", String(p)); showMyBest(); }
     $("overTitle").textContent = isRecord && p > 0 ? "¡RÉCORD PERSONAL!" : "AFUERA DEL AGUA";
     const fries = isRecord && p > 0;
@@ -1961,6 +1976,17 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       $("overExtra").textContent = "¡Felicitaciones, " + getAlias() + "! Superaste a " + (S.groupBestAlias ? showAlias(S.groupBestAlias) : "el récord anterior") + " (" + fmt(gb) + " pts). Sos el número uno de la pileta.";
       celebrate(true);
     } else if (isRecord && p > 0) celebrate(false);
+    // podio del ranking general: 1° milanga con fritas, 2° solo milanga, 3° solo fritas
+    const cheers = [];
+    if (podium === 1) { drawMila(true); $("prizeText").textContent = "TU PREMIO: MILANESA A LA NAPOLITANA CON FRITAS"; cheers.push("¡PRIMERO EN EL RANKING DE LA PILETA! TE LLEVÁS LA MILANGA CON FRITAS."); }
+    else if (podium === 2) { drawMila(false); $("prizeText").textContent = "TU PREMIO: UNA MILANESA A LA NAPOLITANA"; cheers.push("¡SEGUNDO EN EL RANKING! TE LLEVÁS LA MILANGA."); if (!(isRecord && p > 0)) celebrate(false); }
+    else if (podium === 3) { drawMila("solo"); $("prizeText").textContent = "TU PREMIO: UNA PORCIÓN DE FRITAS"; cheers.push("¡TERCERO EN EL RANKING! TE LLEVÁS LAS FRITAS."); if (!(isRecord && p > 0)) celebrate(false); }
+    // arenga si superó su récord; reto (a lo sumo 1 cada 10 partidas) si le fue peor que la anterior
+    sinceNag++;
+    if (isRecord && p > 0) cheers.push(pick(["¡GRANDE, " + getAlias().toUpperCase() + "! SUPERASTE TU RÉCORD: YA ESTÁS PARA LA POSTA.", "¡QUÉ NIVEL! YA ESTÁS PARA LA POSTA.", "¡ESO! YA TE PODEMOS ANOTAR EN LA POSTA."]));
+    else if (prevPts > 0 && p < prevPts && sinceNag >= 10) { cheers.push("DALE CAMPEÓN, PONELE GANAS QUE ESTÁS MÁS LENTO Y ASÍ NO LLEGÁS A LA COMPETENCIA."); sinceNag = 0; }
+    store.set("pileta.sinceNag", String(sinceNag));
+    $("overCheer").textContent = cheers.join(" "); $("overCheer").hidden = !cheers.length;
     lastResult = { p, m };
     saveScore(p, m);
   }
@@ -2142,7 +2168,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     });
   }
 
-  // ---- Ranking histórico: hasta 150 partidas, se carga solo al abrirlo ----
+  // ---- Ranking histórico: hasta 200 partidas, se carga solo al abrirlo ----
   let histLoaded = false;
   $("btnHist").addEventListener("click", async () => {
     const box = $("histBox"), btn = $("btnHist");
@@ -2151,7 +2177,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!open || histLoaded) return;
     if (!db || !fs) { $("histNote").textContent = "No se pudo cargar ahora."; return; }
     try {
-      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(150)));
+      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(200)));
       const list = $("histList"); list.innerHTML = "";
       snap.docs.forEach((d, i) => {
         const x = d.data() || {}; const li = document.createElement("li");
