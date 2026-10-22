@@ -298,7 +298,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 400 puntos.</span>
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
       <canvas width="30" height="30" data-icon="gordo"></canvas><span><b>El que nada por la suya:</b> viene a contramano. Si lo tocás, perdés una gorra.</span>
-      <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El nadador posta:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
+      <canvas width="30" height="30" data-icon="rapido"></canvas><span><b>El nadador pro:</b> viene a toda velocidad desde atrás por tu carril. Si no te corrés, te pasa por arriba y perdés una gorra.</span>
       <canvas width="30" height="30" data-icon="charlita"></canvas><span><b>La charlita entre piletas:</b> cada tanto se te arrima un compañero a charlar de fútbol, de la vida o a arreglar el país entre largo y largo. Si te engancha, te frena unos segundos y perdés 500 puntos.</span>
     </div>
     <ul class="how">
@@ -306,7 +306,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <li><b>Pasá a los lentos:</b> cada nadador de pecho que pasás sin tocarlo suma puntos extra.</li>
       <li><b>Respirá:</b> cuando se ilumina el botón, tocá RESPIRAR. Si te lo perdés o respirás a destiempo, tragás agua. Sin aire, perdés una gorra.</li>
       <li><b>El que nada por la suya:</b> aparece cada tanto nadando a contramano, con un aviso arriba de su carril. Si lo tocás perdés una gorra; si lo esquivás, sumás.</li>
-      <li><b>El nadador posta:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
+      <li><b>El nadador pro:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>Guardar:</b> si te tenés que ir, tocá 💾 GUARDAR (arriba, al lado de la música) y después seguís con CONTINUAR PARTIDA. Se puede usar una vez y se recarga cada 10.000 puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
       <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x5 y un buen bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-arranque";
+  const VERSION = "2026-10-22-tips";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -770,7 +770,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     senora: "Chocaste a la señora de la gorra de flores. No paró de hablar.",
     tabla: "Una tabla de patada te dio en la frente.",
     corchera: "Te enredaste en la corchera.",
-    rapido: "Te alcanzó el nadador posta. ¡Mirá para atrás!",
+    rapido: "Te alcanzó el nadador pro. ¡Mirá para atrás!",
     ahogo: "Le agarró el ahogo. ¡Guardavidaaas!",
     gordo: "Te chocaste al que nada por la suya, a contramano.",
     aire: "Te quedaste sin aire. Respirá, campeón."
@@ -779,7 +779,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function freshState() {
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
-      nextSpawn: 9, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      nextSpawn: 9, warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
@@ -856,11 +856,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.obs.push(o);
     return o;
   }
-  const WARM_T = 15; // segundos de arranque suave
+  // segundos de arranque suave: 22 en las primeras 3 partidas del dispositivo, después 15
   function spawn(m) {
     const d = S.dist, r = Math.random();
     // durante el arranque suave hay menos gente en la pileta (más espacio entre uno y otro)
-    const gapK = S.t < WARM_T ? 1.6 - 0.6 * (S.t / WARM_T) : 1;
+    const gapK = S.t < S.warmT ? 1.6 - 0.6 * (S.t / S.warmT) : 1;
     if (m >= S.nextMila) {
       S.nextMila = m + (S.lives < 3 ? rand(40, 65) : rand(80, 120));
       addObs("milanga", Math.floor(Math.random() * 3), m);
@@ -871,7 +871,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.nextCharla = m + rand(70, 120);
       return 4;
     }
-    if (m >= S.nextGordo && S.t < WARM_T) S.nextGordo = m + rand(15, 25); // el de contramano espera a que termine el arranque
+    if (m >= S.nextGordo && S.t < S.warmT) S.nextGordo = m + rand(15, 25); // el de contramano espera a que termine el arranque
     if (m >= S.nextGordo) {
       addObs("gordo", Math.floor(Math.random() * 3), m);
       S.nextGordo = m + rand(110, 170);
@@ -916,7 +916,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     setFace("hurt", 0.9);
     S.lives--; S.inv = 1.5; S.shake = reduceMotion ? 0 : 0.3;
     if (S.style === "mariposa") setStyle("crol");
-    if (S.lives <= 0) { gameOver(CAUSES[kind] || ""); return; }
+    if (S.lives <= 0) { S.causeKind = kind; gameOver(CAUSES[kind] || ""); return; }
     toast(kind === "aire" ? "SIN AIRE -1 " + LIFE() : "¡PUM! -1 " + LIFE(), "#FFB4A8");
   }
   function hitObstacle(o) {
@@ -1050,7 +1050,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     // ventaja de Fer: va bajando y desde los 6 minutos desaparece (de 5 a 6 min se empareja de a poco)
     const calmK = S.t >= 360 ? 1 : S.t > 300 ? 0.85 + (S.t - 300) / 60 * 0.15 : Math.min(0.85, 0.55 + S.t / 1000);
     // arranque suave: los primeros 15 s va un poco más lento y se normaliza de a poco
-    const warm = S.t < WARM_T ? 0.78 + 0.22 * (S.t / WARM_T) * (S.t / WARM_T) * (3 - 2 * S.t / WARM_T) : 1;
+    const warm = S.t < S.warmT ? 0.78 + 0.22 * (S.t / S.warmT) * (S.t / S.warmT) * (3 - 2 * S.t / S.warmT) : 1;
     const prog = (CH.calm ? 1 + (progRaw - 1) * calmK : progRaw) * warm;
     if (turbo > 0 && !S.turboOn) { S.turboOn = true; toast("¡+30.000! ¡AHORA SE PONE PICANTE!", "#FF9F6B"); say("¡A FONDO!", "#FF9F6B"); S.shake = reduceMotion ? 0 : 0.25; }
     const slow = S.kick > 0 ? 0.6 : 1;
@@ -1187,7 +1187,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     S.obs = S.obs.filter((o) => (o.m > S.dist - 4 || o.kind === "rapido") && !(o.pick && o.hit) && !o.gone);
     while (S.dist + 13 > S.nextSpawn) S.nextSpawn += spawn(S.nextSpawn);
-    if (S.dist >= S.nextFed && S.t >= WARM_T + 3 && !S.obs.some((o) => o.kind === "rapido")) {
+    if (S.dist >= S.nextFed && S.t >= S.warmT + 3 && !S.obs.some((o) => o.kind === "rapido")) {
       S.obs.push({ kind: "rapido", lane: S.lane, m: S.dist - 15, x: laneC(S.lane), hit: false, hw: 10, hl: 1.0, v: 0 });
       S.nextFed = S.dist + rand(110, 170);
       toast("¡GUARDA QUE TE PASAN!", "#FF9F6B"); say("¡PERMISO, PERMISO!", "#FFB4A8");
@@ -1215,12 +1215,19 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.rainT > 0 && S.rainT <= 4.5) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
     else if (!S.bOpen) {
       S.nextBreath -= dt;
-      if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath) + (S.t < WARM_T ? 0.4 : 0); S.bT = S.bLen; }
+      if (S.nextBreath <= 0 && S.tips && !S.breathTipped) { S.breathTipped = true; toast("¡SE ILUMINÓ! TOCÁ RESPIRAR", "#8FE3FF"); }
+      if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath) + (S.t < S.warmT ? 0.4 : 0); S.bT = S.bLen; }
     } else {
       S.bT -= dt;
       if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
     }
     if (S.cheer > 0) S.cheer = Math.max(0, S.cheer - dt);
+    // tips de la primera partida en el dispositivo
+    if (S.tips) {
+      const TIPS = [[1.2, "TOCÁ A LOS COSTADOS DE LA PILETA PARA CAMBIAR DE CARRIL"], [9, "CUANDO SE ILUMINE RESPIRAR, TOCALO A TIEMPO"], [16, "PROBÁ TU BOTÓN " + CH.special + ": TE SACA DE APUROS"], [24, "SI CHOCÁS PERDÉS UNA GORRA. CON TRES AFUERA, SE TERMINA"]];
+      const tp = TIPS[S.tipStep];
+      if (tp && S.t >= tp[0]) { say(tp[1], "#8FE3FF"); const sy = S.says[S.says.length - 1]; sy.life = sy.max = 5; S.tipStep++; }
+    }
     if (S.t >= S.nextSponsor) { S.nextSponsor = S.t + rand(22, 34); S.sponsorM = S.dist + 16; { const r = (((S.sponsorM - 34) % 60) + 60) % 60; if (r < 8 || r > 52) S.sponsorM += 15; } S.sponsorSide = Math.random() < 0.5 ? 0 : 1; S.sponsorIdx = (S.sponsorIdx || 0) + 1; }
     if (S.t >= S.nextCheer) {
       S.nextCheer = S.t + rand(25, 40);
@@ -1780,6 +1787,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const top = rankDocs[0] && rankDocs[0].data ? rankDocs[0].data() : null;
     const gBest = top ? Number(top.pts) || 0 : 0, gAlias = top ? String(top.alias || "") : "";
     S = freshState(); S.state = "play"; S.groupBest = gBest; S.groupBestAlias = gAlias;
+    const games = parseInt(store.get("pileta.games") || "0", 10) || 0;
+    S.warmT = games < 3 ? 22 : 15; S.tips = games === 0; store.set("pileta.games", String(games + 1));
     $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true;
     $("shareText").hidden = true; $("shareMsg").hidden = true;
     last = performance.now();
@@ -2208,7 +2217,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       // la partida se guarda junto con una marca de tiempo por dispositivo (las reglas limitan la frecuencia)
       const b = fs.writeBatch(db);
       b.set(fs.doc(db, "lim", uid), { t: fs.serverTimestamp() });
-      b.set(fs.doc(fs.collection(db, "runs")), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, dur: Math.round(S.t), at: new Date().toISOString() });
+      b.set(fs.doc(fs.collection(db, "runs")), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, dur: Math.round(S.t), cause: String(S.causeKind || "otro").slice(0, 20), at: new Date().toISOString() });
       await b.commit();
       if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 10!";
     } catch (e) { renderRank(); }
