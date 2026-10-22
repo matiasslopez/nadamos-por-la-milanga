@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-arengas";
+  const VERSION = "2026-10-22-podio2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1979,8 +1979,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     // podio del ranking general: 1° milanga con fritas, 2° solo milanga, 3° solo fritas
     const cheers = [];
     if (podium === 1) { drawMila(true); $("prizeText").textContent = "TU PREMIO: MILANESA A LA NAPOLITANA CON FRITAS"; cheers.push("¡PRIMERO EN EL RANKING DE LA PILETA! TE LLEVÁS LA MILANGA CON FRITAS."); }
-    else if (podium === 2) { drawMila(false); $("prizeText").textContent = "TU PREMIO: UNA MILANESA A LA NAPOLITANA"; cheers.push("¡SEGUNDO EN EL RANKING! TE LLEVÁS LA MILANGA."); if (!(isRecord && p > 0)) celebrate(false); }
-    else if (podium === 3) { drawMila("solo"); $("prizeText").textContent = "TU PREMIO: UNA PORCIÓN DE FRITAS"; cheers.push("¡TERCERO EN EL RANKING! TE LLEVÁS LAS FRITAS."); if (!(isRecord && p > 0)) celebrate(false); }
+    else if (podium === 2) { drawMila(false); $("prizeText").textContent = "TU PREMIO: UNA MILANESA A LA NAPOLITANA"; cheers.push("¡SEGUNDO EN EL RANKING! TE LLEVÁS LA MILANGA. SEGUÍ ASÍ Y SUMÁS LAS FRITAS."); if (!(isRecord && p > 0)) celebrate(false); }
+    else if (podium === 3) { drawMila("solo"); $("prizeText").textContent = "TU PREMIO: UNA PORCIÓN DE FRITAS"; cheers.push("¡TERCERO EN EL RANKING! TE LLEVÁS LAS FRITAS. ESFORZATE Y SUMÁS LA MILANGA."); if (!(isRecord && p > 0)) celebrate(false); }
     // arenga si superó su récord; reto (a lo sumo 1 cada 10 partidas) si le fue peor que la anterior
     sinceNag++;
     if (isRecord && p > 0) cheers.push(pick(["¡GRANDE, " + getAlias().toUpperCase() + "! SUPERASTE TU RÉCORD.", "¡QUÉ NIVEL! ASÍ VAS A SUMAR PUNTOS PARA EL EQUIPO.", "¡ESE ENTRENO ESTÁ DANDO RESULTADOS!", "¡VAMOS! SE NOTA QUE VENÍS ENTRENANDO.", "¡ESO! YA ESTÁS PARA LA POSTA."]));
