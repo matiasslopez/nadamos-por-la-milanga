@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-tips2";
+  const VERSION = "2026-10-22-lluvia";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -581,7 +581,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
       cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1.06, breath: 0, passMult: 1, lunges: true,
       face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#1A1A1E", capC2: "#0A0A0C", capHi: "#4A4D58", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
-    { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira unos segundos de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
+    { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira de espalda a hacer la plancha, sin dejar de sumar.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
       face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
     { id: "andre", name: "ANDRE", tag: "Siempre tiene una masita a mano", breathGap: 1.15, perk: "UNA MASITA: le convida una masita al que va adelante, que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 3,
@@ -761,6 +761,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     "¡Qué sucio que está el baño!", "Nadie se ducha antes, eh", "¿Viste los pelos en el agua?", "¿Cómo cambiaste, eh?",
     "¿Y el asado del sábado, sale?", "Estoy durmiendo cuatro horas", "¿Qué serie estás viendo?", "¿Viste lo del dólar?",
     "Esto en otros países no pasa", "¿Te vas a algún lado en las vacaciones?"
+  ];
+  // lo que dicen los compañeros al costado de la pileta mientras llueve
+  const RAIN_LINES = [
+    "Esperemos que pare pronto", "Le tengo miedo a la lluvia", "Justo cuando venía en racha", "¿Alguien trajo paraguas?",
+    "Total, ya estamos mojados", "Aprovecho y elongo", "¿Hay milanga en el buffet?", "Mi vieja me dijo que no venga",
+    "Es una lloviznita, nomás", "Profe, ¿valen los largos en la ducha?", "Yo ya estaba por salir igual", "Si sigue así, nadamos en la calle",
+    "El pronóstico decía sol, eh", "Me voy al buffet, avisen", "Con este frío no vuelvo a entrar", "¡Qué rayo! Lo vi de cerca"
   ];
   const CHARLAS = ["Esto en otros países no pasa", "¿Cómo cambiaste, eh?", "¡Qué sucio que está el baño!", "Faltan chicas en natación", "¿Viste cómo salió Boca el domingo?", "¿Cuándo corre Colapinto?", "¡Qué partidazo de tenis anoche!", "El vestuario está una miseria", "Cada vez más cara la cuota", "El club cada vez está peor", "El agua está fría, eh", "¡Qué milagro que tu mujer te dejó venir!", "Así no se puede más", "¿Viste el partido?", "¿Viste lo del dólar?", "Son todos iguales, eh", "¿A quién vas a votar?", "Esto con el otro no pasaba", "Le falta cloro a esto", "¿Viste los pelos en el agua?", "Está turbia hoy, ¿no?", "Nadie se ducha antes, eh", "Hoy está fresca, ¿no?"];
   const QUIPS = ["¡A contramano!", "¡Por la derecha!", "¡Me mojaste todo!", "¿Quién lo dejó entrar?", "¡Fijate por dónde vas!", "¡Ojo con el snorkel!"];
@@ -966,7 +973,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.walk = 2.2; S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
       S.cd = CH.cd; toast("CAMINANDO POR EL COSTADO", "#FFE08A");
     } else if (CH.id === "mati") {
-      S.dive = 1.6; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
+      S.dive = 2.05; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
     } else if (CH.id === "luis") {
       S.jump = 2.1; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
     } else if (CH.id === "andre") {
@@ -1075,6 +1082,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     // Modo lluvia: muy de vez en cuando hay que salir de la pileta unos segundos
     if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0 && S.cheer <= 0) {
       S.rainT = 6.5; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2; S.cheer = 0;
+      // compañeros que esperan al costado y frases que no se repitan entre lluvias
+      const others = PICKABLE.filter((c) => c.id !== CH.id).sort(() => Math.random() - 0.5);
+      S.rainCrew = others.slice(0, 3);
+      S.rainUsed = S.rainUsed || [];
+      let free = RAIN_LINES.filter((l) => !S.rainUsed.includes(l)); if (free.length < 3) { S.rainUsed = []; free = RAIN_LINES.slice(); }
+      S.rainLines = free.sort(() => Math.random() - 0.5).slice(0, 3); S.rainUsed.push(...S.rainLines);
       toast("¡SE LARGÓ A LLOVER!", "#B9F4FF"); say("¡HAY QUE SALIR, HAY QUE SALIR!", "#FFE08A");
     }
     if (S.rainT > 0) {
@@ -1122,14 +1135,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.lazyT -= dt;
       if (S.lazyT <= 0) {
         S.back = !S.back;
-        S.lazyT = S.back ? rand(4, 5) : rand(5, 8);
+        S.lazyT = S.back ? rand(5.2, 6.4) : rand(5, 8);
         if (S.back) say(pick(["PLANCHITA UN RATO", "TRANQUI, HAY TIEMPO", "¿PARA QUÉ CORRER?"]), "#FFF0A8");
         else toast("¡ARRANCA A FULL!", "#FFE08A");
       }
     }
     if (S.cd > 0) S.cd = Math.max(0, S.cd - dt);
     S.dist += speed * dt;
-    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 5 : 1);
+    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 5 : 1) * (CH.lazy && S.back ? 1 / 0.7 : 1); // la plancha de Mati va más lenta pero suma igual
     S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
     if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
     if (CH.id === "pablito") { S.nextPablo = (S.nextPablo || rand(10, 16)) - dt; if (S.nextPablo <= 0) { S.nextPablo = rand(16, 26); say("¡HACÉ LO QUE QUIERAS VOS, PABLO!", "#FFE08A"); } }
@@ -1463,6 +1476,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       }
     }
     // jugador
+    if (S.rainT > 0 && S.rainT <= 4.5 && S.rainCrew) {
+      // compañeros parados en los bordes esperando que pare
+      RAIN_SPOTS.forEach(([sx2, sy2], i) => {
+        const av = S.rainCrew[i]; if (!av) return;
+        const bob = Math.floor(S.t * 3 + i) % 2, x = sx2 < 0 ? LW + sx2 : sx2, y = Math.round(LH * sy2) + bob;
+        swimmer(x, y, "camina", Math.floor(S.t * 2.5 + i) % 2, { cap: av.cap, capHi: av.capHi, suit: av.suit, part: av.part, tail: av.tail, slim: av.slim, athletic: av.athletic });
+      });
+    }
     const blink = S.inv > 0 && Math.floor(S.inv * 12) % 2 === 0;
     const frame = Math.floor(S.stroke) % 2;
     const outside = S.rainT > 0 && S.rainT <= 4.5;
@@ -1589,6 +1610,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (S.rainT <= 4.5) {
         const fsz = Math.max(10, Math.round(W / 32)); ctx.font = fsz + "px 'Press Start 2P', monospace"; ctx.textAlign = "center";
         outlined("VOLVÉS AL AGUA EN " + Math.ceil(S.rainT), W / 2, H * 0.45, "#FFE08A");
+        rainBubble(fsz);
       }
     }
 
@@ -1659,6 +1681,23 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       ctx.strokeStyle = "#0A0E1A"; ctx.lineWidth = 2; ctx.strokeRect(bx, by, tw, f2 + 10);
       ctx.fillStyle = "#C62828"; ctx.textAlign = "left"; ctx.fillText(o.quip, bx + 6, by + f2 + 4);
     }
+    ctx.textAlign = "center";
+  }
+  const RAIN_SPOTS = [[-6, 0.2], [6, 0.3], [-6, 0.58]]; // x negativo = borde derecho
+  function rainBubble(fsz) {
+    if (!S.rainCrew || !S.rainLines) return;
+    const i = Math.min(2, Math.floor((4.5 - S.rainT) / 1.5)), av = S.rainCrew[i], line = S.rainLines[i];
+    if (!av || !line) return;
+    const sc = W / LW, [sx2, sy2] = RAIN_SPOTS[i], right = sx2 < 0;
+    const fs = Math.max(9, Math.round(W / 40)); ctx.font = fs + "px 'Press Start 2P', monospace"; ctx.textAlign = "left";
+    const maxW = W * 0.55, words = (av.name + ": " + line).split(" "), lines = [""];
+    for (const wd of words) { const t = lines[lines.length - 1] ? lines[lines.length - 1] + " " + wd : wd; if (ctx.measureText(t).width > maxW && lines[lines.length - 1]) lines.push(wd); else lines[lines.length - 1] = t; }
+    const lh = fs + 6, tw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 14, bh = lines.length * lh + 8;
+    const ax = (right ? LW + sx2 : sx2) * sc, ay = LH * sy2 * sc;
+    const bx = right ? Math.max(4, ax - tw - 14) : Math.min(W - tw - 4, ax + 14), by = Math.max(4, ay - bh / 2 - 6);
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(bx, by, tw, bh);
+    ctx.strokeStyle = "#0A0E1A"; ctx.lineWidth = 2; ctx.strokeRect(bx, by, tw, bh);
+    ctx.fillStyle = "#14141f"; lines.forEach((l, k) => ctx.fillText(l, bx + 7, by + fs + 5 + k * lh));
     ctx.textAlign = "center";
   }
   function chatBubble() {
