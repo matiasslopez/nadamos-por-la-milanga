@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-lluvia2";
+  const VERSION = "2026-10-22-plancha5";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1135,7 +1135,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.lazyT -= dt;
       if (S.lazyT <= 0) {
         S.back = !S.back;
-        S.lazyT = S.back ? rand(5.2, 6.4) : rand(5, 8);
+        S.lazyT = S.back ? rand(4.8, 5.2) : rand(5, 8);
         if (S.back) say(pick(["PLANCHITA UN RATO", "TRANQUI, HAY TIEMPO", "¿PARA QUÉ CORRER?"]), "#FFF0A8");
         else toast("¡ARRANCA A FULL!", "#FFE08A");
       }
