@@ -327,7 +327,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-tips";
+  const VERSION = "2026-10-22-tips2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -856,7 +856,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.obs.push(o);
     return o;
   }
-  // segundos de arranque suave: 22 en las primeras 3 partidas del dispositivo, después 15
+  // segundos de arranque suave: 22 en las primeras 2 partidas del dispositivo, después 15
   function spawn(m) {
     const d = S.dist, r = Math.random();
     // durante el arranque suave hay menos gente en la pileta (más espacio entre uno y otro)
@@ -1107,7 +1107,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.groupBest > 0 && !S.beatGroup && S.pts > S.groupBest) { S.beatGroup = true; toast("¡ESTÁS ROMPIENDO EL RÉCORD DEL GRUPO!", "#FFE14D"); say("¡VAMOS QUE SE VIENE EL RÉCORD!", "#FFE14D"); celebrate(false, true); }
     if (S.permiso > 0) { S.permiso = Math.max(0, S.permiso - dt); clearWay(); }
-    // Gastón: muy de vez en cuando le agarra un ahogo (aviso de 1,5 s y pierde una gorra)
+    // Gastón: muy de vez en cuando le agarra un ahogo (se frena 1,5 s, no pierde gorra)
     if (CH.drowns) {
       if (S.drown > 0) {
         S.drown -= dt;
@@ -1788,7 +1788,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const gBest = top ? Number(top.pts) || 0 : 0, gAlias = top ? String(top.alias || "") : "";
     S = freshState(); S.state = "play"; S.groupBest = gBest; S.groupBestAlias = gAlias;
     const games = parseInt(store.get("pileta.games") || "0", 10) || 0;
-    S.warmT = games < 3 ? 22 : 15; S.tips = games === 0; store.set("pileta.games", String(games + 1));
+    S.warmT = games < 2 ? 22 : 15; S.tips = games === 0; store.set("pileta.games", String(games + 1));
     $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true;
     $("shareText").hidden = true; $("shareMsg").hidden = true;
     last = performance.now();
