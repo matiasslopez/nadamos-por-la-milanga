@@ -28,7 +28,6 @@ body{margin:0}
   color-scheme:dark;
 }
 html,body{background:var(--bg);color:var(--ink)}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   font-family:var(--font-body);font-size:16px;line-height:1.45;
   background-color:var(--bg);
@@ -66,11 +65,10 @@ h1 span{color:var(--cap)}
 canvas{display:block;width:100%;touch-action:none;image-rendering:pixelated}
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:12px;padding:18px;text-align:center;background:rgba(8,14,26,.88);overflow-y:auto}
 .overlay>*{flex-shrink:0}
-.picker{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%;max-width:400px}
-.char{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 2px;border:3px solid #000;background:#1B2A44;color:var(--ink);cursor:pointer;box-shadow:3px 3px 0 #000;font:inherit;min-width:0}
-.char canvas{width:40px;height:40px;max-width:100%;image-rendering:pixelated;border:2px solid #000;background:#2E9ED8}
-.char b{font-family:var(--font-pixel);font-weight:400;font-size:clamp(4.6px,1.85vw,.46rem);white-space:nowrap;letter-spacing:-.02em;max-width:100%;overflow:hidden}
-#ovStart{padding:16px 10px}
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:380px}
+.char{display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px 4px;border:3px solid #000;background:#1B2A44;color:var(--ink);cursor:pointer;box-shadow:3px 3px 0 #000;font:inherit;min-width:0}
+.char canvas{width:44px;height:44px;max-width:100%;image-rendering:pixelated;border:2px solid #000;background:#2E9ED8}
+.char b{font-family:var(--font-pixel);font-weight:400;font-size:.58rem}
 .char[aria-checked=true]{background:#33496E;border-color:var(--cap);box-shadow:0 0 0 2px #000,3px 3px 0 #000}
 .char:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .char-info{min-height:3.6em;max-width:320px;display:flex;flex-direction:column;gap:3px}
@@ -331,7 +329,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-22-picker3";
+  const VERSION = "2026-10-22-picker4";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -366,6 +364,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     W = Math.max(260, Math.floor(r.width - 8));
     const avail = window.innerHeight - 270;
     H = Math.round(Math.max(400, Math.min(660, avail, W * 1.8)));
+    // en la pantalla de elegir nadador, la pileta se estira para que entre todo (nada queda escondido)
+    const ovS = document.getElementById("ovStart");
+    if (ovS && !ovS.hidden) { cv.style.height = H + "px"; const need = ovS.scrollHeight; if (need > H + 2) H = need; }
     DPR = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
     cv.style.height = H + "px";
@@ -612,7 +613,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y se queda pidiendo ayuda unos segundos.", special: "NAVEGANTE", cd: 6, drowns: true,
       cap: "#A9A9A9", capHi: "#D6D6D6", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1,
       face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "hair", hairC: "#A9A9A9", hairC2: "#C8C8C8", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } },
-    { id: "felix", name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
+    { id: "felix", hidden: true, name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
     { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5, cramps: true,
@@ -1846,8 +1847,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectChar(PICKABLE[(i + 1) % n].id); pickBtns[(i + 1) % n].b.focus(); }
     if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); selectChar(PICKABLE[(i + n - 1) % n].id); pickBtns[(i + n - 1) % n].b.focus(); }
   });
-
   selectChar(CH.id);
+  setTimeout(resize, 0); if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
 
   function start() {
     const badAlias = !isAnon(aliasIn.value) && isBad(aliasIn.value);
@@ -1865,7 +1866,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S = freshState(); S.state = "play"; S.groupBest = gBest; S.groupBestAlias = gAlias;
     const games = parseInt(store.get("pileta.games") || "0", 10) || 0;
     S.warmT = games < 2 ? 22 : 15; S.tips = games === 0; store.set("pileta.games", String(games + 1));
-    $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true;
+    $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true; resize();
     $("shareText").hidden = true; $("shareMsg").hidden = true;
     last = performance.now();
     btnBreathe.focus({ preventScroll: true });
@@ -1878,7 +1879,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function readSave() { try { const j = JSON.parse(store.get(SAVE_KEY) || "null"); return j && j.v === 1 ? j : null; } catch { return null; } }
   function showResume() {
     const sv = readSave(), box = $("resumeBox");
-   
+    setTimeout(resize, 0);
     if (!sv) { box.hidden = true; return; }
     const ch = CHARS.find((c) => c.id === sv.char);
     $("resumeTxt").textContent = "Tenés una partida guardada: " + (ch ? ch.name : "") + " · " + fmt(sv.pts) + " pts · " + sv.dist + " m · " + sv.lives + (sv.lives === 1 ? " gorra" : " gorras");
@@ -1890,7 +1891,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       passed: S.passed, bestStreak: S.bestStreak, drowned: S.drowned, drownPts: S.drownPts, at: new Date().toISOString() };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(sv)); } catch { toast("NO SE PUDO GUARDAR", "#FFB4A8"); return; }
     S = freshState(); updateHud();
-    $("ovPause").hidden = true; $("ovOver").hidden = true; $("ovStart").hidden = false; lastFaceKey = "";
+    $("ovPause").hidden = true; $("ovOver").hidden = true; $("ovStart").hidden = false; lastFaceKey = ""; resize();
     showResume();
     $("resumeTxt").textContent = "¡Partida guardada! " + $("resumeTxt").textContent.replace("Tenés una partida guardada: ", "");
   }
@@ -1910,7 +1911,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     S.nextDrown = t + rand(40, 80);
     S.saveReadyAt = sv.pts + SAVE_EVERY;
     S.inv = 2; S.state = "play";
-    $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true; $("resumeBox").hidden = true;
+    $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true; $("resumeBox").hidden = true; resize();
     last = performance.now();
     toast("¡SEGUIMOS! " + fmt(sv.pts) + " PTS", "#FFE08A");
     Music.play();
@@ -1993,7 +1994,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   $("btnAgain").addEventListener("click", () => {
     S = freshState();
     $("ovOver").hidden = true; $("shareText").hidden = true; $("shareMsg").hidden = true;
-    $("ovStart").hidden = false; lastFaceKey = ""; showResume();
+    $("ovStart").hidden = false; lastFaceKey = ""; showResume(); resize();
     const sel = document.querySelector('.char[aria-checked="true"]'); if (sel) sel.focus({ preventScroll: true });
   });
   aliasIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
