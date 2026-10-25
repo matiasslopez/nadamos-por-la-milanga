@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-25-top3-sin-hora";
+  const VERSION = "2026-10-25-metricas";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -2122,7 +2122,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
 
   $("btnShare").addEventListener("click", async () => {
-    const txt = getAlias() + " hizo " + fmt(lastResult.p) + " puntos (" + lastResult.m + " m) en Nadamos por la Milanga. ¿Quién lo supera?";
+    const txt = getAlias() + " hizo " + fmt(lastResult.p) + " puntos (" + lastResult.m + " m) en Nadamos por la Milanga. ¿Quién lo supera? Jugá acá: " + SITE_URL + "?s=compartido&r=" + shortId();
+    store.set("pileta.shares", String((parseInt(store.get("pileta.shares") || "0", 10) || 0) + 1));
     const box = $("shareText"), msg = $("shareMsg");
     box.value = txt;
     try {
@@ -2192,6 +2193,21 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!id) { id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); store.set("pileta.uid", id); }
     return id;
   }
+  // datos generales y anónimos para saber cómo llega y se comparte el juego (sin IP ni ubicación)
+  const SITE_URL = "https://matiasslopez.github.io/nadamos-por-la-milanga/";
+  function shortId() { return (uid || store.get("pileta.uid") || "").slice(-5); }
+  function trafficInfo() {
+    const ua = navigator.userAgent || "", q = new URLSearchParams(location.search);
+    let src = (q.get("s") || "").slice(0, 20);
+    if (!src) { try { src = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, "").slice(0, 30) : ""; } catch {} }
+    if (!src || src === location.hostname) src = "directo";
+    const os = /android/i.test(ua) ? "android" : /iphone|ipad|ipod/i.test(ua) ? "ios" : /windows/i.test(ua) ? "windows" : /mac/i.test(ua) ? "mac" : /linux/i.test(ua) ? "linux" : "otro";
+    const br = /samsungbrowser/i.test(ua) ? "samsung" : /edg\//i.test(ua) ? "edge" : /firefox/i.test(ua) ? "firefox" : /chrome|crios/i.test(ua) ? "chrome" : /safari/i.test(ua) ? "safari" : "otro";
+    const plat = /mobi|android|iphone|ipad/i.test(ua) || (matchMedia && matchMedia("(pointer:coarse)").matches) ? "celu" : "compu";
+    const b = (n) => Math.round(n / 50) * 50;
+    let tz = ""; try { tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").slice(0, 40); } catch {}
+    return { src, ref: (q.get("r") || "").replace(/[^a-z0-9]/gi, "").slice(0, 8), os, br, plat, scr: b(innerWidth) + "x" + b(innerHeight), lang: (navigator.language || "").slice(0, 10), tz };
+  }
   async function initRanking() {
     if (!FIREBASE_CONFIG) { renderRank(); return; }
     try {
@@ -2206,7 +2222,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const now = new Date().toISOString();
     try {
       // una sola escritura, sin leer antes (ahorra lecturas del plan gratis)
-      const v = { count: fs.increment(1), last: now }; if (isNew) v.first = now;
+      const v = { count: fs.increment(1), last: now, shares: parseInt(store.get("pileta.shares") || "0", 10) || 0 };
+      const ti = trafficInfo(); v.plat = ti.plat; v.os = ti.os; v.br = ti.br; v.scr = ti.scr; v.lang = ti.lang; v.tz = ti.tz;
+      if (isNew) { v.first = now; v.src = ti.src; if (ti.ref) v.ref = ti.ref; }
       await fs.setDoc(fs.doc(db, "visits", uid), v, { merge: true });
     } catch {}
     try { initAdmin(fbApp); } catch {}
