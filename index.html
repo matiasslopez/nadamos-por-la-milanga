@@ -261,7 +261,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   <section class="panel" id="dayBox" aria-labelledby="dayTitle" hidden>
     <h3 id="dayTitle">TOP 3 DE HOY</h3>
-    <ol class="rank dated" id="dayList"></ol>
+    <ol class="rank" id="dayList"></ol>
     <p class="note">Las 3 mejores partidas del día.</p>
   </section>
 
@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-25-rank-fecha";
+  const VERSION = "2026-10-25-top3-sin-hora";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -2171,9 +2171,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (uid && x.device === uid) li.className = "me";
       const pos = document.createElement("span"); pos.className = "pos"; pos.textContent = i + 1;
       const who = document.createElement("span"); who.className = "who"; who.textContent = showAlias(x.alias) + (uid && x.device === uid ? " (vos)" : "");
-      const when = document.createElement("span"); when.className = "when"; when.textContent = x.at ? new Date(x.at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false }) + " h" : "";
       const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(x.pts) || 0);
-      li.append(pos, who, when, mm); list.appendChild(li);
+      li.append(pos, who, mm); list.appendChild(li);
     });
   }
   // ---- Firebase (hosting propio) ----
