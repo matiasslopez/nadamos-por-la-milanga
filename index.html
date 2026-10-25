@@ -124,7 +124,7 @@ section.panel{background:rgba(12,20,34,.95);border:3px solid #000;box-shadow:4px
 section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;margin:0;letter-spacing:.04em;color:var(--cap)}
 .hist-btn{font-size:.6rem;padding:10px 12px;align-self:flex-start}
 #histBox{max-height:340px;overflow-y:auto;border-top:2px solid #000;padding-top:8px}
-.rank.dated li{grid-template-columns:2.4ch 1fr auto auto}
+.rank.dated li,.rank li.d3{grid-template-columns:2.4ch 1fr auto auto}
 .rank.hist li{grid-template-columns:3.2ch 1fr auto auto}
 .rank .when{font-size:.75rem;color:var(--muted)}
 .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
@@ -254,7 +254,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   <section class="panel" aria-labelledby="rankTitle">
     <h3 id="rankTitle">RANKING DEL GRUPO</h3>
-    <ol class="rank dated" id="rankList"></ol>
+    <ol class="rank" id="rankList"></ol>
     <p class="note" id="rankNote">Cargando el ranking…</p>
     <p class="note" id="myBest"></p>
   </section>
@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-25-hsj-pileta";
+  const VERSION = "2026-10-25-rank-fecha";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -2149,8 +2149,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const who = document.createElement("span"); who.className = "who";
       who.textContent = showAlias(data.alias) + (mine ? " (vos)" : "");
       const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(data.pts) || 0);
-      const when = document.createElement("span"); when.className = "when"; when.textContent = data.at ? new Date(data.at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" }) : "";
-      li.append(pos, who, when, mm); rankList.appendChild(li);
+      if (i < 3) { // solo el top 3 muestra la fecha
+        li.classList.add("d3");
+        const when = document.createElement("span"); when.className = "when"; when.textContent = data.at ? new Date(data.at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" }) : "";
+        li.append(pos, who, when, mm);
+      } else li.append(pos, who, mm);
+      rankList.appendChild(li);
     });
     if (!db) rankNote.textContent = "El ranking no está disponible ahora. Igual podés mandar tu marca al grupo con el botón del final.";
     else if (rankDocs.length === 0) rankNote.textContent = "Todavía no hay marcas. La primera partida que termines entra acá.";
