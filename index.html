@@ -36,6 +36,7 @@ body{
 }
 .wrap{max-width:480px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:flex;flex-direction:column;gap:12px}
 header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media (max-height:760px){header .tag{display:none}header h1{font-size:1rem}}
 h1{font-family:var(--font-pixel);font-weight:400;font-size:1.05rem;line-height:1.3;margin:0;letter-spacing:.02em;text-wrap:balance;text-shadow:3px 3px 0 #000}
 h1 span{color:var(--cap)}
 .tag{font-family:var(--font-pixel);font-size:.55rem;color:var(--muted);letter-spacing:.06em}
@@ -123,6 +124,7 @@ section.panel{background:rgba(12,20,34,.95);border:3px solid #000;box-shadow:4px
 section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;margin:0;letter-spacing:.04em;color:var(--cap)}
 .hist-btn{font-size:.6rem;padding:10px 12px;align-self:flex-start}
 #histBox{max-height:340px;overflow-y:auto;border-top:2px solid #000;padding-top:8px}
+.rank.dated li{grid-template-columns:2.4ch 1fr auto auto}
 .rank.hist li{grid-template-columns:3.2ch 1fr auto auto}
 .rank .when{font-size:.75rem;color:var(--muted)}
 .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
@@ -252,8 +254,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   <section class="panel" aria-labelledby="rankTitle">
     <h3 id="rankTitle">RANKING DEL GRUPO</h3>
-    <ol class="rank" id="rankList"></ol>
+    <ol class="rank dated" id="rankList"></ol>
     <p class="note" id="rankNote">Cargando el ranking…</p>
+    <div id="dayBox" hidden>
+      <h3 id="dayTitle" style="margin-top:14px">TOP 3 DE HOY</h3>
+      <ol class="rank dated" id="dayList"></ol>
+    </div>
     <p class="note" id="myBest"></p>
   </section>
 
@@ -295,7 +301,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <canvas width="20" height="20" data-icon="rana"></canvas><span><b>Rana:</b> evitala, te deja nadando pecho.</span>
       <canvas width="20" height="20" data-icon="gorra"></canvas><span><b>Gorra:</b> te salva de un choque.</span>
       <canvas width="20" height="20" data-icon="aletas"></canvas><span><b>Patas de rana:</b> unos segundos de velocidad extra.</span>
-      <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 400 puntos.</span>
+      <canvas width="20" height="20" data-icon="milanga"></canvas><span><b>Milanga:</b> te devuelve una gorra (vida). Si ya tenés las tres, suma 500 puntos.</span>
       <canvas width="20" height="20" data-icon="manoplas"></canvas><span><b>Manoplas:</b> más tracción en la brazada, también te dan velocidad.</span>
       <canvas width="20" height="20" data-icon="paracaidas"></canvas><span><b>Paracaídas:</b> te frena unos segundos sin bajarte los puntos.</span>
       <canvas width="20" height="20" data-icon="snorkel"></canvas><span><b>Snorkel:</b> te ahorra las próximas dos respiradas.</span>
@@ -311,7 +317,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       <li><b>El nadador pro:</b> te avisa con una flecha abajo de tu carril. Cambiate de andarivel antes de que llegue; si zafás, sumás puntos.</li>
       <li><b>Guardar:</b> si te tenés que ir, tocá 💾 GUARDAR (arriba, al lado de la música) y después seguís con CONTINUAR PARTIDA. Se puede usar una vez y se recarga cada 10.000 puntos.</li>
       <li><b>La curita:</b> no te mata, pero del asco perdés aire.</li>
-      <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x5 y un buen bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
+      <li><b>La profe:</b> cada tanto toca el silbato y aparece una tabla dorada. Agarrala y hacé patada: vas más lento pero sumás x6 y un buen bonus al terminar. Si la dejás pasar, la profe te ve y perdés 300 puntos.</li>
     </ul>
   </section>
 
@@ -329,7 +335,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-23-curitas";
+  const VERSION = "2026-10-25-nivel-hsj";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -362,8 +368,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function resize() {
     const r = stage.getBoundingClientRect();
     W = Math.max(260, Math.floor(r.width - 8));
-    const avail = window.innerHeight - 270;
-    H = Math.round(Math.max(400, Math.min(660, avail, W * 1.8)));
+    // la pileta se acorta para que RESPIRAR y el botón especial se vean sin hacer scroll
+    const top = r.top + window.scrollY, act = document.querySelector(".actions"), ctrl = (act && act.offsetHeight) || 70;
+    const avail = window.innerHeight - top - ctrl - 22;
+    H = Math.round(Math.max(300, Math.min(660, avail, W * 1.8)));
     // en la pantalla de elegir nadador, la pileta se estira para que entre todo (nada queda escondido)
     const ovS = document.getElementById("ovStart");
     if (ovS && !ovS.hidden) { cv.style.height = H + "px"; const need = ovS.scrollHeight; if (need > H + 2) H = need; }
@@ -592,34 +600,34 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const fc = faceCv.getContext("2d");
     // ---------- Personajes ----------
   const CHARS = [
-    { id: "pablito", name: "PABLITO", tag: "Te levanta una losa y te nada 2000 metros en el mismo día", breathGap: 1, perk: "CAMINAR: se para y camina por el costado del carril, esquivando lo que viene. Además respira con más margen.", special: "CAMINAR", cd: 2.5,
+    { id: "pablito", name: "PABLITO", tag: "Te levanta una losa y te nada 2000 metros en el mismo día", breathGap: 1, perk: "CAMINAR: se para y camina por el costado del carril, esquivando lo que viene. Además respira con más margen.", special: "CAMINAR", cd: 4,
       cap: "#F0BE98", capHi: "#FFFFFF", suit: "#1F3F8F", speed: 1, breath: 0.35, passMult: 1,
       face: { skin: "#F0BE98", shade: "#D99A72", shade2: "#C4825E", top: "bald", beard: "candado", beardC: "#9C8E80", beardC2: "#7E7064", brow: "#5E4A3C", iris: "#4A6E96", goggles: true, mouth: "half" } },
-    { id: "luis", name: "LUIS", tag: "Nadador rápido, pero necesita quejarse para ir más rápido", breathGap: 1.5, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
-      cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.13, breath: -0.1, passMult: 1, complains: true, slowStart: true,
+    { id: "luis", name: "LUIS", tag: "Nadador rápido, pero necesita quejarse para ir más rápido", breathGap: 1.2, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
+      cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.08, breath: -0.1, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
-    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.25, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
+    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.15, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
       cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1.06, breath: 0, passMult: 1, lunges: true,
       face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#1A1A1E", capC2: "#0A0A0C", capHi: "#4A4D58", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
-    { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1.1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
+    { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
       cap: "#E8C25A", capHi: "#FFF0A8", suit: "#2E8B57", speed: 1, breath: 0.1, passMult: 1, lazy: true, part: true,
       face: { skin: "#F2C6A0", shade: "#DCA27C", shade2: "#C58A64", top: "hairMid", hairC: "#F0CC62", hairC2: "#C99E38", beard: "none", beardC: "#D8B070", beardC2: "#C49A5A", brow: "#B88A3A", iris: "#4A6E96", goggles: false, mouth: "grin", blush: true } },
-    { id: "andre", name: "ANDRE", tag: "La maestra repostera", breathGap: 1.15, perk: "UNA MASITA: le convida una masita al que va adelante (o al que viene de atrás), que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 2.4,
-      cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 1.02, breath: 0.05, passMult: 1, tail: "#2A1C14",
+    { id: "andre", name: "ANDRE", tag: "La maestra repostera", breathGap: 0.92, perk: "UNA MASITA: le convida una masita al que va adelante (o al que viene de atrás), que sale de la pileta a comerla y te deja pasar.", special: "UNA MASITA", cd: 2.4,
+      cap: "#2B2D3A", capHi: "#5A5E78", suit: "#111111", speed: 0.95, breath: 0.05, passMult: 1, tail: "#2A1C14",
       face: { skin: "#E3AE86", shade: "#C98F68", shade2: "#B27852", top: "cap", capC: "#2B2D3A", capC2: "#1A1B24", capHi: "#5A5E78", locks: "#2A1C14", tail: "#2A1C14", tailSide: 1, tie: "#5FCB4A", beard: "none", beardC: "#000", beardC2: "#000", brow: "#2E2018", iris: "#3E2A1C", goggles: true, mouth: "lips", lip: "#B8475E", blush: true, lashes: true, fem: true } },
-    { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1.2, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 5,
+    { id: "mika", name: "MICA", tag: "Aparece donde menos la esperás", breathGap: 1, perk: "AYAHUASCA: desaparece y salta al de adelante como si pasara por un agujero de gusano.", special: "AYAHUASCA", cd: 4,
       cap: "#16161C", capHi: "#4A4A5C", suit: "#2F6FE0", speed: 1.02, breath: 0.1, passMult: 1, tail: "#3A2618", slim: true,
       face: { slim: true, skin: "#F0C4A2", shade: "#D9A27E", shade2: "#C28A66", top: "cap", capC: "#16161C", capC2: "#0A0A0E", capHi: "#4A4A5C", locks: "#3A2618", tail: "#3A2618", tailSide: -1, tie: "#FF6FB0", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A2618", iris: "#5A3A22", goggles: true, mouth: "lips", lip: "#C8506A", blush: true, lashes: true, fem: true } },
-    { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1.15, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y se queda pidiendo ayuda unos segundos.", special: "NAVEGANTE", cd: 6, drowns: true,
+    { id: "gaston", name: "GASTÓN", tag: "Cuando zarpa, no lo para nadie", breathGap: 1, perk: "NAVEGANTE: por unos segundos se convierte en un barquito y se lleva puesto todo lo que venga. Punto débil: muy de vez en cuando le agarra un ahogo y se queda pidiendo ayuda unos segundos.", special: "NAVEGANTE", cd: 6, drowns: true,
       cap: "#A9A9A9", capHi: "#D6D6D6", suit: "#1E3A5F", speed: 0.92, breath: 0.15, passMult: 1,
       face: { skin: "#E8B48E", shade: "#CF966E", shade2: "#B88058", top: "hair", hairC: "#A9A9A9", hairC2: "#C8C8C8", beard: "short", beardC: "#A8A8A8", beardC2: "#8C8C8C", brow: "#8C8C8C", iris: "#4A6E96", goggles: true, mouth: "grin" } },
-    { id: "felix", hidden: true, name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.1, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
+    { id: "felix", hidden: true, name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.15, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
-    { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.2, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5, cramps: true,
-      cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.12, breath: 0.05, passMult: 1, slim: true,
+    { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.25, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 5, cramps: true,
+      cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.08, breath: 0.05, passMult: 1, slim: true,
       face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } },
-    { id: "fer", name: "FER", tag: "Nadador con experiencia: lee la pileta como nadie", breathGap: 1.25, perk: "BULLET TIME: por unos segundos la pileta va en cámara lenta. Además, lee la pileta con sabiduría.", special: "BULLET TIME", cd: 8, calm: true,
+    { id: "fer", name: "FER", tag: "Nadador con experiencia: lee la pileta como nadie", breathGap: 0.8, perk: "BULLET TIME: por unos segundos la pileta va en cámara lenta. Además, lee la pileta con sabiduría.", special: "BULLET TIME", cd: 8, calm: true,
       cap: "#E6B48C", capHi: "#FFF1E0", suit: "#2B4C7E", speed: 0.9, breath: 0.3, passMult: 1,
       face: { skin: "#E6B48C", shade: "#CC9A72", shade2: "#B5825C", top: "bald", beard: "none", beardC: "#000", beardC2: "#000", brow: "#8A7A6C", iris: "#4A6E96", goggles: true, mouth: "half", wrinkles: true } }
   ];
@@ -780,7 +788,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     "¿Viste que viene bien Colapinto?", "El último campeonato del Rojo ya es de mediana edad", "Racing va de visitante, ¿prendemos una vela?", "El Ciclón está como yo: gana uno y ya se ilusiona", "Almirante Brown es como Gastón: navega, pero cada tanto se ahoga", "¡Qué partidazo de tenis anoche!", "Le falta cloro a esto", "Cada vez más cara la cuota",
     "¡Qué sucio que está el baño!", "Nadie se ducha antes, eh", "¿Viste los pelos en el agua?", "¿Cómo cambiaste, eh?",
     "¿Y el asado del sábado, sale?", "Estoy durmiendo cuatro horas", "¿Qué serie estás viendo?", "¿Viste lo del dólar?",
-    "Esto en otros países no pasa", "¿Te vas a algún lado en las vacaciones?"
+    "Esto en otros países no pasa", "¿Te vas a algún lado en las vacaciones?",
+    "¡Qué manera de farmear aura acá!", "Mi pibe me salió therian. ¿Sabés qué es?", "Sube todo menos mi sueldo.",
+    "¿Cuándo hay una nueva competencia? Me quedé con ganas de medalla.", "Si no vengo a nadar me siento culpable.", "¿Sale birrita?"
   ];
   // lo que dicen los compañeros al costado de la pileta mientras llueve
   const RAIN_LINES = [
@@ -806,7 +816,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function freshState() {
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
-      nextSpawn: 9, items: {}, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      nextSpawn: 9, items: {}, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, boost: 0, coachNext: 20000, coachList: [], milaLess: false, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 2), sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
@@ -885,13 +895,17 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
   // segundos de arranque suave: 22 en las primeras 2 partidas del dispositivo, después 15
   // curitas un 30% menos frecuentes: si sale curita, 3 de cada 10 veces se cambia por otro nadador
-  const lessCurita = (k) => k === "curita" && Math.random() < 0.3 ? pick(["senora", "lento", "lento"]) : k;
+  const lessCurita = (k) => {
+    if (k === "curita" && Math.random() < 0.3) k = pick(["senora", "lento", "lento"]);
+    if (k === "senora" && S.pts >= 35000 && Math.random() < 0.5) k = "lento"; // después de 35.000, la mitad de los nadadores parados nadan
+    return k;
+  };
   function spawn(m) {
     const d = S.dist, r = Math.random();
     // durante el arranque suave hay menos gente en la pileta (más espacio entre uno y otro)
     const gapK = S.t < S.warmT ? 1.6 - 0.6 * (S.t / S.warmT) : 1;
     if (m >= S.nextMila) {
-      S.nextMila = m + (S.lives < 3 ? rand(40, 65) : rand(80, 120));
+      S.nextMila = m + (S.lives < 3 ? rand(40, 65) : rand(80, 120)) * milaK();
       addObs("milanga", Math.floor(Math.random() * 3), m);
       return rand(2.4, 3.4);
     }
@@ -956,7 +970,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function countItem(k) { if (!S.items) S.items = {}; S.items[k] = (S.items[k] || 0) + 1; }
   function hitObstacle(o) {
     if (ITEM_KEY[o.kind]) countItem(ITEM_KEY[o.kind]);
-    if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x5", "#FFE08A"); return; }
+    if (o.kind === "tablaProfe") { S.kick = 5; S.profe = 0; setFace("happy", 0.6); toast("¡A PATADA! PUNTOS x6", "#FFE08A"); return; }
     if (o.kind === "mariposa") { setStyle("mariposa", 7); setFace("happy", 1); toast("¡MARIPOSA! x3", "#FF9FE4"); return; }
     if (o.kind === "rana") {
       setStyle("pecho", 5); toast("TE CONTAGIASTE EL PECHO", "#8CF08C"); return;
@@ -964,12 +978,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (o.kind === "milanga") {
       setFace("happy", 1);
       if (S.lives < 3) { S.lives++; toast("¡MILANGA! +1 " + LIFE(), "#FFE08A"); }
-      else { S.pts += 400; toast("¡MILANGA! +400", "#FFE08A"); }
+      else { S.pts += 500; toast("¡MILANGA! +500", "#FFE08A"); }
       return;
     }
     if (o.kind === "manoplas") { S.pads = 6; setFace("happy", 0.8); toast("¡MANOPLAS! MÁS TRACCIÓN", "#FFB070"); if (CH.complains) say("ESTAS MANOPLAS ESTÁN RE INCÓMODAS", "#C9D4FF"); return; }
     if (o.kind === "paracaidas") { S.chute = 5; S.fins = 0; setFace("happy", 0.8); toast("¡TOCA PARACAÍDAS! PARA MÁS ESFUERZO", "#FFB4A8"); say(pick(["YA NO ME DAN LAS PIERNAS", "¡CÓMO TIRA ESTO!", "ME ARDEN HASTA LAS OREJAS"]), "#FFD9D0"); return; }
-    if (o.kind === "snorkel") { S.snork = 2; setFace("happy", 0.8); toast("¡SNORKEL! NO HACE FALTA RESPIRAR", "#8FE3FF"); if (S.bOpen) { S.bOpen = false; S.snork = 1; S.nextBreath = rand(4.5, 6.5) * CH.breathGap; } return; }
+    if (o.kind === "snorkel") { S.snork = 2; setFace("happy", 0.8); toast("¡SNORKEL! NO HACE FALTA RESPIRAR", "#8FE3FF"); if (S.bOpen) { S.bOpen = false; S.snork = 1; S.nextBreath = nextBreathIn(); } return; }
     if (o.kind === "aletas") { S.fins = 6; setFace("happy", 0.8); toast("¡PATAS DE RANA! TURBO", "#8CF08C"); return; }
     if (o.kind === "gorra") { S.shield = true; toast(CH.id === "pablito" ? "POTE DE DULCE DE LECHE" : "GORRA DE SILICONA", "#FFE08A"); return; }
     if (o.kind === "curita") { toast("¡QUÉ ASCO! UNA CURITA", "#F7D7B8"); setFace("hurt", 0.6); loseAir(); return; }
@@ -1003,12 +1017,12 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.state !== "play" || S.cd > 0) return;
     countItem("especial");
     if (CH.id === "pablito") {
-      S.walk = 2.2; S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
+      S.walk = 2.5; S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
       S.cd = CH.cd; toast("CAMINANDO POR EL COSTADO", "#FFE08A");
     } else if (CH.id === "mati") {
-      S.dive = 2.05; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
+      S.dive = 2.1; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
     } else if (CH.id === "luis") {
-      S.jump = 2.1; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
+      S.jump = 2.2; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
     } else if (CH.id === "andre") {
       let target = null;
       for (const o of S.obs) {
@@ -1027,7 +1041,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (CH.id === "fer") {
       S.slowmo = 4; S.cd = CH.cd; toast("BULLET TIME", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
     } else if (CH.id === "luchito") {
-      S.dash = 1.1; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
+      S.dash = 1.4; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
     } else if (CH.id === "felix") {
       S.permiso = 2.6; S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
       clearWay();
@@ -1044,7 +1058,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.warpFrom = S.dist;
       for (const r of S.obs) if (r.kind === "rapido" && !r.hit && Math.abs(r.x - S.x) < 16 && S.dist - r.m < 12) { r.hit = true; r.lost = true; toast("¡TE PERDIÓ EL RASTRO!", "#E0B0FF"); }
       S.dist = target ? target.m + (target.hl || 1) + 2.2 : S.dist + 8;
-      S.warp = 0.9; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.12;
+      S.warp = 1; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.12;
       if (target && target.kind !== "corchera") { const b = 120 * STY[S.style].mult; S.pts += b; toast("¡AGUJERO DE GUSANO! +" + b, "#E0B0FF"); }
       else toast("¡AYAHUASCA!", "#E0B0FF");
       say(pick(["¿DÓNDE ESTOY?", "VEO COLORES", "VOLVÍ DEL MÁS ALLÁ", "ESTOY EN OTRO PLANO"]), "#E0B0FF");
@@ -1072,7 +1086,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const bonus = 10 * STY[S.style].mult;
       S.pts += bonus;
       toast(S.streak >= 3 ? "RESPIRACIÓN PERFECTA x" + S.streak : "¡AIRE! +" + bonus, "#B9F4FF");
-      S.nextBreath = rand(4.5, 6.5) * CH.breathGap;
+      S.nextBreath = nextBreathIn();
     } else {
       toast("GLU GLU. TRAGASTE AGUA", "#B9F4FF");
       loseAir();
@@ -1080,19 +1094,30 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
 
   // ---------- Loop ----------
+  // velocidad por escalones de puntaje (vs. el inicio), con tope de +170%
+  const SPEED_STEPS = [[20000, 0.05], [30000, 0.15], [40000, 0.25], [50000, 0.35], [60000, 0.5], [70000, 0.8], [80000, 1.1], [90000, 1.4], [100000, 1.55], [110000, 1.7]];
+  const speedBoostFor = (p) => { let v = 0; for (const [a, b] of SPEED_STEPS) if (p >= a) v = b; return v; };
+  // respiración: 10% más espaciada por escalón (35, 45, 55 y 65 mil)
+  const breathK = () => 1 + 0.1 * [35000, 45000, 55000, 65000].filter((a) => S.pts >= a).length;
+  const nextBreathIn = () => rand(4.5, 6.5) * CH.breathGap * breathK();
+  // recarga del superpoder más rápida con el puntaje
+  const rechargeK = () => 1 + (S.pts >= 50000 ? 0.2 : 0) + (S.pts >= 70000 ? 0.1 : 0) + (S.pts >= 80000 ? 0.1 : 0);
+  const COACH = ["¡VAMOS, QUE ESA PATADA TIENE QUE ARDER!", "¡ESTIRATE BIEN EN LA BRAZADA!", "¡ESO, ACELERANDO!", "¡NO SOLTÉS EL RITMO, CAMPEÓN!", "¡MÁS LARGA LA BRAZADA, QUE SE ACABA LA PILETA!", "¡ESA ES LA ENERGÍA QUE QUERÍA VER!", "¡ESTÁS NADANDO MUY BIEN!", "¡A ESTE RITMO SE TE ACABA EL CARRIL!", "¡CABEZA ABAJO Y A DARLE!", "¡DALE, DALE, MÁS FUERTE!", "¡VENÍS BIEN!", "¡LA ESTÁS ROMPIENDO!"];
+  // 30% menos milanesas si ya entraste 2 veces al top 10 del día (sin aviso)
+  const milaK = () => dayPenal ? 1 / 0.7 : 1;
   function update(dt) {
     if (S.state !== "play") return;
     S.t += dt;
     const st = STY[S.style];
     // se acelera con el tiempo: a los 90–120 s ya va bastante rápido
-    const turbo = Math.max(0, S.pts - 30000) / 10000; // cada 10.000 puntos extra, bastante más rápido
-    const progRaw = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012) * (1 + Math.min(1.6, turbo * 0.45));
+    S.boost += (speedBoostFor(S.pts) - S.boost) * Math.min(1, dt / 1.1); // cada escalón se alcanza en unos 3 s
+    const progRaw = Math.min(3.2, 1 + Math.min(S.t / 105, 1) * 0.75 + Math.max(0, S.t - 105) * 0.012) * (1 + S.boost);
     // ventaja de Fer: va bajando y desde los 6 minutos desaparece (de 5 a 6 min se empareja de a poco)
     const calmK = S.t >= 360 ? 1 : S.t > 300 ? 0.85 + (S.t - 300) / 60 * 0.15 : Math.min(0.85, 0.55 + S.t / 1000);
     // arranque suave: los primeros 15 s va un poco más lento y se normaliza de a poco
     const warm = S.t < S.warmT ? 0.78 + 0.22 * (S.t / S.warmT) * (S.t / S.warmT) * (3 - 2 * S.t / S.warmT) : 1;
     const prog = (CH.calm ? 1 + (progRaw - 1) * calmK : progRaw) * warm;
-    if (turbo > 0 && !S.turboOn) { S.turboOn = true; toast("¡+30.000! ¡AHORA SE PONE PICANTE!", "#FF9F6B"); say("¡A FONDO!", "#FF9F6B"); S.shake = reduceMotion ? 0 : 0.25; }
+    if (S.pts >= S.coachNext) { S.coachNext += 10000; if (!S.coachList.length) S.coachList = COACH.slice().sort(() => Math.random() - 0.5); toast(S.coachList.pop(), "#FFE08A"); }
     const slow = S.kick > 0 ? 0.6 : 1;
     const chatting = S.chat > 0;
     if (S.restart > 0) S.restart = Math.max(0, S.restart - dt);
@@ -1131,14 +1156,15 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (!wasOut && S.rainT <= 4.5 && S.rainT > 0) { toast("¡TODOS AFUERA!", "#FFE08A"); say(pick(["¡AFUERA, QUE HAY RAYOS!", "¡SALGAN DEL AGUA!", "¡HAY QUE SALIR, HAY QUE SALIR!"]), "#FFE08A"); }
       if (S.rainT === 0) {
         S.obs = S.obs.filter((o) => o.pick || Math.abs(o.m - S.dist) > 5); S.inv = Math.max(S.inv, 1.5);
-        toast("¡SALIÓ EL SOL! A NADAR", "#FFE08A");
+        S.air = 3; if (S.lives < 3) S.lives++;
+        toast("¡SALIÓ EL SOL! AIRE LLENO Y A NADAR", "#FFE08A");
       }
     }
     if (S.flash > 0) S.flash = Math.max(0, S.flash - dt);
     if (S.pts >= (S.nextCharlitaPts || 6000) && S.chat <= 0 && S.rainT <= 0 && !S.obs.some((o) => o.kind === "charla" && !o.hit)) {
       S.nextCharlitaPts = S.pts + rand(7000, 9000);
       const others = PICKABLE.filter((c) => c.id !== CH.id);
-      const o = addObs("charla", Math.floor(Math.random() * 3), S.dist + 14);
+      const o = addObs("charla", Math.random() < 0.5 ? 0 : 2, S.dist + 14);
       o.av = pick(others); o.line = pick(CHARLAS_POL);
     }
     if (SHOW_CHARLA && S.pts >= S.nextCharlaPts && S.chat <= 0 && !S.obs.some((o) => o.kind === "charla" && !o.hit)) {
@@ -1174,9 +1200,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
         else toast("¡ARRANCA A FULL!", "#FFE08A");
       }
     }
-    if (S.cd > 0) S.cd = Math.max(0, S.cd - dt);
+    if (S.cd > 0) S.cd = Math.max(0, S.cd - dt * rechargeK());
     S.dist += speed * dt;
-    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 5 : 1) * (CH.lazy && S.back ? 1 / 0.7 : 1) * (S.chute > 0 ? 1 / 0.6 : 1); // el paracaídas y la plancha de Mati va más lenta pero suma igual
+    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 6 : 1) * (CH.lazy && S.back ? 1 / 0.7 : 1) * (S.chute > 0 ? 1 / 0.6 : 1); // el paracaídas y la plancha de Mati va más lenta pero suma igual
     S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
     if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
     if (CH.id === "pablito") { S.nextPablo = (S.nextPablo || rand(10, 16)) - dt; if (S.nextPablo <= 0) { S.nextPablo = rand(16, 26); say("¡HACÉ LO QUE QUIERAS VOS, PABLO!", "#FFE08A"); } }
@@ -1207,7 +1233,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (o.kind === "charla" && o.hooked && chatting) o.m = S.dist + 0.3;
       else if (o.v) o.m += o.v * slow * (S.slowmo > 0 ? 0.5 : 1) * dt;
       if (o.kind === "charla" && !o.hooked && !(S.slowmo > 0) && Math.abs(o.m - S.dist) < 0.9 && Math.abs(S.x - o.x) < LANE_W + 12) {
-        o.hooked = true; S.chat = 5; S.chatLine = o.line; setFace("talk", 5);
+        o.hooked = true; S.chat = rand(3, 5); S.chatLine = o.line; setFace("talk", S.chat);
         const loss = Math.min(Math.floor(S.pts), 500); S.pts -= loss;
         toast("TE ENGANCHASTE A HABLAR -" + loss, "#FFB4A8");
       }
@@ -1263,11 +1289,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (!S.bOpen) {
       S.nextBreath -= dt;
       if (S.nextBreath <= 0 && S.tips && !S.breathTipped) { S.breathTipped = true; toast("¡SE ILUMINÓ! TOCÁ RESPIRAR", "#8FE3FF"); }
-      if (S.nextBreath <= 0 && S.snork > 0) { S.snork--; S.nextBreath = rand(4.5, 6.5) * CH.breathGap; toast(S.snork ? "RESPIRÁS POR EL SNORKEL" : "FALTAN LOS PECECITOS", "#8FE3FF"); }
+      if (S.nextBreath <= 0 && S.snork > 0) { S.snork--; S.nextBreath = nextBreathIn(); toast(S.snork ? "RESPIRÁS POR EL SNORKEL" : "FALTAN LOS PECECITOS", "#8FE3FF"); }
       if (S.nextBreath <= 0) { S.bOpen = true; S.bLen = Math.max(0.9, 1.7 - S.dist / 600 + CH.breath) + (S.t < S.warmT ? 0.4 : 0); S.bT = S.bLen; }
     } else {
       S.bT -= dt;
-      if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = rand(4.5, 6.5) * CH.breathGap; loseAir(); if (S.state !== "play") return; }
+      if (S.bT <= 0) { S.bOpen = false; toast("¡TRAGASTE AGUA!", "#B9F4FF"); S.nextBreath = nextBreathIn(); loseAir(); if (S.state !== "play") return; }
     }
     if (S.cheer > 0) S.cheer = Math.max(0, S.cheer - dt);
     // tips de la primera partida en el dispositivo
@@ -1554,7 +1580,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.warp > 0) {
       // portales del agujero de gusano: donde entró y donde salió
-      const k = S.warp / 0.9, rr = Math.round(4 + (1 - k) * 8), fy = yOf(S.warpFrom);
+      const k = S.warp / 1, rr = Math.round(4 + (1 - k) * 8), fy = yOf(S.warpFrom);
       const ring = (x, y, r, col) => { R(x - r, y - 1, 1, 3, col); R(x + r, y - 1, 1, 3, col); R(x - 1, y - r, 3, 1, col); R(x - 1, y + r, 3, 1, col); R(x - r + 2, y - r + 2, 1, 1, col); R(x + r - 2, y - r + 2, 1, 1, col); R(x - r + 2, y + r - 2, 1, 1, col); R(x + r - 2, y + r - 2, 1, 1, col); };
       if (fy < LH + 10) { ring(px, Math.round(fy), rr, "#B05CFF"); ring(px, Math.round(fy), Math.max(2, rr - 3), "#FF7AE0"); }
       ring(px, PY, 14 - rr, "#B05CFF"); ring(px, PY, Math.max(2, 11 - rr), "#7AF0FF");
@@ -1705,7 +1731,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (S.kick > 0) {
       ctx.fillStyle = "rgba(10,14,26,.85)"; ctx.fillRect(0, 8, W, fs * 2 + 14);
       ctx.font = fs + "px 'Press Start 2P', monospace";
-      outlined("PATADA x5 · " + Math.ceil(S.kick) + "s", W / 2, 14 + fs * 1.5, "#FFE08A");
+      outlined("PATADA x6 · " + Math.ceil(S.kick) + "s", W / 2, 14 + fs * 1.5, "#FFE08A");
     }
   }
   function quipBubbles(sc, fs) {
@@ -1906,7 +1932,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { const top = rankDocs[0] && rankDocs[0].data ? rankDocs[0].data() : null; S.groupBest = top ? Number(top.pts) || 0 : 0; S.groupBestAlias = top ? String(top.alias || "") : ""; }
     const d = sv.dist, t = sv.t;
     Object.assign(S, { pts: sv.pts, dist: d, t, lives: Math.max(1, sv.lives), air: sv.air || 3, passed: sv.passed || 0, bestStreak: sv.bestStreak || 0,
-      drowned: !!sv.drowned, drownPts: sv.drownPts || S.drownPts, turboOn: sv.pts > 30000, largo: Math.floor(d / 25) });
+      drowned: !!sv.drowned, drownPts: sv.drownPts || S.drownPts, boost: speedBoostFor(sv.pts), coachNext: (Math.floor(sv.pts / 10000) + 1) * 10000, largo: Math.floor(d / 25) });
     // lo que se programa por metros o por tiempo se corre al punto donde quedaste
     for (const k of ["nextSpawn", "nextProfe", "nextGordo", "nextFed", "nextMila", "nextCharla"]) S[k] += d;
     for (const k of ["nextCheer", "nextSponsor"]) S[k] += t;
@@ -1976,20 +2002,36 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   fx.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:50";
   document.body.appendChild(fx);
   const fxc = fx.getContext("2d");
-  let confetti = [], fxRun = false;
+  let confetti = [], fxRun = false, balloons = [];
+  // globo del HSJ que sube por la pantalla (récord personal o podio del ranking)
+  const BALLOON_IMG = new Image(); BALLOON_IMG.src = "data:image/png;base64,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";
+  function riseBalloon() {
+    if (reduceMotion) return;
+    fx.width = innerWidth; fx.height = innerHeight;
+    const sc = Math.max(3, Math.min(6, Math.round(Math.min(innerWidth * 0.5, 240) / 40)));
+    balloons.push({ x: innerWidth / 2 - 20 * sc, y: innerHeight + 10, vy: -(innerHeight + 56 * sc + 40) / 5.5, sc, t: 0 });
+    startFx();
+  }
+  function startFx() {
+    if (fxRun) return; fxRun = true; let lt = performance.now();
+    const step = (now) => {
+      const dt = Math.min(0.05, (now - lt) / 1000); lt = now;
+      fxc.clearRect(0, 0, fx.width, fx.height);
+      confetti = confetti.filter((c) => (c.life -= dt) > 0 && c.y < fx.height + 30);
+      for (const c of confetti) { c.x += c.vx * dt; c.y += c.vy * dt; c.r += c.vr * dt; fxc.save(); fxc.translate(c.x, c.y); fxc.rotate(c.r); fxc.fillStyle = c.c; fxc.fillRect(-c.s / 2, -c.s / 4, c.s, c.s / 2); fxc.restore(); }
+      balloons = balloons.filter((b) => b.y > -56 * b.sc - 20);
+      fxc.imageSmoothingEnabled = false;
+      for (const b of balloons) { b.t += dt; b.y += b.vy * dt; fxc.drawImage(BALLOON_IMG, Math.round(b.x + Math.sin(b.t * 2) * 10), Math.round(b.y), 40 * b.sc, 56 * b.sc); }
+      if (confetti.length || balloons.length) requestAnimationFrame(step); else { fxRun = false; fxc.clearRect(0, 0, fx.width, fx.height); }
+    }; requestAnimationFrame(step);
+  }
   function celebrate(big, quick) {
     Music.fanfare(big);
     if (reduceMotion) return;
     fx.width = innerWidth; fx.height = innerHeight;
     const n = big ? 220 : quick ? 50 : 90, cols = ["#FFB31A", "#FF5A4E", "#2E9ED8", "#5FCB4A", "#FFFFFF", "#FF7AD9", "#FFE14D"];
     for (let i = 0; i < n; i++) confetti.push({ x: Math.random() * fx.width, y: -20 - Math.random() * fx.height * (big ? 0.8 : 0.4), vx: (Math.random() - 0.5) * 80, vy: 90 + Math.random() * 160, s: 5 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 8, c: cols[i % cols.length], life: big ? 5 : 3 });
-    if (!fxRun) { fxRun = true; let lt = performance.now(); const step = (now) => {
-      const dt = Math.min(0.05, (now - lt) / 1000); lt = now;
-      fxc.clearRect(0, 0, fx.width, fx.height);
-      confetti = confetti.filter((c) => (c.life -= dt) > 0 && c.y < fx.height + 30);
-      for (const c of confetti) { c.x += c.vx * dt; c.y += c.vy * dt; c.r += c.vr * dt; fxc.save(); fxc.translate(c.x, c.y); fxc.rotate(c.r); fxc.fillStyle = c.c; fxc.fillRect(-c.s / 2, -c.s / 4, c.s, c.s / 2); fxc.restore(); }
-      if (confetti.length) requestAnimationFrame(step); else { fxRun = false; fxc.clearRect(0, 0, fx.width, fx.height); }
-    }; requestAnimationFrame(step); }
+    startFx();
   }
   $("btnAgain").addEventListener("click", () => Music.play());
   window.addEventListener("keydown", (e) => { if ((e.key === "m" || e.key === "M") && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) Music.toggle(); });
@@ -2079,9 +2121,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     // arenga si superó su récord; reto (a lo sumo 1 cada 10 partidas) si le fue peor que la anterior
     sinceNag++;
     if (isRecord && p > 0) cheers.push(pick(["¡GRANDE, " + getAlias().toUpperCase() + "! SUPERASTE TU RÉCORD.", "¡QUÉ NIVEL! ASÍ VAS A SUMAR PUNTOS PARA EL EQUIPO.", "¡ESE ENTRENO ESTÁ DANDO RESULTADOS!", "¡VAMOS! SE NOTA QUE VENÍS ENTRENANDO.", "¡ESO! YA ESTÁS PARA LA POSTA."]));
-    else if (prevPts > 0 && p < prevPts && sinceNag >= 10) { cheers.push(pick(["DALE CAMPEÓN, PONELE GANAS QUE ESTÁS MÁS LENTO Y ASÍ NO LLEGÁS A LA COMPETENCIA.", "MENOS MILANGA Y MÁS PATADA.", "ASÍ NO PASÁS NI A LA ABUELITA DE LA PROFE."])); sinceNag = 0; }
+    else if (prevPts > 0 && p < prevPts && sinceNag >= 10) { cheers.push(pick(["DALE CAMPEÓN, PONELE GANAS QUE ESTÁS MÁS LENTO Y ASÍ NO LLEGÁS A LA COMPETENCIA.", "MENOS MILANGA Y MÁS PATADA.", "ASÍ NO PASÁS NI A LA ABUELITA DE LA PROFE.", "NO TE MERECÉS LA MILANESA… TODAVÍA.", "ME PARECE QUE ESTÁS MÁS PARA EL RUMI QUE PARA NATACIÓN.", "MÁS MILANGA Y MENOS PATADA: ASÍ NO LLEGAMOS.", "ESTA VEZ NADÓ EL QUE NO ERA.", "VA A HABER QUE ENTRENAR UN POQUITO MÁS, CAMPEÓN.", "HOY NI EL PAN RALLADO PROBÁS.", "MÁS ENERGÍA PARA LA PRÓXIMA."])); sinceNag = 0; }
     store.set("pileta.sinceNag", String(sinceNag));
     $("overCheer").textContent = cheers.join(" "); $("overCheer").hidden = !cheers.length;
+    if ((isRecord && p > 0) || podium) riseBalloon();
     lastResult = { p, m };
     saveScore(p, m);
   }
@@ -2100,7 +2143,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   });
 
   // ---------- Ranking compartido ----------
-  let db = null, uid = null, canWrite = null, rankDocs = [];
+  let dayPenal = false;
+  let db = null, uid = null, canWrite = null, rankDocs = [], dayDocs = [];
   const rankList = $("rankList"), rankNote = $("rankNote");
   function renderRank() {
     rankList.innerHTML = "";
@@ -2113,12 +2157,28 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const who = document.createElement("span"); who.className = "who";
       who.textContent = showAlias(data.alias) + (mine ? " (vos)" : "");
       const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(data.pts) || 0);
-      li.append(pos, who, mm); rankList.appendChild(li);
+      const when = document.createElement("span"); when.className = "when"; when.textContent = data.at ? new Date(data.at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" }) : "";
+      li.append(pos, who, when, mm); rankList.appendChild(li);
     });
     if (!db) rankNote.textContent = "El ranking no está disponible ahora. Igual podés mandar tu marca al grupo con el botón del final.";
     else if (rankDocs.length === 0) rankNote.textContent = "Todavía no hay marcas. La primera partida que termines entra acá.";
     else if (canWrite === false) rankNote.textContent = "Con este acceso podés ver el ranking pero no sumar tu marca. Mandala al grupo con el botón del final.";
-    else rankNote.textContent = "Las 10 mejores partidas del grupo, aunque sean de la misma persona. Se actualiza solo.";
+    else rankNote.textContent = "Las 20 mejores partidas del grupo, aunque sean de la misma persona. Se actualiza solo.";
+  }
+  function renderDay() {
+    const arr = dayDocs.map((d) => d.data() || {}).sort((a, b) => (Number(b.pts) || 0) - (Number(a.pts) || 0));
+    dayPenal = !!uid && arr.slice(0, 10).filter((x) => x.device === uid).length >= 2;
+    const box = $("dayBox"), list = $("dayList");
+    box.hidden = arr.length < 3; list.innerHTML = "";
+    arr.slice(0, 3).forEach((x, i) => {
+      const li = document.createElement("li");
+      if (uid && x.device === uid) li.className = "me";
+      const pos = document.createElement("span"); pos.className = "pos"; pos.textContent = i + 1;
+      const who = document.createElement("span"); who.className = "who"; who.textContent = showAlias(x.alias) + (uid && x.device === uid ? " (vos)" : "");
+      const when = document.createElement("span"); when.className = "when"; when.textContent = x.at ? new Date(x.at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) : "";
+      const mm = document.createElement("span"); mm.className = "m"; mm.textContent = fmt(Number(x.pts) || 0);
+      li.append(pos, who, when, mm); list.appendChild(li);
+    });
   }
   // ---- Firebase (hosting propio) ----
   // Pegá acá la configuración de tu proyecto de Firebase (Configuración del proyecto → Tus apps → Web).
@@ -2156,9 +2216,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } catch {}
     try { initAdmin(fbApp); } catch {}
     try {
-      fs.onSnapshot(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(10)),
+      fs.onSnapshot(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(20)),
         (snap) => { rankDocs = snap.docs; renderRank(); },
         () => { rankNote.textContent = "No se pudo cargar el ranking ahora. Tu partida sigue funcionando."; });
+      // partidas de hoy: top 3 del día y (sin aviso) el freno suave para quien ya entró 2 veces al top 10 del día
+      const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+      fs.onSnapshot(fs.query(fs.collection(db, "runs"), fs.where("at", ">=", d0.toISOString()), fs.orderBy("at", "desc"), fs.limit(200)),
+        (snap) => { dayDocs = snap.docs; renderDay(); }, () => {});
     } catch { renderRank(); }
   }
   // ---- Feedback ----
@@ -2272,7 +2336,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!open || histLoaded) return;
     if (!db || !fs) { $("histNote").textContent = "No se pudo cargar ahora."; return; }
     try {
-      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(200)));
+      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(300)));
       const list = $("histList"); list.innerHTML = "";
       snap.docs.forEach((d, i) => {
         const x = d.data() || {}; const li = document.createElement("li");
@@ -2291,7 +2355,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
   async function saveScore(p, m) {
     if (!db || !uid || p <= 0) return;
-    const shownMin = rankDocs.length >= 10 ? Number((rankDocs[rankDocs.length - 1].data() || {}).pts) || 0 : 0;
+    const shownMin = rankDocs.length >= 20 ? Number((rankDocs[rankDocs.length - 1].data() || {}).pts) || 0 : 0;
     try {
       histLoaded = false; if (!$("histBox").hidden) { $("histBox").hidden = true; $("btnHist").click(); }
       // la partida se guarda junto con una marca de tiempo por dispositivo (las reglas limitan la frecuencia)
@@ -2299,7 +2363,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       b.set(fs.doc(db, "lim", uid), { t: fs.serverTimestamp() });
       b.set(fs.doc(fs.collection(db, "runs")), { alias: getAlias(), pts: p, metros: m, char: CH.id, device: uid, dur: Math.round(S.t), cause: String(S.causeKind || "otro").slice(0, 20), items: Object.assign({}, S.items || {}), at: new Date().toISOString() });
       await b.commit();
-      if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 10!";
+      if (p > shownMin) $("overExtra").textContent += " · ¡Entraste al top 20!";
     } catch (e) { renderRank(); }
   }
 
