@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-25-metricas";
+  const VERSION = "2026-10-26-arengas";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -2113,7 +2113,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (podium === 3) { drawMila("solo"); $("prizeText").textContent = "TU PREMIO: UNA PORCIÓN DE FRITAS"; cheers.push("¡TERCERO EN EL RANKING! TE LLEVÁS LAS FRITAS. ESFORZATE Y SUMÁS LA MILANGA."); if (!(isRecord && p > 0)) celebrate(false); }
     // arenga si superó su récord; reto (a lo sumo 1 cada 10 partidas) si le fue peor que la anterior
     sinceNag++;
-    if (isRecord && p > 0) cheers.push(pick(["¡GRANDE, " + getAlias().toUpperCase() + "! SUPERASTE TU RÉCORD.", "¡QUÉ NIVEL! ASÍ VAS A SUMAR PUNTOS PARA EL EQUIPO.", "¡ESE ENTRENO ESTÁ DANDO RESULTADOS!", "¡VAMOS! SE NOTA QUE VENÍS ENTRENANDO.", "¡ESO! YA ESTÁS PARA LA POSTA."]));
+    if (isRecord && p > 0) cheers.push(pick(["¡GRANDE, " + getAlias().toUpperCase() + "! SUPERASTE TU RÉCORD.", "¿NO SERÁS AMIGO DEL CHIQUI TAPIA?", "¡ASÍ ESTÁS PARA AGUAS ABIERTAS!", "¡DALE, QUE SE VIENE EL NACIONAL!", "¡ESTÁN PIDIENDO ANTIDOPING!", "¡ESE ENTRENO ESTÁ DANDO RESULTADOS!", "¡VAMOS! SE NOTA QUE VENÍS ENTRENANDO.", "¡ESO! YA ESTÁS PARA LA POSTA."]));
     else if (prevPts > 0 && p < prevPts && sinceNag >= 10) { cheers.push(pick(["DALE CAMPEÓN, PONELE GANAS QUE ESTÁS MÁS LENTO Y ASÍ NO LLEGÁS A LA COMPETENCIA.", "MENOS MILANGA Y MÁS PATADA.", "ASÍ NO PASÁS NI A LA ABUELITA DE LA PROFE.", "NO TE MERECÉS LA MILANESA… TODAVÍA.", "ME PARECE QUE ESTÁS MÁS PARA EL RUMI QUE PARA NATACIÓN.", "MÁS MILANGA Y MENOS PATADA: ASÍ NO LLEGAMOS.", "ESTA VEZ NADÓ EL QUE NO ERA.", "VA A HABER QUE ENTRENAR UN POQUITO MÁS, CAMPEÓN.", "HOY NI EL PAN RALLADO PROBÁS.", "MÁS ENERGÍA PARA LA PRÓXIMA."])); sinceNag = 0; }
     store.set("pileta.sinceNag", String(sinceNag));
     $("overCheer").textContent = cheers.join(" "); $("overCheer").hidden = !cheers.length;
