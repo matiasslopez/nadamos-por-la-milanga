@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-29-pablito-luchito";
+  const VERSION = "2026-10-29-dorada";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -484,6 +484,28 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     R(x - 3, y - 4, 1, 1, C.out); R(x + 2, y - 4, 1, 1, C.out);
     R(x - 2, y, 4, 1, C.greenD);
   }
+  // Milanesa dorada: dorada, con alas y aureola (se distingue de la milanga común)
+  function goldItem(x, y, t) {
+    const fl = Math.round(Math.sin(t * 8)), cx = Math.round(x) - 15, cy = Math.round(y) - 13;
+    const P = (a, b, w, h, c) => R(cx + a, cy + b, w, h, c);
+    const O = C.out, G = "#FFD23F", GH = "#FFF6B0", GD = "#C58A10";
+    const tw = Math.floor(t * 6) % 3;
+    if (!reduceMotion) { P(3 + tw * 9, 1, 1, 3, "#fff"); P(2 + tw * 9, 2, 3, 1, "#fff"); }
+    P(9, 2, 12, 1, GH); P(8, 3, 1, 1, GH); P(21, 3, 1, 1, GH); P(9, 4, 12, 1, GH); // aureola
+    for (const sx of [0, 1]) { // alas
+      const wx = sx ? 21 : 1, ww = sx ? 8 : 8;
+      P(wx - 1, 9 + fl, ww + 2, 9, O); P(wx, 10 + fl, ww, 3, "#fff"); P(wx + (sx ? 0 : 1), 13 + fl, ww - 1, 3, "#fff"); P(wx + (sx ? 0 : 3), 16 + fl, ww - 3, 2, "#DDFFFF");
+    }
+    P(8, 7, 14, 14, O); P(9, 6, 12, 1, O); P(9, 20, 12, 1, O);
+    P(9, 8, 12, 11, G); P(10, 7, 10, 1, G); P(10, 19, 10, 1, G);
+    P(11, 9, 4, 2, GH); P(18, 13, 2, 1, GD); P(13, 15, 2, 1, GD); P(11, 13, 1, 1, GD); P(17, 10, 1, 1, GD);
+    P(20, 6, 3, 3, "#F2E36B"); P(21, 7, 1, 1, "#fff");
+  }
+  const DTEST = /[?&]dorada\b/.test(location.search); // prueba: sale seguido y no guarda la partida
+  const GOLD_RANGES = DTEST ? [[800, 1200], [1800, 2200], [2800, 3200]] : [[25000, 30000], [45000, 50000], [80000, 85000]];
+  const GOLD_LIVE = false; // en true sale para todos; en false solo con ?dorada
+  const goldPoints = () => GOLD_RANGES.map(([a, b]) => (DTEST || GOLD_LIVE) ? Math.round(rand(a, b)) : Infinity);
+  const GOLD_SECS = [5, 5, 4];
   function milaItem(x, y, t) {
     x = Math.round(x); y = Math.round(y);
     if (Math.floor(t * 5) % 2) R(x - 9, y - 7, 18, 14, "rgba(255,240,160,0.3)");
@@ -818,7 +840,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function freshState() {
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
-      nextSpawn: 9, items: {}, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, boost: 0, coachNext: 20000, coachList: [], milaLess: false, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      nextSpawn: 9, items: {}, gold: 0, goldA: 0, goldStage: 0, goldAt: goldPoints(), goldN: 0, goldP0: 0, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, boost: 0, coachNext: 20000, coachList: [], milaLess: false, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 3), sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
@@ -976,6 +998,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (o.kind === "mariposa") { setStyle("mariposa", 7); setFace("happy", 1); toast("¡MARIPOSA! x3", "#FF9FE4"); return; }
     if (o.kind === "rana") {
       setStyle("pecho", 5); toast("TE CONTAGIASTE EL PECHO", "#8CF08C"); return;
+    }
+    if (o.kind === "dorada") {
+      S.gold = GOLD_SECS[Math.min(2, S.goldStage - 1)] || 5; S.goldN = 0; S.goldP0 = S.pts; S.inv = Math.max(S.inv, 0.3);
+      if (S.bOpen) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
+      countItem("dorada"); setFace("happy", 1.2); toast("¡MILANESA DORADA! INTOCABLE", "#FFE14D");
+      try { Music.fanfare(false); } catch (e) {}
+      return;
     }
     if (o.kind === "milanga") {
       setFace("happy", 1);
@@ -1173,9 +1202,21 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.nextCharlaPts = S.pts + rand(7000, 8000);
       addObs("charla", Math.floor(Math.random() * 3), S.dist + 14);
     }
+    if (S.goldStage < 3 && S.gold <= 0 && S.pts >= S.goldAt[S.goldStage] && S.rainT <= 0 && !S.obs.some((o) => o.kind === "dorada" && !o.hit)) {
+      S.goldStage++; countItem("dorada_v");
+      addObs("dorada", Math.floor(Math.random() * 3), S.dist + 14);
+    }
+    if (S.gold > 0) {
+      S.gold -= dt;
+      if (S.gold <= 0) {
+        S.gold = 0; countItem("dorada_pts"); S.items.dorada_pts += Math.max(0, Math.round(S.pts - S.goldP0)) - 1;
+        toast("SE ACABÓ LA DORADA +" + S.goldN * 50, "#FFE14D"); S.nextBreath = Math.max(S.nextBreath, 2);
+      }
+    }
+    S.goldA += ((S.gold > 0.8 ? 1 : S.gold > 0 ? S.gold / 0.8 : 0) - S.goldA) * Math.min(1, dt / 0.35);
     if (CH.cramps) {
       if (S.cramp > 0) { S.cramp = Math.max(0, S.cramp - dt); if (S.cramp === 0) toast("¡YA ESTÁ, SIGO!", "#B9F4FF"); }
-      else if (S.t >= S.nextCramp && S.dash <= 0) {
+      else if (S.t >= S.nextCramp && S.dash <= 0 && S.gold <= 0) {
         S.cramp = 2.5; S.nextCramp = S.t + rand(55, 85); setFace("hurt", 2.5);
         toast("¡CALAMBRE!", "#FF9F6B"); say(pick(["¡AY, LA GEMELA!", "¡CALAMBRE, CALAMBRE!", "¡ESPERÁ QUE ESTIRO!"]), "#FFB4A8");
       }
@@ -1187,7 +1228,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (S.drown > 0) {
         S.drown -= dt;
         if (S.drown <= 0) { S.drown = 0; S.inv = Math.max(S.inv, 1); toast("¡ZAFÓ! SIGUE NADANDO", "#B9F4FF"); }
-      } else if ((S.drowned ? S.t >= S.nextDrown : S.pts >= S.drownPts) && S.boat <= 0) {
+      } else if ((S.drowned ? S.t >= S.nextDrown : S.pts >= S.drownPts) && S.boat <= 0 && S.gold <= 0) {
         S.drowned = true; S.nextDrown = S.t + rand(90, 130); S.drown = 1.5; setFace("gulp", 1.5); S.shake = reduceMotion ? 0 : 0.2;
         toast("¡GLUB GLUB! ¡SE AHOGA!", "#FF9F6B"); say(pick(["¡ME AHOGO, AYUDA, GUARDAVIDAS!", "¡ME AHOGO, ME AHOGO!", "¡SOCORRO, GUARDAVIDAS!"]), "#FFB4A8");
       }
@@ -1270,6 +1311,10 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
     for (const o of S.obs) {
       if (o.hit || o.kind === "charla" || (S.rainT > 0 && S.rainT <= 4.5)) continue;
+      if (!o.pick && S.gold > 0) {
+        if (!o.gd && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 8) { o.gd = true; S.goldN++; S.pts += 50; }
+        continue;
+      }
       if (!o.pick) {
         if (S.jump > 0) continue;
         if (S.boat > 0 && Math.abs(o.m - S.dist) < o.hl + 1.2 && Math.abs(S.x - o.x) < o.hw + 8) {
@@ -1287,7 +1332,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       if (hit) { o.hit = true; hitObstacle(o); if (S.state !== "play") return; }
     }
 
-    if (S.rainT > 0 && S.rainT <= 4.5) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
+    if ((S.rainT > 0 && S.rainT <= 4.5) || S.gold > 0) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
     else if (!S.bOpen) {
       S.nextBreath -= dt;
       if (S.nextBreath <= 0 && S.tips && !S.breathTipped) { S.breathTipped = true; toast("¡SE ILUMINÓ! TOCÁ RESPIRAR", "#8FE3FF"); }
@@ -1405,11 +1450,6 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     // líneas del fondo
     for (let l = 0; l < 3; l++) R(laneC(l) - 2, 0, 4, LH, C.line);
-    // escudo de Milanga Natación pintado en el fondo, cada tanto
-    for (let k = Math.max(0, Math.floor((S.dist - 20) / 60)); k <= Math.ceil((S.dist + 20) / 60); k++) {
-      const yc = yOf(k * 60 + 34);
-      if (yc > -20 && yc < LH + 20) crest(POOL_L + LANE_W * 1.5, yc);
-    }
     const mTop = S.dist + PY / PPM + 1, mBot = S.dist - (LH - PY) / PPM - 1;
     // decorado de la banquina
     for (let k = Math.floor(mBot / 3); k <= Math.ceil(mTop / 3); k++) {
@@ -1498,6 +1538,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     else if (o.kind === "snorkel") snorkelItem(o.x, y + Math.round(Math.sin(tt * 4)));
     else if (o.kind === "manoplas") paddles(o.x, y + Math.round(Math.sin(tt * 4)));
     else if (o.kind === "milanga") milaItem(o.x, y + Math.round(Math.sin(tt * 3)), tt);
+    else if (o.kind === "dorada") goldItem(o.x, y + Math.round(Math.sin(tt * 3)), tt);
     else if (o.kind === "gorra") (CH.id === "pablito" ? potItem : capItem)(o.x, y + Math.round(Math.sin(tt * 4)));
   }
 
@@ -1688,6 +1729,20 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     const fs = Math.max(8, Math.round(W / 40));
     const fm = Math.max(10, Math.round(fs * 1.25)); // mensajes un poco más grandes
     ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    if (S.goldA > 0.01) {
+      const a = S.goldA, x0 = POOL_L * sc, ww = (POOL_R - POOL_L) * sc;
+      ctx.fillStyle = "rgba(255,196,40," + (0.26 * a).toFixed(3) + ")"; ctx.fillRect(x0, 0, ww, H);
+      if (!reduceMotion) {
+        ctx.fillStyle = "rgba(255,250,200," + (0.5 * a).toFixed(3) + ")";
+        for (let k = 0; k < 14; k++) {
+          const sx = x0 + ((k * 37 + 11) % 100) / 100 * ww, sy = ((k * 53 + S.t * 90 * (0.6 + (k % 3) * 0.3)) % (H + 20)) - 10, z = Math.max(2, Math.round(sc * (k % 2 ? 1 : 1.5)));
+          if (Math.floor(S.t * 5 + k) % 3) { ctx.fillRect(sx, sy - z, z, z * 3); ctx.fillRect(sx - z, sy, z * 3, z); }
+        }
+        const pr = Math.round(S.x) * sc, py = PY * sc, rad = sc * (16 + Math.sin(S.t * 6) * 1.5);
+        const gr = ctx.createRadialGradient(pr, py, 2, pr, py, rad); gr.addColorStop(0, "rgba(255,240,150," + (0.55 * a).toFixed(3) + ")"); gr.addColorStop(1, "rgba(255,240,150,0)");
+        ctx.fillStyle = gr; ctx.fillRect(pr - rad, py - rad, rad * 2, rad * 2);
+      }
+    }
     if (S.state === "play" && S.bOpen) {
       ctx.font = fs + "px 'Press Start 2P', monospace";
       outlined("¡RESPIRÁ!", px * sc, (PY - 23) * sc, "#8FE3FF");
@@ -1943,6 +1998,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     for (const k of ["nextCheer", "nextSponsor"]) S[k] += t;
     S.nextDrown = t + rand(40, 80);
     S.saveReadyAt = sv.pts + SAVE_EVERY;
+    while (S.goldStage < 3 && S.goldAt[S.goldStage] <= sv.pts) S.goldStage++;
     S.inv = 2; S.state = "play";
     $("ovStart").hidden = true; $("ovOver").hidden = true; $("ovPause").hidden = true; $("resumeBox").hidden = true; resize();
     last = performance.now();
@@ -2367,7 +2423,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   });
 
   async function saveScore(p, m) {
-    if (!db || !uid || p <= 0) return;
+    if (!db || !uid || p <= 0 || DTEST) return;
     const shownMin = rankDocs.length >= 20 ? Number((rankDocs[rankDocs.length - 1].data() || {}).pts) || 0 : 0;
     try {
       histLoaded = false; if (!$("histBox").hidden) { $("histBox").hidden = true; $("btnHist").click(); }
