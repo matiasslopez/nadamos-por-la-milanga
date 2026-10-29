@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-29-dorada";
+  const VERSION = "2026-10-29-dorada2";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -503,7 +503,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   }
   const DTEST = /[?&]dorada\b/.test(location.search); // prueba: sale seguido y no guarda la partida
   const GOLD_RANGES = DTEST ? [[800, 1200], [1800, 2200], [2800, 3200]] : [[25000, 30000], [45000, 50000], [80000, 85000]];
-  const GOLD_LIVE = false; // en true sale para todos; en false solo con ?dorada
+  const GOLD_LIVE = true; // en true sale para todos; en false solo con ?dorada
   const goldPoints = () => GOLD_RANGES.map(([a, b]) => (DTEST || GOLD_LIVE) ? Math.round(rand(a, b)) : Infinity);
   const GOLD_SECS = [5, 5, 4];
   function milaItem(x, y, t) {
@@ -1002,7 +1002,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (o.kind === "dorada") {
       S.gold = GOLD_SECS[Math.min(2, S.goldStage - 1)] || 5; S.goldN = 0; S.goldP0 = S.pts; S.inv = Math.max(S.inv, 0.3);
       if (S.bOpen) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
-      countItem("dorada"); setFace("happy", 1.2); toast("¡MILANESA DORADA! INTOCABLE", "#FFE14D");
+      S.air = 3; if (S.lives < 3) S.lives++; else S.pts += 500; S.goldP0 = S.pts;
+      countItem("dorada"); setFace("happy", 1.2); toast("¡MILANESA DORADA! INTOCABLE Y PUNTOS x2", "#FFE14D");
       try { Music.fanfare(false); } catch (e) {}
       return;
     }
@@ -1209,8 +1210,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.gold > 0) {
       S.gold -= dt;
       if (S.gold <= 0) {
-        S.gold = 0; countItem("dorada_pts"); S.items.dorada_pts += Math.max(0, Math.round(S.pts - S.goldP0)) - 1;
-        toast("SE ACABÓ LA DORADA +" + S.goldN * 50, "#FFE14D"); S.nextBreath = Math.max(S.nextBreath, 2);
+        S.gold = 0; countItem("dorada_pts"); const gp = Math.max(0, Math.round(S.pts - S.goldP0)); S.items.dorada_pts += gp - 1;
+        toast("SE ACABÓ LA DORADA +" + fmt(gp), "#FFE14D"); S.nextBreath = Math.max(S.nextBreath, 2);
       }
     }
     S.goldA += ((S.gold > 0.8 ? 1 : S.gold > 0 ? S.gold / 0.8 : 0) - S.goldA) * Math.min(1, dt / 0.35);
@@ -1245,7 +1246,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
     if (S.cd > 0) S.cd = Math.max(0, S.cd - dt * rechargeK());
     S.dist += speed * dt;
-    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 6 : 1) * (CH.lazy && S.back ? 1 / 0.7 : 1) * (S.chute > 0 ? 1 / 0.6 : 1); // el paracaídas y la plancha de Mati va más lenta pero suma igual
+    S.pts += speed / (S.slowmo > 0 ? 0.5 : 1) * (CH.calm ? progRaw / prog : 1) * st.mult * dt * 10 * (S.kick > 0 ? 6 : 1) * (CH.lazy && S.back ? 1 / 0.7 : 1) * (S.chute > 0 ? 1 / 0.6 : 1) * (S.gold > 0 ? 2 : 1); // el paracaídas y la plancha de Mati va más lenta pero suma igual
     S.stroke += dt * st.anim * (S.kick > 0 ? 1.6 : 1) * (chatting ? 0.3 : 1);
     if (chatting) { S.chat -= dt; if (S.chat <= 0) { S.chat = 0; say("¡ME VOY, ME VOY!", "#FFE08A"); } }
     if (CH.id === "pablito") { S.nextPablo = (S.nextPablo || rand(10, 16)) - dt; if (S.nextPablo <= 0) { S.nextPablo = rand(16, 26); say("¡HACÉ LO QUE QUIERAS VOS, PABLO!", "#FFE08A"); } }
