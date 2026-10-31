@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-31-facu2";
+  const VERSION = "2026-10-31-facu3";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -630,7 +630,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "luis", name: "LUIS", tag: "Nadador rápido, pero necesita quejarse para ir más rápido", breathGap: 1.2, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
       cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.08, fade: true, breath: 0.15, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
-    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.15, perk: "TE COMO: le come los pies y vuela a todos los que tenga adelante en su carril.", special: "TE COMO", cd: 3, laneK: 7,
+    { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.15, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante en su carril, aunque esté lejos.", special: "TE COMO", cd: 3, laneK: 7,
       cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1.09, breath: 0, passMult: 1, lunges: true,
       face: { skin: "#EDBB95", shade: "#D49B74", shade2: "#BC845E", top: "cap", capC: "#1A1A1E", capC2: "#0A0A0C", capHi: "#4A4D58", beard: "light", beardC: "#B89A80", beardC2: "#A08268", brow: "#3A2A1E", iris: "#4F7A4A", goggles: true, mouth: "smirk" } },
     { id: "mati", name: "MATI", tag: "Nada un poco pachorra", breathGap: 1, perk: "SUMERGIR: se hunde y pasa por abajo de lo que venga. Arranca a full, pero cada tanto se tira de espalda a hacer la plancha.", special: "SUMERGIR", cd: 4,
@@ -1095,18 +1095,19 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       else toast("¡AYAHUASCA!", "#E0B0FF");
       say(pick(["¿DÓNDE ESTOY?", "VEO COLORES", "VOLVÍ DEL MÁS ALLÁ", "ESTOY EN OTRO PLANO"]), "#E0B0FF");
     } else {
-      // se come a todos los nadadores que tenga adelante en su carril, hasta donde se ve la pileta
+      // se come al primero que tenga adelante en su carril, aunque esté lejos (hasta donde se ve la pileta)
       const reach = PY / PPM + 1;
-      const targets = S.obs.filter((o) => !o.hit && EATABLE[o.kind] && inReach(o, o.m - S.dist, reach) && Math.abs(o.x - S.x) < 16);
-      if (!targets.length) { S.cd = 1; toast("NO HAY PIES PARA COMER", "#C9D4FF"); return; }
-      let b = 0;
-      for (const target of targets) {
-        target.hit = true; target.eaten = 0.6; target.shove = (target.x < LW / 2 ? -1 : 1) * 110;
-        if (target.kind === "charla") target.hooked = true;
-        b += 150 * EATABLE[target.kind] * STY[S.style].mult;
+      let target = null;
+      for (const o of S.obs) {
+        if (o.hit || !EATABLE[o.kind]) continue;
+        if (inReach(o, o.m - S.dist, reach) && Math.abs(o.x - S.x) < 16 && closer(o, target)) target = o;
       }
+      if (!target) { S.cd = 1; toast("NO HAY PIES PARA COMER", "#C9D4FF"); return; }
+      target.hit = true; target.eaten = 0.6; target.shove = (target.x < LW / 2 ? -1 : 1) * 110;
+      if (target.kind === "charla") target.hooked = true;
+      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = CH.cd; setFace("happy", 1);
-      toast((targets.length > 1 ? "¡TE COMO x" + targets.length + "! +" : "¡TE COMO! +") + b, "#FFE08A");
+      toast("¡TE COMO! +" + b, "#FFE08A");
     }
   }
   function breathe() {
