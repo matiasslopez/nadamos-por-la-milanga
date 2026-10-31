@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-10-29-dorada2";
+  const VERSION = "2026-10-30-rapidos";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -505,7 +505,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const GOLD_RANGES = DTEST ? [[800, 1200], [1800, 2200], [2800, 3200]] : [[25000, 30000], [45000, 50000], [80000, 85000]];
   const GOLD_LIVE = true; // en true sale para todos; en false solo con ?dorada
   const goldPoints = () => GOLD_RANGES.map(([a, b]) => (DTEST || GOLD_LIVE) ? Math.round(rand(a, b)) : Infinity);
-  const GOLD_SECS = [5, 5, 4];
+  const GOLD_SECS = [6, 6, 5];
   function milaItem(x, y, t) {
     x = Math.round(x); y = Math.round(y);
     if (Math.floor(t * 5) % 2) R(x - 9, y - 7, 18, 14, "rgba(255,240,160,0.3)");
@@ -628,7 +628,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       cap: "#F0BE98", capHi: "#FFFFFF", suit: "#1F3F8F", speed: 1, breath: 0.35, passMult: 1,
       face: { skin: "#F0BE98", shade: "#D99A72", shade2: "#C4825E", top: "bald", beard: "candado", beardC: "#9C8E80", beardC2: "#7E7064", brow: "#5E4A3C", iris: "#4A6E96", goggles: true, mouth: "half" } },
     { id: "luis", name: "LUIS", tag: "Nadador rápido, pero necesita quejarse para ir más rápido", breathGap: 1.2, perk: "SALTAR: pasa por encima de lo que tenga adelante.", special: "SALTAR", cd: 4,
-      cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.08, breath: -0.1, passMult: 1, complains: true, slowStart: true,
+      cap: "#4A5FD0", capHi: "#93A3FF", suit: "#D4A017", speed: 1.08, fade: true, breath: 0.15, passMult: 1, complains: true, slowStart: true,
       face: { skin: "#E6B08A", shade: "#CC9068", shade2: "#B67A55", top: "cap", capC: "#4A5FD0", capC2: "#3546A8", capHi: "#8394F5", beard: "stubble", beardC: "#6E5A4C", beardC2: "#5A4638", brow: "#3A2A20", iris: "#4A2E1C", goggles: false, mouth: "grin" } },
     { id: "facu", name: "FACU", tag: "Guarda que te como", breathGap: 1.15, perk: "TE COMO: le come los pies y lo vuela al que tenga adelante.", special: "TE COMO", cd: 5, laneK: 7,
       cap: "#1A1A1E", capHi: "#4A4D58", suit: "#1A1A1A", speed: 1.06, breath: 0, passMult: 1, lunges: true,
@@ -649,7 +649,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
     { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.25, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 4.5, cramps: true,
-      cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.08, breath: 0.05, passMult: 1, slim: true,
+      cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.08, fade: true, breath: 0.3, passMult: 1, slim: true,
       face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } },
     { id: "fer", name: "FER", tag: "Nadador con experiencia: lee la pileta como nadie", breathGap: 0.8, perk: "BULLET TIME: por unos segundos la pileta va en cámara lenta. Además, lee la pileta con sabiduría.", special: "BULLET TIME", cd: 8, calm: true,
       cap: "#E6B48C", capHi: "#FFF1E0", suit: "#2B4C7E", speed: 0.9, breath: 0.3, passMult: 1,
@@ -840,7 +840,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   function freshState() {
     return {
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
-      nextSpawn: 9, items: {}, gold: 0, goldA: 0, goldStage: 0, goldAt: goldPoints(), goldN: 0, goldP0: 0, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, boost: 0, coachNext: 20000, coachList: [], milaLess: false, says: [], bOpen: false, bT: 0, bLen: 1.6,
+      nextSpawn: 9, items: {}, gold: 0, goldA: 0, lastRainPts: -1e9, goldEndPts: -1e9, goldStage: 0, goldAt: goldPoints(), goldN: 0, goldP0: 0, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, boost: 0, coachNext: 20000, coachList: [], milaLess: false, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 3), sponsorSide: 0,
       shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
@@ -1000,7 +1000,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       setStyle("pecho", 5); toast("TE CONTAGIASTE EL PECHO", "#8CF08C"); return;
     }
     if (o.kind === "dorada") {
-      S.gold = GOLD_SECS[Math.min(2, S.goldStage - 1)] || 5; S.goldN = 0; S.goldP0 = S.pts; S.inv = Math.max(S.inv, 0.3);
+      S.gold = GOLD_SECS[Math.min(2, S.goldStage - 1)] || 6; S.goldN = 0; S.goldP0 = S.pts; S.inv = Math.max(S.inv, 0.3);
       if (S.bOpen) { S.bOpen = false; S.nextBreath = Math.max(S.nextBreath, 2); }
       S.air = 3; if (S.lives < 3) S.lives++; else S.pts += 500; S.goldP0 = S.pts;
       countItem("dorada"); setFace("happy", 1.2); toast("¡MILANESA DORADA! INTOCABLE Y PUNTOS x2", "#FFE14D");
@@ -1054,7 +1054,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (CH.id === "mati") {
       S.dive = 2.1; S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
     } else if (CH.id === "luis") {
-      S.jump = 2.2; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
+      S.jump = 2.6; S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
     } else if (CH.id === "andre") {
       let target = null;
       for (const o of S.obs) {
@@ -1073,7 +1073,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (CH.id === "fer") {
       S.slowmo = 4; S.cd = CH.cd; toast("BULLET TIME", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
     } else if (CH.id === "luchito") {
-      S.dash = 1.6; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
+      S.dash = 2.0; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
     } else if (CH.id === "felix") {
       S.permiso = 2.6; S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
       clearWay();
@@ -1136,6 +1136,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const rechargeK = () => 1 + (S.pts >= 50000 ? 0.2 : 0) + (S.pts >= 70000 ? 0.1 : 0) + (S.pts >= 80000 ? 0.1 : 0);
   const COACH = ["¡VAMOS, QUE ESA PATADA TIENE QUE ARDER!", "¡ESTIRATE BIEN EN LA BRAZADA!", "¡ESO, ACELERANDO!", "¡NO SOLTÉS EL RITMO, CAMPEÓN!", "¡MÁS LARGA LA BRAZADA, QUE SE ACABA LA PILETA!", "¡ESA ES LA ENERGÍA QUE QUERÍA VER!", "¡ESTÁS NADANDO MUY BIEN!", "¡A ESTE RITMO SE TE ACABA EL CARRIL!", "¡CABEZA ABAJO Y A DARLE!", "¡DALE, DALE, MÁS FUERTE!", "¡VENÍS BIEN!", "¡LA ESTÁS ROMPIENDO!"];
   // 30% menos milanesas si ya entraste 2 veces al top 10 del día (sin aviso)
+  // Luis y Luchito: la ventaja de velocidad se va apagando entre 20.000 y 50.000 puntos (queda en +2,5%)
+  const chSpeed = () => { if (!CH.fade) return CH.speed; const k = Math.min(1, Math.max(0, (S.pts - 20000) / 30000)); return 1 + (CH.speed - 1) * (1 - k) + 0.025 * k; };
   const milaK = () => dayPenal ? 1 / 0.7 : 1;
   function update(dt) {
     if (S.state !== "play") return;
@@ -1159,7 +1161,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
       if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
     }
-    const speed = st.v * prog * slow * CH.speed * (S.slowmo > 0 ? 0.5 : 1) * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.rainT > 0 && S.rainT <= 4.5 ? 0 : S.rainT > 0 ? 0.6 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.chute > 0 ? 0.6 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
+    const speed = st.v * prog * slow * chSpeed() * (S.slowmo > 0 ? 0.5 : 1) * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.rainT > 0 && S.rainT <= 4.5 ? 0 : S.rainT > 0 ? 0.6 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.chute > 0 ? 0.6 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.15) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
     if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
     if (S.pads > 0) { S.pads -= dt; if (S.pads <= 0) S.pads = 0; }
     if (S.chute > 0) { S.chute -= dt; if (S.chute <= 0) { S.chute = 0; toast("CHAU PARACAÍDAS", "#FFD9D0"); } }
@@ -1171,8 +1173,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.dash > 0) S.dash = Math.max(0, S.dash - dt);
     if (S.slowmo > 0) S.slowmo = Math.max(0, S.slowmo - dt);
     // Modo lluvia: muy de vez en cuando hay que salir de la pileta unos segundos
-    if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0 && S.cheer <= 0) {
-      S.rainT = 6.5; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2; S.cheer = 0;
+    if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.gold <= 0 && S.pts - S.goldEndPts > 2500 && !S.obs.some((o) => o.kind === "dorada" && !o.hit) && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0 && S.cheer <= 0) {
+      S.rainT = 6.5; S.lastRainPts = S.pts; S.nextRainPts = S.pts + rand(14000, 16000); S.nextFlash = 0.2; S.cheer = 0;
       // compañeros que esperan al costado y frases que no se repitan entre lluvias
       const others = PICKABLE.filter((c) => c.id !== CH.id).sort(() => Math.random() - 0.5);
       S.rainCrew = others.slice(0, 3);
@@ -1203,14 +1205,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.nextCharlaPts = S.pts + rand(7000, 8000);
       addObs("charla", Math.floor(Math.random() * 3), S.dist + 14);
     }
-    if (S.goldStage < 3 && S.gold <= 0 && S.pts >= S.goldAt[S.goldStage] && S.rainT <= 0 && !S.obs.some((o) => o.kind === "dorada" && !o.hit)) {
+    if (S.goldStage < 3 && S.gold <= 0 && S.pts >= S.goldAt[S.goldStage] && S.rainT <= 0 && S.nextRainPts - S.pts > 2500 && S.pts - S.lastRainPts > 2500 && !S.obs.some((o) => o.kind === "dorada" && !o.hit)) {
       S.goldStage++; countItem("dorada_v");
       addObs("dorada", Math.floor(Math.random() * 3), S.dist + 14);
     }
     if (S.gold > 0) {
       S.gold -= dt;
       if (S.gold <= 0) {
-        S.gold = 0; countItem("dorada_pts"); const gp = Math.max(0, Math.round(S.pts - S.goldP0)); S.items.dorada_pts += gp - 1;
+        S.gold = 0; S.goldEndPts = S.pts; countItem("dorada_pts"); const gp = Math.max(0, Math.round(S.pts - S.goldP0)); S.items.dorada_pts += gp - 1;
         toast("SE ACABÓ LA DORADA +" + fmt(gp), "#FFE14D"); S.nextBreath = Math.max(S.nextBreath, 2);
       }
     }
@@ -1239,7 +1241,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.lazyT -= dt;
       if (S.lazyT <= 0) {
         S.back = !S.back;
-        S.lazyT = S.back ? rand(4.8, 5.2) : rand(5, 8);
+        S.lazyT = S.back ? rand(5.8, 6.2) : rand(5, 8);
         if (S.back) say(pick(["PLANCHITA UN RATO", "TRANQUI, HAY TIEMPO", "¿PARA QUÉ CORRER?"]), "#FFF0A8");
         else toast("¡ARRANCA A FULL!", "#FFE08A");
       }
