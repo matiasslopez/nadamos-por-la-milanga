@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-11-03-pablito";
+  const VERSION = "2026-11-03-luchito";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -648,7 +648,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     { id: "felix", hidden: true, name: "FÉLIX", tag: "El gentleman de la natación", breathGap: 1.15, perk: "PERMISO: pide permiso y todos se corren.", special: "PERMISO", cd: 5,
       cap: "#4A4A4E", capHi: "#6E6E74", suit: "#C62828", speed: 1.04, breath: 0.1, passMult: 1, athletic: true,
       face: { skin: "#E2AC84", shade: "#C8916A", shade2: "#B07A54", top: "hair", hairC: "#4A4A4E", hairC2: "#6E6E74", beard: "none", beardC: "#000", beardC2: "#000", brow: "#3A3A3E", iris: "#3E5A3A", goggles: true, mouth: "grin" } },
-    { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.25, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 4.5, cramps: true,
+    { id: "luchito", name: "LUCHITO", tag: "Nadador rápido, aunque los calambres lo tienen a maltraer", breathGap: 1.25, perk: "ACELERADA: sale disparado como un rayito unos metros y atraviesa lo que tenga adelante.", special: "ACELERADA", cd: 4, cramps: true,
       cap: "#1A1410", capHi: "#4A3A30", suit: "#18A558", speed: 1.08, fade: true, breath: 0.3, passMult: 1, slim: true,
       face: { slim: true, skin: "#EEC09A", shade: "#D6A07A", shade2: "#BE8862", top: "hair", hairC: "#1A1410", hairC2: "#3A2E26", beard: "none", beardC: "#000", beardC2: "#000", brow: "#1A1410", iris: "#5A3A22", goggles: true, mouth: "grin" } },
     { id: "fer", name: "FER", tag: "Nadador con experiencia: lee la pileta como nadie", breathGap: 0.8, perk: "BULLET TIME: por unos segundos la pileta va en cámara lenta. Además, lee la pileta con sabiduría.", special: "BULLET TIME", cd: 8, calm: true,
@@ -842,7 +842,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       state: "menu", dist: 0, pts: 0, lives: 3, air: 3, lane: 1, x: laneC(1), obs: [], toasts: [],
       nextSpawn: 9, items: {}, gold: 0, goldA: 0, lastRainPts: -1e9, goldEndPts: -1e9, goldStage: 0, goldAt: goldPoints(), goldN: 0, goldP0: 0, chute: 0, nextChute: rand(220, 320), snork: 0, nextSnork: rand(108, 169), warmT: 15, tips: false, tipStep: 0, lastCorchera: -99, nextBreath: 4.5, boost: 0, coachNext: 20000, coachList: [], milaLess: false, says: [], bOpen: false, bT: 0, bLen: 1.6,
       streak: 0, bestStreak: 0, inv: 0, shield: false, profe: 0, kick: 0, nextProfe: rand(150, 200), nextCheer: rand(20, 30), cheer: 0, nextSponsor: rand(12, 20), sponsorM: -999, sponsorIdx: Math.floor(Math.random() * 3), sponsorSide: 0,
-      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(30, 50), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
+      shake: 0, t: 0, largo: 0, stroke: 0, style: "crol", styleT: 0, styleMax: 1, face: 0, passed: 0, nextGordo: rand(70, 110), nextFed: rand(60, 90), nextMila: rand(35, 55), nextCharla: rand(45, 80), chat: 0, chatLine: "", nextComplain: rand(5, 9), fins: 0, pads: 0, restart: 0, lunge: 0, lungeCd: 3, jump: 0, dive: 0, boat: 0, permiso: 0, dash: 0, slowmo: 0, nextCharlaPts: rand(7000, 8000), nextCharlitaPts: rand(5000, 7000), nextRainPts: rand(14000, 16000), rainT: 0, flash: 0, nextFlash: 0, cramp: 0, nextCramp: rand(18, 30), nextDrown: 0, drownPts: rand(3500, 6000), drowned: false, drown: 0, warp: 0, warpFrom: 0, puff: 0, lazyT: rand(5, 7), back: false, walk: 0, walkSide: 1, cd: 0, saveReadyAt: 0
     };
   }
   S = freshState();
@@ -1073,7 +1073,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (CH.id === "fer") {
       S.slowmo = 4; S.cd = CH.cd; toast("BULLET TIME", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
     } else if (CH.id === "luchito") {
-      S.dash = 2.0; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
+      S.dash = 2.0; S.dashN = 0; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
     } else if (CH.id === "felix") {
       S.permiso = 2.6; S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
       clearWay();
@@ -1170,7 +1170,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.dive > 0) S.dive = Math.max(0, S.dive - dt);
     if (S.warp > 0) S.warp = Math.max(0, S.warp - dt);
     if (S.boat > 0) S.boat = Math.max(0, S.boat - dt);
-    if (S.dash > 0) S.dash = Math.max(0, S.dash - dt);
+    if (S.dash > 0) { S.dash = Math.max(0, S.dash - dt); if (S.dash === 0 && S.dashN) { toast("¡RAYITO! +" + fmt(S.dashN * 50), "#FFE14D"); S.dashN = 0; } }
     if (S.slowmo > 0) S.slowmo = Math.max(0, S.slowmo - dt);
     // Modo lluvia: muy de vez en cuando hay que salir de la pileta unos segundos
     if (S.rainT <= 0 && S.pts >= S.nextRainPts && S.gold <= 0 && S.pts - S.goldEndPts > 2500 && !S.obs.some((o) => o.kind === "dorada" && !o.hit) && S.drown <= 0 && S.cramp <= 0 && S.chat <= 0 && S.cheer <= 0) {
@@ -1220,7 +1220,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (CH.cramps) {
       if (S.cramp > 0) { S.cramp = Math.max(0, S.cramp - dt); if (S.cramp === 0) toast("¡YA ESTÁ, SIGO!", "#B9F4FF"); }
       else if (S.t >= S.nextCramp && S.dash <= 0 && S.gold <= 0) {
-        S.cramp = 2.5; S.nextCramp = S.t + rand(55, 85); setFace("hurt", 2.5);
+        S.cramp = 1.5; S.nextCramp = S.t + rand(70, 100); setFace("hurt", 2.5);
         toast("¡CALAMBRE!", "#FF9F6B"); say(pick(["¡AY, LA GEMELA!", "¡CALAMBRE, CALAMBRE!", "¡ESPERÁ QUE ESTIRO!"]), "#FFB4A8");
       }
     }
@@ -1324,7 +1324,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < S.x ? -1 : 1) * 120; if (o.kind === "charla") o.hooked = true;
           const b = 50 * STY[S.style].mult; S.pts += b; toast("¡AL AGUA! +" + b, "#8FE3FF"); S.shake = reduceMotion ? 0 : 0.12; continue;
         }
-        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0 || S.dash > 0 || S.slowmo > 0) continue;
+        if (S.dash > 0 && !o.dsh && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 5) { o.dsh = true; S.dashN = (S.dashN || 0) + 1; S.pts += 50; }
+        if (S.walk > 0 || S.dive > 0 || S.warp > 0 || S.boat > 0 || S.dash > 0 || S.slowmo > 0 || S.cramp > 0) continue;
         if (S.lunge > 0 && EATABLE[o.kind] && Math.abs(o.m - S.dist) < o.hl + 0.5 && Math.abs(S.x - o.x) < o.hw + 5) {
           o.hit = true; o.eaten = 0.6; o.shove = (o.x < LW / 2 ? -1 : 1) * 110; if (o.kind === "charla") o.hooked = true;
           const b = 150 * EATABLE[o.kind] * STY[S.style].mult; S.pts += b; toast("¡PIECITOS! +" + b, "#FFE08A"); continue;
