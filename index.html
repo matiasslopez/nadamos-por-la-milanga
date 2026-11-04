@@ -337,7 +337,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-11-03-escalones";
+  const VERSION = "2026-11-04-balance";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1042,6 +1042,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
   }
   const EATABLE = { lento: 1, senora: 1, charla: 1, gordo: 3, rapido: 3 };
+  const EAT_SP = Object.assign({ tabla: 0.5 }, EATABLE); // especiales de Facu y Andre: también la tabla
   // el rápido viene desde atrás: se lo puede agarrar si ya está cerca, aunque esté detrás
   const inReach = (o, ahead, fwd) => o.kind === "rapido" ? ahead > -9 && ahead < fwd : ahead > -0.5 && ahead < fwd;
   const closer = (o, t) => !t || (o.kind === "rapido" && t.kind !== "rapido") || (t.kind !== "rapido" && o.m < t.m);
@@ -1049,16 +1050,16 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.state !== "play" || S.cd > 0) return;
     countItem("especial");
     if (CH.id === "pablito") {
-      S.walk = 3 * spK(); S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
+      S.walk = spDur(3); S.walkSide = S.lane === 0 ? 1 : S.lane === 2 ? -1 : (Math.random() < 0.5 ? -1 : 1);
       S.cd = CH.cd; toast("CAMINANDO POR EL COSTADO", "#FFE08A");
     } else if (CH.id === "mati") {
-      S.dive = 2.5 * spK(); S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
+      S.dive = spDur(2.5); S.cd = CH.cd; toast("¡ABAJO!", "#8FE3FF");
     } else if (CH.id === "luis") {
-      S.jump = S.jumpMax = 2.6 * spK(); S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
+      S.jump = S.jumpMax = spDur(2.6); S.cd = CH.cd; toast("¡SALTO!", "#FFE08A");
     } else if (CH.id === "andre") {
       let target = null;
       for (const o of S.obs) {
-        if (o.hit || !EATABLE[o.kind]) continue;
+        if (o.hit || !EAT_SP[o.kind]) continue;
         const ahead = o.m - S.dist;
         if (inReach(o, ahead, 12) && Math.abs(o.x - S.x) < 16 && closer(o, target)) target = o;
       }
@@ -1067,15 +1068,15 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.puff = 0.9; S.puffX = target.x; S.puffM = target.m;
       target.hit = true; target.masita = true; target.eaten = 1.1; target.shove = (target.x < LW / 2 ? -1 : 1) * 75;
       if (target.kind === "charla") target.hooked = true;
-      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
+      const b = 150 * EAT_SP[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = instCd(); setFace("happy", 1);
       toast("¡UNA MASITA! +" + b, "#FFD9A0"); say("«¡UNA MASITA! ¡QUÉ RICO!»", "#FFD9A0");
     } else if (CH.id === "fer") {
-      S.slowmo = S.slowmoMax = 4 * spK(); S.cd = CH.cd; toast("BULLET TIME", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
+      S.slowmo = S.slowmoMax = spDur(4); S.cd = CH.cd; toast("BULLET TIME", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
     } else if (CH.id === "luchito") {
-      S.dash = 2.0 * spK(); S.dashN = 0; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
+      S.dash = spDur(2.0); S.dashN = 0; S.cd = CH.cd; S.shake = reduceMotion ? 0 : 0.15; toast("¡ACELERADA!", "#FFE14D"); say(pick(["¡FIUUUM!", "¡ME VOY, ME VOY!", "¡CHAU, NOS VEMOS!"]), "#FFE14D");
     } else if (CH.id === "felix") {
-      S.permiso = 2.6 * spK(); S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
+      S.permiso = spDur(2.6); S.cd = CH.cd; toast("¡PERMISO, PERMISO!", "#B9F4FF"); say(pick(["¡PERMISO, CHICOS!", "¿ME DEJÁS PASAR? ¡GRACIAS!", "¡CON PERMISO!"]), "#B9F4FF");
       clearWay();
     } else if (CH.id === "gaston") {
       S.boat = 2.4; S.cd = CH.cd; toast("¡NAVEGANTE! ¡ABRAN CANCHA!", "#8FE3FF"); say(pick(["¡SOLTANDO AMARRAS!", "¡TIERRA A LA VISTA!", "¡PASO, QUE VA EL BARCO!"]), "#8FE3FF");
@@ -1105,13 +1106,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const reach = PY / PPM + 1;
       let target = null;
       for (const o of S.obs) {
-        if (o.hit || !EATABLE[o.kind]) continue;
+        if (o.hit || !EAT_SP[o.kind]) continue;
         if (inReach(o, o.m - S.dist, reach) && Math.abs(o.x - S.x) < 16 && closer(o, target)) target = o;
       }
       if (!target) { S.cd = 1; toast("NO HAY PIES PARA COMER", "#C9D4FF"); return; }
       target.hit = true; target.eaten = 0.6; target.shove = (target.x < LW / 2 ? -1 : 1) * 110;
       if (target.kind === "charla") target.hooked = true;
-      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
+      const b = 150 * EAT_SP[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = instCd(); setFace("happy", 1);
       toast("¡TE COMO! +" + b, "#FFE08A");
     }
@@ -1134,7 +1135,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   // ---------- Loop ----------
   // velocidad por escalones de puntaje (vs. el inicio), con tope de +170%
   const SPEED_STEPS = [[20000, 0.05], [30000, 0.15], [40000, 0.25], [50000, 0.35], [60000, 0.5], [70000, 0.8], [80000, 1.1], [90000, 1.4], [100000, 1.55], [110000, 1.7]];
-  const speedBoostFor = (p) => { let v = 0; for (const [a, b] of SPEED_STEPS) if (p >= a) v = b; return v; };
+  const speedBoostFor = (p) => { let v = 0; for (const [a, b] of SPEED_STEPS) if (p >= a) v = b; if (p >= 135000) v += 0.05 * Math.floor((Math.min(p, 300000) - 110000) / 25000); if (p >= 325000) v += 0.1 * Math.floor((p - 300000) / 25000); return v; };
   // respiración: 10% más espaciada por escalón (35, 45, 55 y 65 mil)
   const breathK = () => 1 + 0.1 * [35000, 45000, 55000, 65000].filter((a) => S.pts >= a).length;
   const nextBreathIn = () => rand(4.5, 6.5) * CH.breathGap * breathK();
@@ -1150,6 +1151,8 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   const cdFloor = { facu: 2.5, andre: 2 };
   const instCd = () => Math.max(cdFloor[CH.id] || 0, CH.cd / spK());
   // entre 300.000 y 500.000 las milanesas y gorras salen cada vez más espaciadas, hasta la mitad de seguido
+  // duración de un especial con los escalones, sin pasar nunca del 75% de su recarga
+  const spDur = (base) => Math.max(base, Math.min(base * spK(), 0.75 * CH.cd));
   const scarceK = () => 1 + Math.min(1, Math.max(0, (S.pts - 300000) / 200000));
   const milaK = () => dayPenal ? 1 / 0.7 : 1;
   function update(dt) {
