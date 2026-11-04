@@ -122,6 +122,7 @@ input[type=text]:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 
 section.panel{background:rgba(12,20,34,.95);border:3px solid #000;box-shadow:4px 4px 0 #000;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 section.panel h3{font-family:var(--font-pixel);font-weight:400;font-size:.72rem;margin:0;letter-spacing:.04em;color:var(--cap)}
+.rank-plat{display:flex;gap:6px;margin-top:8px}.rank-plat button{flex:1;font:inherit;font-size:.6rem;padding:8px 6px;border:2px solid #000;background:#1B2A44;color:#D7E2EE;cursor:pointer;box-shadow:2px 2px 0 #000}.rank-plat button[aria-pressed="true"]{background:#FFB31A;color:#101a2b}
 .hist-btn{font-size:.6rem;padding:10px 12px;align-self:flex-start}
 #histBox{max-height:340px;overflow-y:auto;border-top:2px solid #000;padding-top:8px}
 .rank.dated li,.rank li.d3{grid-template-columns:2.4ch 1fr auto auto}
@@ -255,6 +256,11 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   <section class="panel" aria-labelledby="rankTitle">
     <h3 id="rankTitle">RANKING DEL GRUPO</h3>
     <ol class="rank" id="rankList"></ol>
+    <div class="rank-plat" role="group" aria-label="Ver el ranking de">
+      <button type="button" data-plat="general" aria-pressed="true">GENERAL</button>
+      <button type="button" data-plat="celu" aria-pressed="false">CELU</button>
+      <button type="button" data-plat="compu" aria-pressed="false">COMPU</button>
+    </div>
     <p class="note" id="rankNote">Cargando el ranking…</p>
     <p class="note" id="myBest"></p>
   </section>
@@ -337,7 +343,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
 <script>
 // Si el navegador guardó una versión vieja, al detectar una nueva recarga con ?v= para traerla.
 (() => {
-  const VERSION = "2026-11-04-balance";
+  const VERSION = "2026-11-04-plat";
   try {
     fetch("version.json?t=" + Date.now(), { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       if (!j || !j.v || j.v === VERSION) return;
@@ -1042,7 +1048,6 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     }
   }
   const EATABLE = { lento: 1, senora: 1, charla: 1, gordo: 3, rapido: 3 };
-  const EAT_SP = Object.assign({ tabla: 0.5 }, EATABLE); // especiales de Facu y Andre: también la tabla
   // el rápido viene desde atrás: se lo puede agarrar si ya está cerca, aunque esté detrás
   const inReach = (o, ahead, fwd) => o.kind === "rapido" ? ahead > -9 && ahead < fwd : ahead > -0.5 && ahead < fwd;
   const closer = (o, t) => !t || (o.kind === "rapido" && t.kind !== "rapido") || (t.kind !== "rapido" && o.m < t.m);
@@ -1059,7 +1064,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     } else if (CH.id === "andre") {
       let target = null;
       for (const o of S.obs) {
-        if (o.hit || !EAT_SP[o.kind]) continue;
+        if (o.hit || !EATABLE[o.kind]) continue;
         const ahead = o.m - S.dist;
         if (inReach(o, ahead, 12) && Math.abs(o.x - S.x) < 16 && closer(o, target)) target = o;
       }
@@ -1068,9 +1073,9 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       S.puff = 0.9; S.puffX = target.x; S.puffM = target.m;
       target.hit = true; target.masita = true; target.eaten = 1.1; target.shove = (target.x < LW / 2 ? -1 : 1) * 75;
       if (target.kind === "charla") target.hooked = true;
-      const b = 150 * EAT_SP[target.kind] * STY[S.style].mult;
+      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = instCd(); setFace("happy", 1);
-      toast("¡UNA MASITA! +" + b, "#FFD9A0"); say("«¡UNA MASITA! ¡QUÉ RICO!»", "#FFD9A0");
+      S.air = Math.min(3, S.air + 1); toast("¡UNA MASITA! +" + b + " Y +1 AIRE", "#FFD9A0"); say("«¡UNA MASITA! ¡QUÉ RICO!»", "#FFD9A0");
     } else if (CH.id === "fer") {
       S.slowmo = S.slowmoMax = spDur(4); S.cd = CH.cd; toast("BULLET TIME", "#B9F4FF"); say(pick(["TRANQUI, QUE YA LA VI", "DESPACITO Y SIN APURO", "ESTA PILETA ME LA SÉ DE MEMORIA"]), "#B9F4FF");
     } else if (CH.id === "luchito") {
@@ -1106,13 +1111,13 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
       const reach = PY / PPM + 1;
       let target = null;
       for (const o of S.obs) {
-        if (o.hit || !EAT_SP[o.kind]) continue;
+        if (o.hit || !EATABLE[o.kind]) continue;
         if (inReach(o, o.m - S.dist, reach) && Math.abs(o.x - S.x) < 16 && closer(o, target)) target = o;
       }
       if (!target) { S.cd = 1; toast("NO HAY PIES PARA COMER", "#C9D4FF"); return; }
       target.hit = true; target.eaten = 0.6; target.shove = (target.x < LW / 2 ? -1 : 1) * 110;
       if (target.kind === "charla") target.hooked = true;
-      const b = 150 * EAT_SP[target.kind] * STY[S.style].mult;
+      const b = 150 * EATABLE[target.kind] * STY[S.style].mult;
       S.pts += b; S.cd = instCd(); setFace("happy", 1);
       toast("¡TE COMO! +" + b, "#FFE08A");
     }
@@ -1175,7 +1180,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (S.lunge > 0) S.lunge = Math.max(0, S.lunge - dt);
     if (CH.lunges && S.lunge <= 0 && S.lungeCd <= 0) {
       const prey = S.obs.find((o) => !o.hit && (o.kind === "lento" || o.kind === "senora" || o.kind === "charla" || o.kind === "gordo") && o.m - S.dist > 0.5 && o.m - S.dist < 12 && Math.abs(o.x - S.x) < 16);
-      if (prey) { S.lunge = 1.8; S.lungeCd = 20; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
+      if (prey) { S.lunge = 1.8; S.lungeCd = 12; setFace("gulp", 1.8); toast("¡ÑAM!", "#FFE08A"); say("¡GUARDA QUE TE COMO!", "#FFE08A"); S.shake = reduceMotion ? 0 : 0.15; }
     }
     const speed = st.v * prog * slow * chSpeed() * (S.slowmo > 0 ? 0.5 : 1) * (S.drown > 0 || S.cramp > 0 ? 0.04 : 1) * (S.rainT > 0 && S.rainT <= 4.5 ? 0 : S.rainT > 0 ? 0.6 : 1) * (S.dash > 0 ? 2.6 : 1) * (chatting ? 0.03 : 1) * (S.fins > 0 ? 1.35 : 1) * (S.chute > 0 ? 0.6 : 1) * (S.pads > 0 ? 1.25 : 1) * (S.walk > 0 ? 0.97 : 1) * (CH.lazy ? (S.back ? 0.7 : 1.05) : 1) * (S.restart > 0 ? 0.45 + 0.55 * (1 - S.restart / 2.5) : 1) * (S.lunge > 0 ? 1.8 : 1);
     if (S.fins > 0) { S.fins -= dt; if (S.fins <= 0) S.fins = 0; }
@@ -2215,9 +2220,35 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
   let dayPenal = false;
   let db = null, uid = null, canWrite = null, rankDocs = [], dayDocs = [];
   const rankList = $("rankList"), rankNote = $("rankNote");
+  // ranking por plataforma: la plataforma sale del registro de visitas de cada dispositivo (sin dato: celu)
+  let rankPlat = "general", platDocs = [], platLoading = false, platStamp = 0;
+  try { const v = localStorage.getItem("pileta.rankPlat"); if (v === "celu" || v === "compu") rankPlat = v; } catch {}
+  const platCache = {};
+  const platOf = (dev) => platCache[dev] || "celu";
+  async function loadPlat() {
+    if (!db || !fs || platLoading) return;
+    platLoading = true;
+    try {
+      const snap = await fs.getDocs(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(150)));
+      const devs = [...new Set(snap.docs.map((d) => (d.data() || {}).device).filter((x) => x && !(x in platCache)))];
+      await Promise.all(devs.map(async (dv) => { try { const v = await fs.getDoc(fs.doc(db, "visits", dv)); platCache[dv] = (v.exists() && (v.data() || {}).plat) || "celu"; } catch { platCache[dv] = "celu"; } }));
+      platDocs = snap.docs; platStamp = Date.now();
+    } catch {}
+    platLoading = false; renderRank();
+  }
+  document.querySelectorAll(".rank-plat button").forEach((b) => {
+    b.setAttribute("aria-pressed", b.dataset.plat === rankPlat ? "true" : "false");
+    b.addEventListener("click", () => {
+      rankPlat = b.dataset.plat; try { localStorage.setItem("pileta.rankPlat", rankPlat); } catch {}
+      document.querySelectorAll(".rank-plat button").forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      if (rankPlat !== "general" && (!platDocs.length || Date.now() - platStamp > 60000)) { rankNote.textContent = "Cargando…"; loadPlat(); }
+      renderRank();
+    });
+  });
   function renderRank() {
     rankList.innerHTML = "";
-    rankDocs.forEach((d, i) => {
+    const shown = rankPlat === "general" ? rankDocs : platDocs.filter((d) => platOf((d.data() || {}).device) === rankPlat).slice(0, 20);
+    shown.forEach((d, i) => {
       const data = d.data() || {};
       const li = document.createElement("li");
       const mine = !!(uid && data.device === uid);
@@ -2236,6 +2267,7 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     if (!db) rankNote.textContent = "El ranking no está disponible ahora. Igual podés mandar tu marca al grupo con el botón del final.";
     else if (rankDocs.length === 0) rankNote.textContent = "Todavía no hay marcas. La primera partida que termines entra acá.";
     else if (canWrite === false) rankNote.textContent = "Con este acceso podés ver el ranking pero no sumar tu marca. Mandala al grupo con el botón del final.";
+    else if (rankPlat !== "general") rankNote.textContent = platLoading && !platDocs.length ? "Cargando…" : shown.length ? "Las 20 mejores partidas jugadas desde " + (rankPlat === "celu" ? "el celu" : "la compu") + "." : "Todavía no hay partidas desde " + (rankPlat === "celu" ? "el celu." : "la compu.");
     else rankNote.textContent = "Las 20 mejores partidas del grupo, aunque sean de la misma persona. Se actualiza solo.";
   }
   function renderDay() {
@@ -2299,14 +2331,14 @@ textarea:focus-visible{outline:3px solid var(--cap);outline-offset:1px}
     try {
       // una sola escritura, sin leer antes (ahorra lecturas del plan gratis)
       const v = { count: fs.increment(1), last: now, shares: parseInt(store.get("pileta.shares") || "0", 10) || 0 };
-      const ti = trafficInfo(); v.plat = ti.plat; v.os = ti.os; v.br = ti.br; v.scr = ti.scr; v.lang = ti.lang; v.tz = ti.tz;
+      const ti = trafficInfo(); v.plat = ti.plat; platCache[uid] = ti.plat; v.os = ti.os; v.br = ti.br; v.scr = ti.scr; v.lang = ti.lang; v.tz = ti.tz;
       if (isNew) { v.first = now; v.src = ti.src; if (ti.ref) v.ref = ti.ref; }
       await fs.setDoc(fs.doc(db, "visits", uid), v, { merge: true });
     } catch {}
     try { initAdmin(fbApp); } catch {}
     try {
       fs.onSnapshot(fs.query(fs.collection(db, "runs"), fs.orderBy("pts", "desc"), fs.limit(20)),
-        (snap) => { rankDocs = snap.docs; renderRank(); },
+        (snap) => { rankDocs = snap.docs; if (rankPlat !== "general") loadPlat(); renderRank(); },
         () => { rankNote.textContent = "No se pudo cargar el ranking ahora. Tu partida sigue funcionando."; });
       // partidas de hoy: top 3 del día y (sin aviso) el freno suave para quien ya entró 2 veces al top 10 del día
       const d0 = new Date(); d0.setHours(0, 0, 0, 0);
